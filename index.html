@@ -152,6 +152,90 @@ html,body{height:100%;background:var(--black);color:var(--text);font-family:var(
 .user-pass{font-family:monospace;font-size:12px;color:var(--text2);background:var(--dark2);padding:3px 8px;border-radius:var(--r);border:1px solid var(--border);}
 .btn-del{padding:4px 10px;background:transparent;border:1px solid rgba(225,6,0,.3);border-radius:var(--r);color:#ff6b6b;font-size:12px;cursor:pointer;}
 .btn-del:hover{background:rgba(225,6,0,.1);}
+
+/* RESPONSIVE MOBILE */
+@media (max-width: 768px) {
+  .tab-page{padding:1rem .75rem;}
+  .topbar{padding:0 .75rem;height:50px;gap:.5rem;}
+  .topbar-logo{font-size:16px;margin-right:.25rem;}
+  .topbar-btn{padding:5px 10px;font-size:13px;}
+  .user-chip{padding:4px 8px 4px 4px;font-size:12px;}
+  .user-avatar{width:24px;height:24px;font-size:12px;}
+  #sync-status{font-size:10px;}
+
+  /* Standings: stack instead of side by side */
+  .standings-dual-grid { display:block !important; }
+  .standings-dual-grid > div { margin-bottom:1rem; }
+
+  /* Standings table: compact */
+  .standings-head, .standings-row {
+    grid-template-columns:36px 1fr 60px 70px !important;
+  }
+  .standings-head > div:nth-child(3),
+  .standings-row > div:nth-child(3) { display:none; }
+  .pts-total{font-size:17px;}
+  .player-name-cell{font-size:13px;}
+
+  /* Circuit info: stack on mobile */
+  #prono-detail [style*="grid-template-columns:1fr 1fr 260px"],
+  #prono-detail [style*="grid-template-columns:1fr 1fr;"] {
+    display:block !important;
+  }
+
+  /* Circuit background image smaller on mobile */
+  .detail-card [style*="background-size:340px"] {
+    background-size:200px auto !important;
+  }
+
+  /* Admin: stack two-column grids */
+  .tab-page#tab-admin [style*="grid-template-columns:320px 1fr"] {
+    display:block !important;
+  }
+  .tab-page#tab-admin [style*="grid-template-columns:320px 1fr"] > div {
+    margin-bottom:1rem;
+  }
+
+  /* Edit prono: stack race/qualy */
+  #edit-prono-wrap > div[style*="grid-template-columns:1fr 1fr"] {
+    display:block !important;
+  }
+  #edit-prono-wrap > div > div { margin-bottom:1.5rem; }
+
+  /* Auth box */
+  .auth-box{width:calc(100vw - 2rem);padding:1.75rem 1.25rem;}
+
+  /* Page header */
+  .page-header h1{font-size:22px;}
+  #tab-pronostico .page-header{flex-direction:column;align-items:flex-start;gap:8px;}
+  #prono-user-selector{width:100%;}
+
+  /* Prono result/forecast tables: smaller font */
+  .rt-driver-img{width:24px;height:24px;}
+  .rt-driver-ph{width:24px;height:24px;}
+
+  /* Draft pilot cards: 1 per row on small screens */
+  #prono-detail [style*="minmax(200px,1fr)"] {
+    grid-template-columns:1fr !important;
+  }
+
+  /* GP color info grid */
+  #prono-detail [style*="minmax(160px,1fr)"] {
+    grid-template-columns:1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar-logo{display:none;}
+  .topbar-btn{padding:4px 8px;font-size:12px;}
+  .standings-head, .standings-row {
+    grid-template-columns:30px 1fr 65px !important;
+  }
+  .standings-head > div:nth-child(3),
+  .standings-row > div:nth-child(3),
+  .standings-head > div:nth-child(4),
+  .standings-row > div:nth-child(4) { display:none; }
+  .pts-total{font-size:16px;}
+}
 </style>
 </head>
 <body>
@@ -203,7 +287,7 @@ html,body{height:100%;background:var(--black);color:var(--text);font-family:var(
     <div class="tab-page active" id="tab-standings">
       <div class="page-header"><h1>Clasificación <span>General</span></h1></div>
       <div class="gp-pills" id="standings-pills"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem" class="standings-dual-grid">
         <div>
           <div style="font-family:var(--fd);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:8px">🏁 Pronóstico</div>
           <div class="standings-wrap" id="standings-table"></div>
@@ -213,7 +297,7 @@ html,body{height:100%;background:var(--black);color:var(--text);font-family:var(
           <div class="standings-wrap" id="draft-standings-table"></div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem" class="standings-dual-grid">
         <div class="chart-card">
           <h3>Evolución pronóstico</h3>
           <canvas id="evo-chart" height="240"></canvas>
@@ -1280,10 +1364,7 @@ function buildDraftPronoSection(gpId, viewUser, d) {
   h += `</div>`;
 
   if (canEdit) {
-    h += `<div style="margin-bottom:1rem">
-      <button onclick="saveDraftSelection('${viewUser}','${gpId}')" style="padding:6px 18px;background:var(--red);border:none;border-radius:var(--r);color:white;font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer">Guardar Draft</button>
-      <span id="draft-save-msg-${gpId}" style="font-size:11px;color:#00C853;margin-left:10px;display:none">✓ Guardado</span>
-    </div>`;
+    h += `<div style="margin-bottom:1rem;font-size:11px;color:var(--text3)">✓ Los cambios se guardan automáticamente al seleccionar</div>`;
   }
 
   // Pilot cards
@@ -2337,7 +2418,7 @@ function toggleDraftActive(uid, gpId, driver) {
     active.push(driver);
   }
   S.draft.active[uid][gpId] = active;
-  // Re-render without saving (save is explicit)
+  saveState();
   const scrollY = window.scrollY;
   renderPronoDetail(gpId);
   window.scrollTo(0, scrollY);
