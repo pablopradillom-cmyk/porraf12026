@@ -1,0 +1,2439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Porra F1 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --red:#E10600; --red-light:#ff2a26;
+  --black:#0a0a0a; --dark:#111; --dark2:#1a1a1a; --dark3:#222; --dark4:#2a2a2a;
+  --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.15);
+  --text:#f0f0f0; --text2:#999; --text3:#666;
+  --gold:#FFD700; --silver:#C0C0C0; --bronze:#CD7F32; --green:#00C853;
+  --fd:'Barlow Condensed',sans-serif; --fb:'Barlow',sans-serif;
+  --r:6px; --rl:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--black);color:var(--text);font-family:var(--fb);font-size:15px;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--dark);}::-webkit-scrollbar-thumb{background:var(--dark4);border-radius:3px;}
+
+/* AUTH */
+#auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--black);position:relative;overflow:hidden;}
+#auth-page::before{content:'F1';position:absolute;font-family:var(--fd);font-size:40vw;font-weight:800;color:rgba(255,255,255,0.02);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+.auth-box{background:var(--dark);border:1px solid var(--border2);border-radius:var(--rl);padding:2.5rem;width:360px;position:relative;z-index:1;}
+.auth-logo{font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:.5rem;}
+.auth-title{font-family:var(--fd);font-size:32px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:2rem;line-height:1;}
+.auth-title span{color:var(--red);}
+.field{margin-bottom:1.2rem;}
+.field label{display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:6px;}
+.field input{width:100%;padding:10px 14px;background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--fb);font-size:14px;transition:border-color .2s;}
+.field input:focus{outline:none;border-color:var(--red);}
+.btn-red{width:100%;padding:12px;background:var(--red);border:none;border-radius:var(--r);color:white;font-family:var(--fd);font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .2s;}
+.btn-red:hover{background:var(--red-light);}
+.auth-switch{margin-top:1.2rem;text-align:center;font-size:13px;color:var(--text2);}
+.auth-switch a{color:var(--red);cursor:pointer;}
+.msg-box{padding:10px 14px;border-radius:var(--r);font-size:13px;margin-bottom:1rem;}
+.msg-ok{background:rgba(0,200,83,.1);border:1px solid rgba(0,200,83,.3);color:var(--green);}
+.msg-err{background:rgba(225,6,0,.1);border:1px solid rgba(225,6,0,.3);color:#ff6b6b;}
+
+/* APP */
+#app-page{display:none;min-height:100vh;flex-direction:column;}
+#app-page.visible{display:flex;}
+.topbar{display:flex;align-items:center;padding:0 1.5rem;height:56px;background:var(--dark);border-bottom:1px solid var(--border);gap:1rem;flex-shrink:0;position:sticky;top:0;z-index:100;}
+.topbar-logo{font-family:var(--fd);font-size:20px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-right:1rem;}
+.topbar-logo span{color:var(--red);}
+.topbar-nav{display:flex;gap:2px;flex:1;}
+.topbar-btn{padding:6px 16px;border:none;border-radius:var(--r);background:transparent;color:var(--text2);font-family:var(--fd);font-size:15px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .15s;}
+.topbar-btn:hover{color:var(--text);background:var(--dark3);}
+.topbar-btn.active{color:var(--text);background:var(--dark3);}
+.topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
+.user-chip{display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;background:var(--dark3);border-radius:30px;font-size:13px;}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:14px;font-weight:700;color:white;}
+.btn-ghost{padding:6px 12px;background:transparent;border:1px solid var(--border2);border-radius:var(--r);color:var(--text2);font-size:13px;cursor:pointer;transition:all .15s;}
+.btn-ghost:hover{color:var(--text);background:var(--dark3);}
+.main{flex:1;overflow-y:auto;}
+.tab-page{display:none;padding:2rem 1.5rem;max-width:1200px;margin:0 auto;}
+.tab-page.active{display:block;}
+.page-header{margin-bottom:1.5rem;}
+.page-header h1{font-family:var(--fd);font-size:28px;font-weight:800;text-transform:uppercase;letter-spacing:1px;}
+.page-header h1 span{color:var(--red);}
+
+/* PILLS */
+.gp-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.5rem;}
+.gp-pill{padding:5px 14px;border:1px solid var(--border);border-radius:30px;font-size:12px;font-family:var(--fd);font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;color:var(--text2);background:transparent;transition:all .15s;}
+.gp-pill:hover{border-color:var(--border2);color:var(--text);}
+.gp-pill.active{background:var(--red);border-color:var(--red);color:white;}
+
+/* STANDINGS */
+.standings-wrap{background:var(--dark);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:1.5rem;}
+.standings-head{display:grid;grid-template-columns:52px 1fr 90px 90px 100px;padding:10px 16px;background:var(--dark2);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);font-weight:600;}
+.standings-row{display:grid;grid-template-columns:52px 1fr 90px 90px 100px;padding:14px 16px;border-top:1px solid var(--border);align-items:center;transition:background .15s;}
+.standings-row:hover{background:var(--dark2);}
+.pos-num{font-family:var(--fd);font-size:20px;font-weight:800;}
+.pos-1{color:var(--gold);}.pos-2{color:var(--silver);}.pos-3{color:var(--bronze);}.pos-other{color:var(--text3);}
+.player-name-cell{font-weight:600;font-size:15px;}
+.pts-cell{text-align:right;font-size:14px;color:var(--text2);}
+.pts-total{text-align:right;font-family:var(--fd);font-size:22px;font-weight:700;}
+.no-data{text-align:center;padding:3rem;color:var(--text3);font-size:14px;}
+.chart-card{background:var(--dark);border:1px solid var(--border);border-radius:var(--rl);padding:1.5rem;margin-bottom:1.5rem;}
+.chart-card h3{font-family:var(--fd);font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:1.25rem;}
+
+/* GP CARDS */
+.gp-grid{display:block;margin-bottom:.75rem;}
+.gp-card{background:var(--dark);border:1px solid var(--border);border-radius:var(--rl);padding:1.1rem;cursor:pointer;transition:all .15s;}
+.gp-card:hover{border-color:var(--border2);transform:translateY(-1px);}
+.gp-card.selected{border-color:var(--red);}
+.gp-flag{font-size:28px;margin-bottom:8px;}
+.gp-name{font-family:var(--fd);font-size:16px;font-weight:700;text-transform:uppercase;}
+.gp-date{font-size:12px;color:var(--text2);margin-top:2px;}
+.gp-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px;}
+.tag{font-size:10px;font-family:var(--fd);font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:3px;}
+.tag-open{background:rgba(0,200,83,.15);color:#00C853;border:1px solid rgba(0,200,83,.3);}
+.tag-closed{background:rgba(225,6,0,.12);color:#ff6b6b;border:1px solid rgba(225,6,0,.25);}
+.tag-sprint{background:rgba(255,215,0,.1);color:#FFD700;border:1px solid rgba(255,215,0,.3);}
+
+/* DETAIL CARD */
+.detail-card{background:var(--dark);border:1px solid var(--border);border-radius:var(--rl);padding:1.25rem;margin-bottom:1rem;}
+.detail-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.detail-title{font-family:var(--fd);font-size:18px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;}
+
+/* DRIVER/TEAM IMG */
+.rt-driver{display:flex;align-items:center;gap:8px;}
+.rt-driver-img{width:30px;height:30px;border-radius:50%;object-fit:cover;background:var(--dark3);flex-shrink:0;}
+.rt-driver-ph{width:30px;height:30px;border-radius:50%;background:var(--dark3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:12px;font-weight:700;color:var(--text3);flex-shrink:0;}
+.rt-team{display:flex;align-items:center;gap:6px;}
+.rt-team-img{height:18px;width:auto;max-width:52px;object-fit:contain;flex-shrink:0;}
+.rt-team-ph{width:18px;height:18px;background:var(--dark3);border-radius:3px;flex-shrink:0;}
+.rt-pos{font-family:var(--fd);font-weight:800;}
+.p1{color:var(--gold);}.p2{color:var(--silver);}.p3{color:var(--bronze);}.pX{color:var(--text3);}
+.q-elim{font-size:9px;color:var(--text3);background:var(--dark3);padding:1px 5px;border-radius:3px;margin-left:3px;vertical-align:middle;}
+
+/* SAVE BAR */
+.save-bar{margin-top:1rem;display:flex;justify-content:flex-end;}
+.btn-save{padding:8px 20px;background:var(--red);border:none;border-radius:var(--r);color:white;font-family:var(--fd);font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:background .15s;}
+.btn-save:hover{background:var(--red-light);}
+
+/* ADMIN */
+.admin-card{background:var(--dark);border:1px solid var(--border);border-radius:var(--rl);padding:1.25rem;}
+.admin-card h3{font-family:var(--fd);font-size:16px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem;color:var(--text2);}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;gap:8px;}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-label{flex:1;color:var(--text2);}
+.toggle-wrap{position:relative;width:40px;height:22px;flex-shrink:0;}
+.toggle-wrap input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:var(--dark4);border-radius:11px;cursor:pointer;transition:background .2s;border:1px solid var(--border);}
+.toggle-wrap input:checked+.toggle-track{background:var(--red);border-color:var(--red);}
+.toggle-track::before{content:'';position:absolute;width:16px;height:16px;left:2px;top:2px;background:white;border-radius:50%;transition:transform .2s;}
+.toggle-wrap input:checked+.toggle-track::before{transform:translateX(18px);}
+.admin-sess-tabs{display:flex;gap:4px;margin-bottom:1rem;}
+.admin-tab-btn{padding:5px 14px;border:1px solid var(--border);border-radius:30px;font-size:12px;font-family:var(--fd);font-weight:600;text-transform:uppercase;cursor:pointer;color:var(--text2);background:transparent;transition:all .15s;}
+.admin-tab-btn.active{background:var(--red);border-color:var(--red);color:white;}
+.entry-sel{width:100%;padding:5px 7px;background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--fb);font-size:11px;}
+.entry-time{padding:5px 7px;background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:monospace;font-size:11px;}
+.entry-time::placeholder{color:var(--text3);}
+.paste-big{width:100%;height:90px;padding:8px 10px;background:var(--dark2);border:1px dashed var(--border2);border-radius:var(--r);color:var(--text);font-family:monospace;font-size:12px;resize:none;margin-bottom:6px;}
+.paste-big:focus{outline:none;border-color:var(--red);border-style:solid;}
+.paste-big::placeholder{color:var(--text3);}
+.btn-apply{padding:5px 12px;background:var(--dark3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-size:12px;cursor:pointer;margin-bottom:10px;}
+.btn-apply:hover{background:var(--dark4);}
+.section-divider{height:1px;background:var(--border);margin:1.5rem 0;}
+.admin-section-title{font-family:var(--fd);font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:1rem;}
+.prono-table{width:100%;border-collapse:collapse;font-size:12px;}
+.prono-table th{padding:7px 10px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);background:var(--dark2);font-weight:600;white-space:nowrap;}
+.prono-table td{padding:6px 10px;border-top:1px solid var(--border);color:var(--text2);white-space:nowrap;}
+.prono-table .official{color:var(--red);}
+/* user list */
+.user-row{display:grid;grid-template-columns:1fr 110px 110px auto;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.user-row:last-child{border-bottom:none;}
+.user-head{display:grid;grid-template-columns:1fr 110px 110px auto;gap:8px;padding:6px 0 8px;border-bottom:1px solid var(--border2);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);}
+.user-pass{font-family:monospace;font-size:12px;color:var(--text2);background:var(--dark2);padding:3px 8px;border-radius:var(--r);border:1px solid var(--border);}
+.btn-del{padding:4px 10px;background:transparent;border:1px solid rgba(225,6,0,.3);border-radius:var(--r);color:#ff6b6b;font-size:12px;cursor:pointer;}
+.btn-del:hover{background:rgba(225,6,0,.1);}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-page">
+  <div class="auth-box">
+    <div class="auth-logo">Porra · Temporada 2026</div>
+    <div class="auth-title" id="auth-title">Iniciar <span>sesión</span></div>
+    <div id="auth-msg"></div>
+    <div class="field" id="field-name" style="display:none">
+      <label>Nombre completo</label>
+      <input type="text" id="inp-name" placeholder="Ej: Carlos García">
+    </div>
+    <div class="field">
+      <label>Usuario</label>
+      <input type="text" id="inp-user" placeholder="Ej: pablo" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth()">
+    </div>
+    <button class="btn-red" onclick="doAuth()">Entrar</button>
+    <div class="auth-switch"><span id="auth-switch-txt">¿No tienes cuenta? </span><a onclick="toggleMode()">Regístrate</a></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-page">
+  <div class="topbar">
+    <div class="topbar-logo">F1 <span>·</span> Porra 2026</div>
+    <div class="topbar-nav">
+      <button class="topbar-btn active" id="nav-standings" onclick="switchTab('standings')">Clasificación</button>
+      <button class="topbar-btn" id="nav-pronostico" onclick="switchTab('pronostico')">Mi pronóstico</button>
+      <button class="topbar-btn" id="nav-admin" onclick="switchTab('admin')" style="display:none">Admin</button>
+      <span id="sync-status" style="font-size:11px;font-family:var(--fd);font-weight:700;letter-spacing:.5px;margin-left:auto;color:var(--text3)">● Conectando...</span>
+    </div>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <div class="user-avatar" id="topbar-avatar">?</div>
+        <span id="topbar-name"></span>
+      </div>
+      <button class="btn-ghost" onclick="logout()">Salir</button>
+    </div>
+  </div>
+  <div class="main">
+
+    <!-- STANDINGS -->
+    <div class="tab-page active" id="tab-standings">
+      <div class="page-header"><h1>Clasificación <span>General</span></h1></div>
+      <div class="gp-pills" id="standings-pills"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+        <div>
+          <div style="font-family:var(--fd);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:8px">🏁 Pronóstico</div>
+          <div class="standings-wrap" id="standings-table"></div>
+        </div>
+        <div>
+          <div style="font-family:var(--fd);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:8px">🏎️ Draft</div>
+          <div class="standings-wrap" id="draft-standings-table"></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="chart-card">
+          <h3>Evolución pronóstico</h3>
+          <canvas id="evo-chart" height="240"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3>Evolución draft</h3>
+          <canvas id="draft-evo-chart" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRONOSTICO -->
+    <div class="tab-page" id="tab-pronostico">
+      <div class="page-header" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+        <h1>Mi <span>Pronóstico</span></h1>
+        <div id="prono-user-selector" style="display:none;align-items:center;gap:8px">
+          <label style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)">Jugador</label>
+          <select id="prono-view-user" onchange="renderPronosticoTab()" style="padding:6px 10px;background:var(--dark2);border:1px solid var(--border2);border-radius:var(--r);color:var(--text);font-family:var(--fb);font-size:13px"></select>
+        </div>
+      </div>
+      <div class="gp-grid" id="prono-gp-grid"></div>
+      <div id="prono-detail"></div>
+    </div>
+
+    <div class="tab-page" id="tab-admin">
+      <div class="page-header"><h1>Panel <span>Admin</span></h1></div>
+      <div style="display:grid;grid-template-columns:320px 1fr;gap:1rem;margin-bottom:1rem;">
+        <div class="admin-card">
+          <h3>🔒 Bloqueo sesiones</h3>
+          <div id="admin-toggles"></div>
+        </div>
+        <div class="admin-card">
+          <h3>📋 Introducir resultados</h3>
+          <div class="gp-pills" id="admin-gp-pills" style="margin-bottom:1rem"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+            <div>
+              <div style="font-family:var(--fd);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:8px;">🏁 Clasificación</div>
+              <textarea class="paste-big" id="admin-paste-qualy" placeholder="Pega qualy: Piloto · Escudería · Q1 · Q2 · Q3"></textarea>
+              <button class="btn-apply" onclick="applyAdminPaste('qualy')">Aplicar →</button>
+              <div id="admin-entry-qualy"></div>
+            </div>
+            <div>
+              <div style="font-family:var(--fd);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:8px;">🏆 Carrera</div>
+              <textarea class="paste-big" id="admin-paste-race" placeholder="Pega carrera: Piloto · Escudería · Vueltas · Tiempo"></textarea>
+              <button class="btn-apply" onclick="applyAdminPaste('race')">Aplicar →</button>
+              <div id="admin-entry-race"></div>
+            </div>
+          </div>
+          <div class="save-bar"><button class="btn-save" onclick="saveAdminResults()">Guardar resultados</button></div>
+          <div id="admin-res-msg" style="margin-top:8px"></div>
+        </div>
+      </div>
+      <div class="section-divider"></div>
+      <div style="display:grid;grid-template-columns:340px 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div class="admin-card">
+          <h3>➕ Crear jugador</h3>
+          <div class="field" style="margin-bottom:.9rem"><label>Nombre completo</label><input type="text" id="new-name" placeholder="Ej: Carlos García"></div>
+          <div class="field" style="margin-bottom:.9rem"><label>Usuario</label><input type="text" id="new-user" placeholder="Ej: carlos26"></div>
+          <div class="field" style="margin-bottom:.9rem">
+            <label>Contraseña</label>
+            <div style="display:flex;gap:6px">
+              <input type="text" id="new-pass" placeholder="Ej: f1fan2026" style="flex:1">
+              <button onclick="genPass()" style="padding:0 12px;background:var(--dark3);border:1px solid var(--border2);border-radius:var(--r);color:var(--text2);font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0">🎲 Auto</button>
+            </div>
+          </div>
+          <div id="new-user-msg"></div>
+          <button class="btn-save" style="width:100%;margin-top:.5rem" onclick="createUser()">Crear jugador</button>
+        </div>
+        <div class="admin-card">
+          <h3>📋 Jugadores registrados</h3>
+          <div id="user-list"></div>
+        </div>
+      </div>
+      <div class="section-divider"></div>
+      <div class="admin-section-title">✏️ Editar pronóstico de jugador</div>
+      <div class="admin-card" style="margin-bottom:1rem">
+        <div style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:1rem">
+          <div class="field" style="margin:0;min-width:160px">
+            <label>Jugador</label>
+            <select id="edit-prono-user" onchange="renderEditProno()" style="width:100%;padding:8px 10px;background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--fb);font-size:13px"></select>
+          </div>
+          <div class="field" style="margin:0;min-width:160px">
+            <label>Gran Premio</label>
+            <select id="edit-prono-gp" onchange="renderEditProno()" style="width:100%;padding:8px 10px;background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--fb);font-size:13px"></select>
+          </div>
+        </div>
+        <div id="edit-prono-wrap"></div>
+      </div>
+      <div class="section-divider"></div>
+      <div class="admin-section-title">🏎️ Draft — Pilotos por jugador</div>
+      <div class="admin-card" style="margin-bottom:1rem">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:1rem">Asigna los pilotos del draft a cada jugador. Pulsa <strong>+</strong> para añadir más columnas.</div>
+        <div id="draft-config-wrap"></div>
+        <div style="margin-top:1rem;text-align:right">
+          <button class="btn-save" onclick="saveDraftConfig()">Guardar draft</button>
+          <div id="draft-config-msg" style="margin-top:6px;font-size:12px"></div>
+        </div>
+      </div>
+      <div class="section-divider"></div>
+      <div class="admin-section-title">🗑️ Descartar GPs (peores resultados)</div>
+      <div class="admin-card" style="margin-bottom:1rem">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:1rem">Marca los GPs descartados para cada jugador. Los GPs descartados no computan en la clasificación general. Marca la celda para descartarla.</div>
+        <div id="admin-discard-wrap" style="overflow-x:auto"></div>
+      </div>
+      <div class="section-divider"></div>
+      <div class="admin-section-title">🎨 Colores por equipo y GP</div>
+      <div class="admin-card" style="margin-bottom:1rem">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem">
+          <label class="toggle-wrap" style="width:40px;height:22px"><input type="checkbox" id="colors-enabled" onchange="toggleColors(this.checked)"><span class="toggle-track"></span></label>
+          <span style="font-size:13px;color:var(--text2)">Activar colores</span>
+        </div>
+        <div id="colors-wrap" style="display:none">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Equipos — color letra y fondo de fila</div>
+          <div id="team-colors-grid" style="margin-bottom:1.25rem"></div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:8px">GPs — borde y fondo de tarjeta</div>
+          <div id="gp-colors-grid" style="margin-bottom:1rem"></div>
+          <div style="text-align:right">
+            <button class="btn-save" onclick="saveColors()">Guardar colores</button>
+            <div id="colors-msg" style="margin-top:6px;font-size:12px"></div>
+          </div>
+        </div>
+      </div>
+      <div class="section-divider"></div>
+      <div class="admin-section-title">📊 Puntuación Draft por piloto</div>
+      <div class="admin-card" style="margin-bottom:1rem">
+        <div style="font-size:12px;color:var(--text3);margin-bottom:1rem">Puntuación acumulada de todos los pilotos según el sistema de puntos del draft.</div>
+        <div id="admin-draft-pilot-stats"></div>
+      </div>
+      <div class="section-divider"></div>
+      <div class="admin-section-title">Pronósticos de todos los jugadores</div>
+      <div id="admin-all-prono"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ── DATA ─────────────────────────────────────────────────
+const DD = {
+  'Lando Norris':          {img:'lando_norris',          team:'McLaren',       ti:'mclaren'},
+  'Oscar Piastri':         {img:'oscar_piastri',          team:'McLaren',       ti:'mclaren'},
+  'Andrea Kimi Antonelli': {img:'andrea_kimi_antonelli',  team:'Mercedes',      ti:'mercedes'},
+  'George Russell':        {img:'george_russell',         team:'Mercedes',      ti:'mercedes'},
+  'Max Verstappen':        {img:'max_verstappen',         team:'Red Bull',      ti:'redbull'},
+  'Isack Hadjar':          {img:'isack_hadjar',           team:'Red Bull',      ti:'redbull'},
+  'Charles Leclerc':       {img:'charles_leclerc',        team:'Ferrari',       ti:'ferrari'},
+  'Lewis Hamilton':        {img:'lewis_hamilton',         team:'Ferrari',       ti:'ferrari'},
+  'Alexander Albon':       {img:'alexander_albon',        team:'Williams',      ti:'williams'},
+  'Carlos Sainz Jr.':      {img:'carlos_sainz_jr',        team:'Williams',      ti:'williams'},
+  'Liam Lawson':           {img:'liam_lawson',            team:'Racing Bulls',  ti:'racingbulls'},
+  'Arvid Lindblad':        {img:'arvid_lindblad',         team:'Racing Bulls',  ti:'racingbulls'},
+  'Fernando Alonso':       {img:'fernando_alonso',        team:'Aston Martin',  ti:'astonmartin'},
+  'Lance Stroll':          {img:'lance_stroll',           team:'Aston Martin',  ti:'astonmartin'},
+  'Esteban Ocon':          {img:'esteban_ocon',           team:'Haas',          ti:'haas'},
+  'Oliver Bearman':        {img:'oliver_bearman',         team:'Haas',          ti:'haas'},
+  'Gabriel Bortoleto':     {img:'gabriel_bortoleto',      team:'Audi',          ti:'audi'},
+  'Nico Hülkenberg':       {img:'nico_hulkenberg',        team:'Audi',          ti:'audi'},
+  'Pierre Gasly':          {img:'pierre_gasly',           team:'Alpine',        ti:'alpine'},
+  'Franco Colapinto':      {img:'franco_colapinto',       team:'Alpine',        ti:'alpine'},
+  'Sergio Pérez':          {img:'sergio_perez',           team:'Cadillac',      ti:'cadillac'},
+  'Valtteri Bottas':       {img:'valtteri_bottas',        team:'Cadillac',      ti:'cadillac'},
+};
+const DRIVERS = Object.keys(DD);
+const F1PTS  = [25,18,15,12,10,8,6,4,2,1];
+const QPTS   = [6,4,3,2,1];
+const RPTS   = [15,12,10,8,6,5,4,3,2,1];
+const COLORS = ['#E10600','#185FA5','#00C853','#FFD700','#CD7F32','#AF52DE','#FF6B35'];
+
+const GPs = [
+  { id:'aus', name:'Australia', flag:'🇦🇺', flagImg:'australia',
+    circuit:'Albert Park', circuitImg:'albert_park', round:1, dateRace:'8 Mar',
+    qualyOpen:false, raceOpen:false,
+    info:{
+      firstGP: 1996, firstGPCountry: null,
+      totalGPs: 31, length: 5.278, laps: 58, distance: 306.124, corners: 16,
+      lapRecord:   { time:'1:19.813', driver:'Charles Leclerc', car:'Ferrari SF-24',       year:2024 },
+      qualyRecord: { time:'1:15.096', driver:'George Russell',  car:'Mercedes W15',        year:2024 },
+      mostWins:    { driver:'Ayrton Senna', wins:4 },
+      lastWins: [
+        {year:2026, driver:'George Russell',    team:'Mercedes'},
+        {year:2025, driver:'Lando Norris',      team:'McLaren'},
+        {year:2024, driver:'Carlos Sainz Jr.',  team:'Ferrari'},
+        {year:2023, driver:'Max Verstappen',    team:'Red Bull'},
+        {year:2022, driver:'Charles Leclerc',   team:'Ferrari'},
+      ]
+    },
+    qualyResult:['George Russell','Andrea Kimi Antonelli','Charles Leclerc','Lewis Hamilton','Max Verstappen','Lando Norris','Oscar Piastri','Fernando Alonso','Lance Stroll','Nico Hülkenberg','Pierre Gasly','Lance Stroll','Alexander Albon','Esteban Ocon','Liam Lawson','Carlos Sainz Jr.','Oliver Bearman','Gabriel Bortoleto','Isack Hadjar','Arvid Lindblad','Franco Colapinto','Sergio Pérez'],
+    raceResult:['George Russell','Andrea Kimi Antonelli','Charles Leclerc','Max Verstappen','Lando Norris','Oscar Piastri','Lewis Hamilton','Fernando Alonso','Carlos Sainz Jr.','Liam Lawson','Oliver Bearman','Arvid Lindblad','Gabriel Bortoleto','Pierre Gasly','Esteban Ocon','Alexander Albon','Liam Lawson','Franco Colapinto','Carlos Sainz Jr.','Sergio Pérez','Lance Stroll','Fernando Alonso','Valtteri Bottas','Isack Hadjar','Oscar Piastri','Nico Hülkenberg'] },
+
+  { id:'chn', name:'China', flag:'🇨🇳', flagImg:'china', sprint:true,
+    circuit:'Shanghai Int. Circuit', circuitImg:'shanghai', round:2, dateRace:'15 Mar',
+    qualyOpen:false, raceOpen:false,
+    info:{
+      firstGP: 2004, firstGPCountry: null,
+      totalGPs: 20, length: 5.451, laps: 56, distance: 305.066, corners: 16,
+      lapRecord:   { time:'1:32.238', driver:'Michael Schumacher', car:'Ferrari F2004',       year:2004 },
+      qualyRecord: { time:'1:30.641', driver:'Oscar Piastri',      car:'McLaren MCL39',       year:2025 },
+      mostWins:    { driver:'Lewis Hamilton', wins:6 },
+      lastWins: [
+        {year:2026, driver:'Andrea Kimi Antonelli', team:'Mercedes'},
+        {year:2025, driver:'Max Verstappen',        team:'Red Bull'},
+        {year:2024, driver:'Max Verstappen',        team:'Red Bull'},
+        {year:2019, driver:'Lewis Hamilton',        team:'Mercedes'},
+        {year:2018, driver:'Daniel Ricciardo',      team:'Red Bull'},
+      ]
+    },
+    qualyResult:['Andrea Kimi Antonelli','George Russell','Lewis Hamilton','Max Verstappen','Charles Leclerc','Lando Norris','Oscar Piastri','Fernando Alonso','Lance Stroll','Nico Hülkenberg','Pierre Gasly','Alexander Albon','Esteban Ocon','Liam Lawson','Carlos Sainz Jr.','Oliver Bearman','Gabriel Bortoleto','Isack Hadjar','Arvid Lindblad','Franco Colapinto','Sergio Pérez','Valtteri Bottas'],
+    raceResult:['Andrea Kimi Antonelli','George Russell','Lewis Hamilton','Charles Leclerc','Max Verstappen','Lando Norris','Oscar Piastri','Fernando Alonso','Carlos Sainz Jr.','Liam Lawson','Pierre Gasly','Alexander Albon','Esteban Ocon','Nico Hülkenberg','Lance Stroll','Oliver Bearman','Gabriel Bortoleto','Isack Hadjar','Arvid Lindblad','Franco Colapinto','Sergio Pérez','Valtteri Bottas'] },
+
+  { id:'jpn', name:'Japón', flag:'🇯🇵', flagImg:'japon',
+    circuit:'Suzuka', circuitImg:'suzuka', round:3, dateRace:'29 Mar',
+    qualyOpen:false, raceOpen:false,
+    info:{
+      firstGP: 1987, firstGPCountry: null,
+      totalGPs: 38, length: 5.807, laps: 53, distance: 307.471, corners: 18,
+      lapRecord:   { time:'1:30.983', driver:'Lewis Hamilton',        car:'Mercedes W10',    year:2019 },
+      qualyRecord: { time:'1:26.983', driver:'Max Verstappen',        car:'Red Bull RB21',   year:2025 },
+      mostWins:    { driver:'Michael Schumacher / Ayrton Senna', wins:6 },
+      lastWins: [
+        {year:2026, driver:'Andrea Kimi Antonelli', team:'Mercedes'},
+        {year:2025, driver:'Andrea Kimi Antonelli', team:'Mercedes'},
+        {year:2024, driver:'Max Verstappen',        team:'Red Bull'},
+        {year:2023, driver:'Max Verstappen',        team:'Red Bull'},
+        {year:2022, driver:'Max Verstappen',        team:'Red Bull'},
+      ]
+    },
+    qualyResult:[], raceResult:[] },
+
+  { id:'mia', name:'Miami', flag:'🇺🇸', flagImg:'usa', sprint:true,
+    circuit:'Miami Int. Autodrome', circuitImg:'miami', round:4, dateRace:'3 May',
+    qualyOpen:false, raceOpen:false,
+    info:{
+      firstGP: 2022, firstGPCountry: null,
+      totalGPs: 5, length: 5.412, laps: 57, distance: 308.326, corners: 19,
+      lapRecord:   { time:'1:29.708', driver:'Max Verstappen',   car:'Red Bull RB19',    year:2023 },
+      qualyRecord: { time:'1:27.241', driver:'Max Verstappen',   car:'Red Bull RB20',    year:2024 },
+      mostWins:    { driver:'Max Verstappen', wins:3 },
+      lastWins: [
+        {year:2026, driver:'—', team:'—'},
+        {year:2025, driver:'Max Verstappen',  team:'Red Bull'},
+        {year:2024, driver:'Lando Norris',    team:'McLaren'},
+        {year:2023, driver:'Max Verstappen',  team:'Red Bull'},
+        {year:2022, driver:'Max Verstappen',  team:'Red Bull'},
+      ]
+    },
+    qualyResult:[], raceResult:[] },
+
+  { id:'can', name:'Canadá', flag:'🇨🇦', flagImg:'canada', sprint:true,
+    circuit:'Circuit Gilles-Villeneuve', circuitImg:'montreal', round:5, dateRace:'24 May',
+    qualyOpen:false, raceOpen:false,
+    info:{
+      firstGP: 1978, firstGPCountry:{ year:1967, name:'GP de Canadá (Mosport)' },
+      totalGPs: 57, length: 4.361, laps: 70, distance: 305.270, corners: 14,
+      lapRecord:   { time:'1:13.078', driver:'Valtteri Bottas',  car:'Mercedes W10',    year:2019 },
+      qualyRecord: { time:'1:10.240', driver:'Max Verstappen',   car:'Red Bull RB20',   year:2024 },
+      mostWins:    { driver:'Michael Schumacher', wins:7 },
+      lastWins: [
+        {year:2026, driver:'—', team:'—'},
+        {year:2025, driver:'Max Verstappen',    team:'Red Bull'},
+        {year:2024, driver:'Max Verstappen',    team:'Red Bull'},
+        {year:2023, driver:'Max Verstappen',    team:'Red Bull'},
+        {year:2022, driver:'Max Verstappen',    team:'Red Bull'},
+      ]
+    },
+    qualyResult:[], raceResult:[] },
+
+  { id:'mon', name:'Mónaco', flag:'🇲🇨', flagImg:'monaco',
+    circuit:'Circuit de Monaco', circuitImg:'monaco', round:6, dateRace:'7 Jun',
+    qualyOpen:false, raceOpen:false,
+    info:{
+      firstGP: 1950, firstGPCountry: null,
+      totalGPs: 69, length: 3.337, laps: 78, distance: 260.286, corners: 19,
+      lapRecord:   { time:'1:12.909', driver:'Lewis Hamilton',   car:'Mercedes W12',    year:2021 },
+      qualyRecord: { time:'1:09.954', driver:'Lando Norris',     car:'McLaren MCL39',   year:2025 },
+      mostWins:    { driver:'Ayrton Senna', wins:6 },
+      lastWins: [
+        {year:2026, driver:'—', team:'—'},
+        {year:2025, driver:'Charles Leclerc',   team:'Ferrari'},
+        {year:2024, driver:'Charles Leclerc',   team:'Ferrari'},
+        {year:2023, driver:'Max Verstappen',    team:'Red Bull'},
+        {year:2022, driver:'Sergio Pérez',      team:'Red Bull'},
+      ]
+    },
+    qualyResult:[], raceResult:[] },
+
+  { id:'esp', name:'España', flag:'🇪🇸', flagImg:'españa',
+    circuit:'Circuit de Barcelona-Catalunya', circuitImg:'barcelona', round:7, dateRace:'14 Jun',
+    qualyOpen:false, raceOpen:false,
+    info:{
+      firstGP: 1991, firstGPCountry:{ year:1969, name:'GP de España (Montjuïc/Jarama)' },
+      totalGPs: 56, length: 4.657, laps: 66, distance: 307.104, corners: 14,
+      lapRecord:   { time:'1:16.330', driver:'Max Verstappen',   car:'Red Bull RB19',    year:2023 },
+      qualyRecord: { time:'1:11.670', driver:'Oscar Piastri',    car:'McLaren MCL39',    year:2025 },
+      mostWins:    { driver:'Michael Schumacher', wins:6 },
+      lastWins: [
+        {year:2026, driver:'—', team:'—'},
+        {year:2025, driver:'Oscar Piastri',     team:'McLaren'},
+        {year:2024, driver:'Max Verstappen',    team:'Red Bull'},
+        {year:2023, driver:'Max Verstappen',    team:'Red Bull'},
+        {year:2022, driver:'Max Verstappen',    team:'Red Bull'},
+      ]
+    },
+    qualyResult:[], raceResult:[] },
+
+  { id:'aut', name:'Austria', flag:'🇦🇹', flagImg:'austria',
+    circuit:'Red Bull Ring', circuitImg:'red_bull_ring', round:8, dateRace:'28 Jun',
+    qualyOpen:false, raceOpen:false,
+    info:{
+      firstGP: 1970, firstGPCountry: null,
+      totalGPs: 35, length: 4.318, laps: 71, distance: 306.452, corners: 10,
+      lapRecord:   { time:'1:05.619', driver:'Carlos Sainz Jr.', car:'McLaren MCL35',    year:2020 },
+      qualyRecord: { time:'1:02.983', driver:'Max Verstappen',   car:'Red Bull RB20',    year:2024 },
+      mostWins:    { driver:'Max Verstappen', wins:5 },
+      lastWins: [
+        {year:2026, driver:'—', team:'—'},
+        {year:2025, driver:'Max Verstappen',    team:'Red Bull'},
+        {year:2024, driver:'George Russell',    team:'Mercedes'},
+        {year:2023, driver:'Max Verstappen',    team:'Red Bull'},
+        {year:2022, driver:'Charles Leclerc',   team:'Ferrari'},
+      ]
+    },
+    qualyResult:[], raceResult:[] },
+
+  { id:'gbr', name:'Gran Bretaña', flag:'🇬🇧', flagImg:'reino_unido', sprint:true,
+    circuit:'Silverstone', circuitImg:'silverstone', round:9, dateRace:'5 Jul',
+    qualyOpen:false, raceOpen:false,
+    info:{
+      firstGP: 1950, firstGPCountry: null,
+      totalGPs: 74, length: 5.891, laps: 52, distance: 306.198, corners: 18,
+      lapRecord:   { time:'1:27.097', driver:'Max Verstappen',   car:'Red Bull RB16',    year:2020 },
+      qualyRecord: { time:'1:24.732', driver:'George Russell',   car:'Mercedes W15',     year:2024 },
+      mostWins:    { driver:'Lewis Hamilton', wins:9 },
+      lastWins: [
+        {year:2026, driver:'—', team:'—'},
+        {year:2025, driver:'Lando Norris',      team:'McLaren'},
+        {year:2024, driver:'Lewis Hamilton',    team:'Mercedes'},
+        {year:2023, driver:'Max Verstappen',    team:'Red Bull'},
+        {year:2022, driver:'Carlos Sainz Jr.',  team:'Ferrari'},
+      ]
+    },
+    qualyResult:[], raceResult:[] },
+
+  { id:'bel', name:'Bélgica', flag:'🇧🇪', flagImg:'belgica',
+    circuit:'Spa-Francorchamps', circuitImg:'spa', round:10, dateRace:'19 Jul',
+    qualyOpen:false, raceOpen:false,
+    info:{
+      firstGP: 1950, firstGPCountry: null,
+      totalGPs: 61, length: 7.004, laps: 44, distance: 308.052, corners: 19,
+      lapRecord:   { time:'1:46.286', driver:'Sergio Pérez',     car:'Red Bull RB20',    year:2024 },
+      qualyRecord: { time:'1:40.510', driver:'Oscar Piastri',    car:'McLaren MCL39',    year:2025 },
+      mostWins:    { driver:'Michael Schumacher / Ayrton Senna', wins:6 },
+      lastWins: [
+        {year:2026, driver:'—', team:'—'},
+        {year:2025, driver:'George Russell',    team:'Mercedes'},
+        {year:2024, driver:'Lewis Hamilton',    team:'Mercedes'},
+        {year:2023, driver:'Max Verstappen',    team:'Red Bull'},
+        {year:2022, driver:'Max Verstappen',    team:'Red Bull'},
+      ]
+    },
+    qualyResult:[], raceResult:[] },
+
+  { id:'hun', name:'Hungría', flag:'🇭🇺', flagImg:'hungria',
+    circuit:'Hungaroring', circuitImg:'hungaroring', round:11, dateRace:'26 Jul',
+    qualyOpen:false, raceOpen:false,
+    info:{
+      firstGP: 1986, firstGPCountry: null,
+      totalGPs: 40, length: 4.381, laps: 70, distance: 306.630, corners: 14,
+      lapRecord:   { time:'1:16.627', driver:'Lewis Hamilton',   car:'Mercedes W11',     year:2020 },
+      qualyRecord: { time:'1:14.407', driver:'George Russell',   car:'Mercedes W15',     year:2024 },
+      mostWins:    { driver:'Lewis Hamilton', wins:9 },
+      lastWins: [
+        {year:2026, driver:'—', team:'—'},
+        {year:2025, driver:'Oscar Piastri',     team:'McLaren'},
+        {year:2024, driver:'Oscar Piastri',     team:'McLaren'},
+        {year:2023, driver:'Max Verstappen',    team:'Red Bull'},
+        {year:2022, driver:'Max Verstappen',    team:'Red Bull'},
+      ]
+    },
+    qualyResult:[], raceResult:[] },
+];
+
+// ── STATE ────────────────────────────────────────────────
+// ── SUPABASE ──────────────────────────────────────────────
+const SUPA_URL = 'https://ezwnpytuehvjimnbfsdv.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6d25weXR1ZWh2amltbmJmc2R2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyMTY3NzYsImV4cCI6MjA5NDc5Mjc3Nn0.0EKCAxvah8pLOZ06d05UZY5qnFtp0f5p81ol2fn5NhY';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+let saveTimer = null;
+
+function saveState() {
+  localStorage.setItem('f1porra26', JSON.stringify(S));
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      const { error } = await supa.from('gamestate').upsert({ id: 'main', data: S, updated_at: new Date().toISOString() });
+      showSyncStatus(!error);
+    } catch(e) { showSyncStatus(false); }
+  }, 800);
+}
+
+async function loadState() {
+  let loaded = false;
+  try {
+    const { data, error } = await supa.from('gamestate').select('data').eq('id', 'main').single();
+    if (!error && data?.data && Object.keys(data.data).length > 0) {
+      S = data.data;
+      localStorage.setItem('f1porra26', JSON.stringify(S));
+      loaded = true;
+      showSyncStatus(true);
+    }
+  } catch(e) { showSyncStatus(false); }
+
+  if (!loaded) {
+    // Fall back to localStorage
+    try { S = JSON.parse(localStorage.getItem('f1porra26') || '{}'); } catch(e) { S = {}; }
+    // If local data exists, migrate it to Supabase
+    if (Object.keys(S).length > 0) {
+      supa.from('gamestate').upsert({ id: 'main', data: S, updated_at: new Date().toISOString() }).then();
+    }
+  }
+
+  if (!S.users) S.users = {};
+  if (!S.pronosticos) S.pronosticos = {};
+  if (!S.gpState) S.gpState = {};
+  if (!S.draft) S.draft = { pilots: {}, active: {}, cols: 3 };
+  if (!S.discards) S.discards = {};
+
+  // Always ensure Pablo admin account
+  S.users['pablo'] = S.users['pablo'] || {};
+  S.users['pablo'].name = 'Pablo';
+  S.users['pablo'].pass = 'Pablosky';
+  S.users['pablo'].isAdmin = true;
+  if (S.users['admin'] && S.users['admin'].pass === 'admin123') delete S.users['admin'];
+
+  GPs.forEach(g => {
+    if (!S.gpState[g.id]) S.gpState[g.id] = {
+      qualyOpen: g.qualyOpen, raceOpen: g.raceOpen,
+      qualyResult: g.qualyResult || [], raceResult: g.raceResult || [],
+      qualyTimes: {}, raceTimes: {}
+    };
+    if (!S.gpState[g.id].qualyTimes) S.gpState[g.id].qualyTimes = {};
+    if (!S.gpState[g.id].raceTimes)  S.gpState[g.id].raceTimes  = {};
+  });
+
+  if (!S.colors) S.colors = { enabled: false, teams: {}, gps: {} };
+  colorsEnabled = S.colors.enabled || false;
+  if (S.colors.teams) {
+    Object.entries(S.colors.teams).forEach(([team, c]) => { if (TEAM_COLORS[team]) Object.assign(TEAM_COLORS[team], c); });
+  }
+}
+
+function startRealtimeSync() {
+  supa.channel('gamestate-changes')
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'gamestate' }, payload => {
+      if (!payload.new?.data) return;
+      S = payload.new.data;
+      localStorage.setItem('f1porra26', JSON.stringify(S));
+      colorsEnabled = S.colors?.enabled || false;
+      const activeTab = document.querySelector('.tab-page.active')?.id?.replace('tab-','');
+      if (activeTab === 'standings')  renderStandings();
+      if (activeTab === 'pronostico') renderPronosticoTab();
+      showSyncStatus(true);
+    })
+    .subscribe();
+}
+
+function showSyncStatus(ok) {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  el.textContent = ok ? '● Online' : '● Offline';
+  el.style.color = ok ? '#00C853' : '#E10600';
+}
+
+let S = {};
+function gd(id) { return S.gpState?.[id] || {}; }
+
+// ── IMAGE HELPERS ────────────────────────────────────────
+function dImg(driver) {
+  const d = DD[driver];
+  if (!d) return `<div class="rt-driver-ph">${(driver||'?')[0]}</div>`;
+  return `<img class="rt-driver-img" src="img/pilotos/${d.img}.png" alt="${driver}" onerror="this.outerHTML='<div class=\\'rt-driver-ph\\'>${driver[0]}</div>'">`;
+}
+function tImg(driver) {
+  const d = DD[driver];
+  if (!d) return `<div class="rt-team-ph"></div>`;
+  return `<img class="rt-team-img" src="img/escuderias/${d.ti}.png" alt="${d.team}" onerror="this.style.display='none'">`;
+}
+function tName(driver) { return DD[driver]?.team || ''; }
+
+// ── SCORING ──────────────────────────────────────────────
+function calcQualy(pred, result) {
+  if (!pred?.length || !result?.length) return 0;
+  let pts = 0;
+  const q3 = result.slice(0, 10);
+  pred.slice(0, 10).forEach(d => { if (d && q3.includes(d)) pts += 0.25; });
+  const p10 = pred.slice(0, 10).filter(Boolean), r10 = result.slice(0, 10);
+  if (r10.every(d => p10.includes(d)) && p10.every(d => r10.includes(d))) pts += 1;
+  let ex5 = 0, ex10 = 0;
+  for (let i = 0; i < 10; i++) {
+    if (!pred[i]) continue;
+    if (pred[i] === result[i]) { if (i < 5) { pts += QPTS[i]; ex5++; } ex10++; }
+    else if (i < 5) { const ai = result.indexOf(pred[i]); if (Math.abs(ai - i) === 1) pts += QPTS[i] / 2; }
+  }
+  if (ex10 === 10) pts += 4; else if (ex5 === 5) pts += 2;
+  return Math.round(pts * 100) / 100;
+}
+function calcRace(pred, result) {
+  if (!pred?.length || !result?.length) return 0;
+  let pts = 0, ex10 = 0;
+  for (let i = 0; i < 10; i++) {
+    if (!pred[i]) continue;
+    const ai = result.indexOf(pred[i]); if (ai === -1) continue;
+    const diff = Math.abs(ai - i);
+    if (diff === 0) { pts += RPTS[i]; ex10++; }
+    else if (diff === 1 && ai < 10) pts += RPTS[i] * 0.5;   // only if finished in top 10
+    else if (diff === 2 && ai < 10) pts += RPTS[i] * 0.25;  // only if finished in top 10
+  }
+  if (ex10 === 10) pts += 20;
+  return Math.round(pts * 100) / 100;
+}
+function getAllScores() {
+  const sc = {};
+  Object.entries(S.users).forEach(([uid, u]) => {
+    sc[uid] = { name: u.name, total: 0, byGP: {} };
+    const discarded = S.discards?.[uid] || [];
+    GPs.forEach(g => {
+      const d = gd(g.id);
+      const pq = S.pronosticos[uid]?.[g.id]?.qualy || [];
+      const pr = S.pronosticos[uid]?.[g.id]?.race  || [];
+      const qp = calcQualy(pq, d.qualyResult), rp = calcRace(pr, d.raceResult);
+      const t = Math.round((qp + rp) * 100) / 100;
+      sc[uid].byGP[g.id] = { q: qp, r: rp, t, discarded: discarded.includes(g.id) };
+      if (!discarded.includes(g.id)) {
+        sc[uid].total = Math.round((sc[uid].total + qp + rp) * 100) / 100;
+      }
+    });
+  });
+  return sc;
+}
+
+// ── DRIVER & TEAM ALIASES (web F1 → internal name) ───────
+const DRIVER_ALIASES = {
+  // Antonelli variants
+  'kimi antonelli':         'Andrea Kimi Antonelli',
+  'antonelli':              'Andrea Kimi Antonelli',
+  'andrea antonelli':       'Andrea Kimi Antonelli',
+  // Sainz
+  'carlos sainz':           'Carlos Sainz Jr.',
+  'sainz':                  'Carlos Sainz Jr.',
+  // Pérez
+  'sergio perez':           'Sergio Pérez',
+  'checo perez':            'Sergio Pérez',
+  'perez':                  'Sergio Pérez',
+  // Hülkenberg
+  'nico hulkenberg':        'Nico Hülkenberg',
+  'hulkenberg':             'Nico Hülkenberg',
+  // Hülkenberg umlaut variant
+  'hülkenberg':             'Nico Hülkenberg',
+  // Others that sometimes appear shortened
+  'norris':                 'Lando Norris',
+  'piastri':                'Oscar Piastri',
+  'russell':                'George Russell',
+  'verstappen':             'Max Verstappen',
+  'hadjar':                 'Isack Hadjar',
+  'leclerc':                'Charles Leclerc',
+  'hamilton':               'Lewis Hamilton',
+  'albon':                  'Alexander Albon',
+  'lawson':                 'Liam Lawson',
+  'lindblad':               'Arvid Lindblad',
+  'alonso':                 'Fernando Alonso',
+  'stroll':                 'Lance Stroll',
+  'ocon':                   'Esteban Ocon',
+  'bearman':                'Oliver Bearman',
+  'bortoleto':              'Gabriel Bortoleto',
+  'gasly':                  'Pierre Gasly',
+  'colapinto':              'Franco Colapinto',
+  'bottas':                 'Valtteri Bottas',
+};
+
+function matchDriver(raw) {
+  if (!raw) return null;
+  const norm = s => s.toLowerCase().trim()
+    .replace(/ü/g,'u').replace(/é/g,'e').replace(/á/g,'a').replace(/ó/g,'o').replace(/í/g,'i')
+    .replace(/\bj[r.]*/g,'').replace(/\s+/g,' ').trim();
+
+  const low = norm(raw);
+  if (!low) return null;
+
+  // 1. exact full name match (highest priority, accent+jr normalized)
+  const exact = DRIVERS.find(d => norm(d) === low);
+  if (exact) return exact;
+
+  // 2. explicit alias match
+  if (DRIVER_ALIASES[low]) return DRIVER_ALIASES[low];
+  // also try without normalization
+  const rawLow = raw.toLowerCase().trim();
+  if (DRIVER_ALIASES[rawLow]) return DRIVER_ALIASES[rawLow];
+
+  // 3. all words of raw appear in driver name (handles "Andrea Kimi Antonelli" → "Antonelli")
+  const rawWords = low.split(' ').filter(w => w.length > 2);
+  const byWords = DRIVERS.find(d => {
+    const dn = norm(d);
+    return rawWords.every(w => dn.includes(w));
+  });
+  if (byWords) return byWords;
+
+  // 4. last significant word of raw matches last word of driver name
+  const lastWord = low.split(' ').filter(w => w.length > 2).pop();
+  if (lastWord) {
+    const byLast = DRIVERS.find(d => norm(d).split(' ').pop() === lastWord);
+    if (byLast) return byLast;
+  }
+
+  // 5. raw is contained in driver name (e.g. "Antonelli" in "Andrea Kimi Antonelli")
+  const byContains = DRIVERS.find(d => {
+    const dn = norm(d);
+    return low.length > 3 && dn.includes(low);
+  });
+  if (byContains) return byContains;
+
+  return null;
+}
+
+// ── TEAM COLORS ──────────────────────────────────────────
+const TEAM_COLORS = {
+  'McLaren':       { row:'rgba(255,128,0,0.12)',   name:'#FF8000',  border:'#FF8000' },
+  'Mercedes':      { row:'rgba(39,244,210,0.10)',  name:'#27F4D2',  border:'#27F4D2' },
+  'Red Bull':      { row:'rgba(54,113,198,0.12)',  name:'#6A9FE0',  border:'#3671C6' },
+  'Ferrari':       { row:'rgba(232,0,45,0.10)',    name:'#FF4466',  border:'#E8002D' },
+  'Williams':      { row:'rgba(100,196,255,0.12)', name:'#64C4FF',  border:'#64C4FF' },
+  'Racing Bulls':  { row:'rgba(102,146,255,0.12)', name:'#8AABFF',  border:'#6692FF' },
+  'Aston Martin':  { row:'rgba(34,153,113,0.12)',  name:'#2BBF8A',  border:'#229971' },
+  'Haas':          { row:'rgba(255,255,255,0.10)', name:'#E10600',  border:'#B6BABD' },
+  'Audi':          { row:'rgba(208,17,43,0.15)',   name:'#cccccc',  border:'#D0112B' },
+  'Alpine':        { row:'rgba(0,144,211,0.12)',   name:'#FF87BC',  border:'#FF87BC' },
+  'Cadillac':      { row:'rgba(120,120,120,0.10)', name:'#aaaaaa',  border:'#888888' },
+};
+
+let colorsEnabled = false;
+
+function getTeamForDriver(driver) { return DD[driver]?.team || null; }
+function getTeamColors(driver) {
+  const team = getTeamForDriver(driver);
+  return colorsEnabled && team && TEAM_COLORS[team] ? TEAM_COLORS[team] : null;
+}
+
+function toggleColorMenu() {}
+function toggleColors(enabled) {
+  colorsEnabled = enabled;
+  if (!S.colors) S.colors = {};
+  S.colors.enabled = enabled;
+  saveState();
+  document.getElementById('colors-wrap').style.display = enabled ? 'block' : 'none';
+  // only re-render if pronostico tab is active
+  if (document.getElementById('tab-pronostico')?.classList.contains('active')) {
+    renderPronoDetail(selGP);
+  }
+}
+function renderColorPreview() {}
+
+const GP_COLOR_DEFAULTS = {
+  aus: { border:'#005BAC', bg:'transparent' },
+  chn: { border:'#DE2910', bg:'transparent' },
+  jpn: { border:'#BC002D', bg:'transparent' },
+  mia: { border:'#FF6EC7', bg:'transparent' },
+  can: { border:'#FF0000', bg:'transparent' },
+  mon: { border:'#CE1126', bg:'transparent' },
+  esp: { border:'#AA151B', bg:'transparent' },
+  aut: { border:'#ED2939', bg:'transparent' },
+  gbr: { border:'#012169', bg:'transparent' },
+  bel: { border:'#FAD201', bg:'transparent' },
+  hun: { border:'#436F4D', bg:'transparent' },
+};
+
+function gpColor(gpId) {
+  if (!colorsEnabled) return null;
+  const saved = S.colors?.gps?.[gpId];
+  return saved || GP_COLOR_DEFAULTS[gpId] || null;
+}
+
+function renderColorAdmin() {
+  const chk = document.getElementById('colors-enabled');
+  if (chk) chk.checked = colorsEnabled;
+  document.getElementById('colors-wrap').style.display = colorsEnabled ? 'block' : 'none';
+
+  // ── Team colors: 2 per row ──
+  const tGrid = document.getElementById('team-colors-grid');
+  if (tGrid) {
+    const teams = Object.entries(TEAM_COLORS);
+    let th = '';
+    for (let i = 0; i < teams.length; i += 2) {
+      th += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">`;
+      for (let j = i; j < Math.min(i+2, teams.length); j++) {
+        const [team, def] = teams[j];
+        const saved = S.colors?.teams?.[team] || def;
+        const key = team.replace(/[\s]/g,'_');
+        th += `<div style="background:${saved.row};border:1px solid ${saved.border}50;border-radius:var(--r);padding:7px 10px;display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;font-weight:700;color:${saved.name};flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${team}</span>
+          <label style="font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;white-space:nowrap">Letra</label>
+          <input type="color" id="tc-name-${key}" value="${saved.name}" style="width:28px;height:22px;border:none;border-radius:3px;cursor:pointer;flex-shrink:0">
+          <label style="font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;white-space:nowrap">Fondo</label>
+          <input type="color" id="tc-bg-${key}" value="${rgbaToHex(saved.row)}" style="width:28px;height:22px;border:none;border-radius:3px;cursor:pointer;flex-shrink:0">
+        </div>`;
+      }
+      th += `</div>`;
+    }
+    tGrid.innerHTML = th;
+  }
+
+  // ── GP colors: 4 per row, border only ──
+  const gGrid = document.getElementById('gp-colors-grid');
+  if (gGrid) {
+    let gh = '';
+    for (let i = 0; i < GPs.length; i += 4) {
+      gh += `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px">`;
+      for (let j = i; j < Math.min(i+4, GPs.length); j++) {
+        const g = GPs[j];
+        const def = GP_COLOR_DEFAULTS[g.id] || { border:'#555' };
+        const saved = S.colors?.gps?.[g.id] || def;
+        gh += `<div style="border:2px solid ${saved.border};border-radius:var(--r);padding:6px 8px;display:flex;align-items:center;gap:6px;background:var(--dark2)">
+          <span style="font-size:11px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${g.flag} ${g.name}</span>
+          <input type="color" id="gc-border-${g.id}" value="${saved.border}" style="width:26px;height:20px;border:none;border-radius:3px;cursor:pointer;flex-shrink:0">
+        </div>`;
+      }
+      gh += `</div>`;
+    }
+    gGrid.innerHTML = gh;
+  }
+}
+function parsePaste(text) {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const res = [];
+  for (const line of lines) {
+    const col = line.split('\t')[0].trim();
+    if (!col) continue;
+    res.push(matchDriver(col) || col);
+  }
+  return res.slice(0, 22);
+}
+
+// ── AUTH ─────────────────────────────────────────────────
+let currentUser = null, authMode = 'login';
+function toggleMode() {
+  authMode = authMode === 'login' ? 'register' : 'login';
+  const r = authMode === 'register';
+  document.getElementById('auth-title').innerHTML = r ? 'Crear <span>cuenta</span>' : 'Iniciar <span>sesión</span>';
+  document.getElementById('field-name').style.display = r ? 'block' : 'none';
+  document.getElementById('auth-switch-txt').textContent = r ? '¿Ya tienes cuenta? ' : '¿No tienes cuenta? ';
+  document.getElementById('auth-msg').innerHTML = '';
+}
+function doAuth() {
+  const userRaw = document.getElementById('inp-user').value.trim();
+  const userKey = userRaw.toLowerCase();
+  const pass = document.getElementById('inp-pass').value;
+  const name = document.getElementById('inp-name').value.trim();
+  const msg = document.getElementById('auth-msg');
+  if (!userKey || !pass) { msg.innerHTML = '<div class="msg-box msg-err">Rellena todos los campos</div>'; return; }
+  if (authMode === 'register') {
+    if (!name) { msg.innerHTML = '<div class="msg-box msg-err">Introduce tu nombre</div>'; return; }
+    if (S.users[userKey]) { msg.innerHTML = '<div class="msg-box msg-err">Ese usuario ya existe</div>'; return; }
+    S.users[userKey] = { name, pass, isAdmin: false }; saveState();
+    msg.innerHTML = '<div class="msg-box msg-ok">¡Cuenta creada!</div>';
+    setTimeout(() => doLogin(userKey), 700);
+  } else {
+    const u = S.users[userKey];
+    if (!u || u.pass !== pass) { msg.innerHTML = '<div class="msg-box msg-err">Usuario o contraseña incorrectos</div>'; return; }
+    doLogin(userKey);
+  }
+}
+function doLogin(uid) {
+  currentUser = uid;
+  const u = S.users[uid];
+  document.getElementById('topbar-avatar').textContent = u.name[0].toUpperCase();
+  document.getElementById('topbar-name').textContent = u.name;
+  document.getElementById('nav-admin').style.display = u.isAdmin ? 'block' : 'none';
+  // Admin: show player selector in pronostico tab
+  if (u.isAdmin) {
+    const sel = document.getElementById('prono-view-user');
+    const wrap = document.getElementById('prono-user-selector');
+    if (sel && wrap) {
+      wrap.style.display = 'flex';
+      sel.innerHTML = Object.entries(S.users).map(([uid,u]) => `<option value="${uid}">${u.name}</option>`).join('');
+      sel.value = 'pablo';
+    }
+  }
+  document.getElementById('auth-page').style.display = 'none';
+  document.getElementById('app-page').classList.add('visible');
+  switchTab('standings');
+}
+function logout() {
+  currentUser = null;
+  document.getElementById('auth-page').style.display = 'flex';
+  document.getElementById('app-page').classList.remove('visible');
+  document.getElementById('inp-pass').value = '';
+  document.getElementById('auth-msg').innerHTML = '';
+}
+
+// ── TABS ─────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-page').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.topbar-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('nav-' + tab).classList.add('active');
+  if (tab === 'standings')   renderStandings();
+  if (tab === 'pronostico')  renderPronosticoTab();
+  if (tab === 'admin')       renderAdminTab();
+}
+
+// ── STANDINGS ────────────────────────────────────────────
+let sfilt = 'all', evoChart = null, draftEvoChart = null;
+function renderStandings() {
+  const sc = getAllScores();
+  document.getElementById('standings-pills').innerHTML =
+    `<button class="gp-pill ${sfilt==='all'?'active':''}" onclick="setSF('all')">General</button>` +
+    GPs.map(g => `<button class="gp-pill ${sfilt===g.id?'active':''}" onclick="setSF('${g.id}')">${g.flag} ${g.name}</button>`).join('');
+  renderSTable(sc); renderEvo(sc);
+  renderDraftStandings(); renderDraftEvo();
+}
+function setSF(f) { sfilt = f; renderStandings(); }
+function renderSTable(sc) {
+  const sorted = sfilt === 'all'
+    ? Object.entries(sc).sort((a, b) => b[1].total - a[1].total)
+    : Object.entries(sc).sort((a, b) => (b[1].byGP[sfilt]?.t || 0) - (a[1].byGP[sfilt]?.t || 0));
+  const tbl = document.getElementById('standings-table');
+  if (!sorted.length) { tbl.innerHTML = '<div class="no-data">No hay jugadores aún</div>'; return; }
+  let h = `<div class="standings-head"><div>#</div><div>Jugador</div><div style="text-align:right">Qualy</div><div style="text-align:right">Carrera</div><div style="text-align:right">Total</div></div>`;
+  sorted.forEach(([uid, data], i) => {
+    const pc = i === 0 ? 'pos-1' : i === 1 ? 'pos-2' : i === 2 ? 'pos-3' : 'pos-other';
+    const discarded = S.discards?.[uid] || [];
+    // Only count non-discarded GPs
+    let q = 0, r = 0;
+    if (sfilt === 'all') {
+      Object.entries(data.byGP).forEach(([gid, g]) => {
+        if (!discarded.includes(gid)) { q += g.q; r += g.r; }
+      });
+    } else {
+      if (!discarded.includes(sfilt)) { q = data.byGP[sfilt]?.q || 0; r = data.byGP[sfilt]?.r || 0; }
+    }
+    const t = sfilt === 'all' ? data.total : (discarded.includes(sfilt) ? 0 : (data.byGP[sfilt]?.t || 0));
+    const discardedThisGP = sfilt !== 'all' && discarded.includes(sfilt);
+    const discardNote = discarded.length ? `<div style="font-size:9px;color:var(--text3);margin-top:1px">${discarded.length} GP${discarded.length>1?'s':''} descartado${discarded.length>1?'s':''}</div>` : '';
+    h += `<div class="standings-row" style="${discardedThisGP?'opacity:0.5':''}">
+      <div class="pos-num ${pc}">${i+1}</div>
+      <div class="player-name-cell">${data.name}${sfilt==='all'?discardNote:''}</div>
+      <div class="pts-cell">${q.toFixed(2)}</div>
+      <div class="pts-cell">${r.toFixed(2)}</div>
+      <div class="pts-total">${t.toFixed(2)}</div>
+    </div>`;
+  });
+  tbl.innerHTML = h;
+}
+function renderEvo(sc) {
+  const ctx = document.getElementById('evo-chart').getContext('2d');
+  if (evoChart) evoChart.destroy();
+  // Only include GPs that have at least one result
+  const activeGPs = GPs.filter(g => {
+    const d = gd(g.id);
+    return d.qualyResult?.length > 0 || d.raceResult?.length > 0;
+  });
+  if (!activeGPs.length) return;
+  const labels = activeGPs.map(g => g.flag + ' ' + g.name);
+  const sorted = Object.entries(sc).sort((a, b) => b[1].total - a[1].total);
+  const datasets = sorted.map(([uid, data], i) => {
+    const discarded = S.discards?.[uid] || [];
+    let cum = 0;
+    const pts = activeGPs.map(g => {
+      if (!discarded.includes(g.id)) cum = Math.round((cum + (data.byGP[g.id]?.t || 0)) * 100) / 100;
+      return cum;
+    });
+    return { label: data.name, data: pts, borderColor: COLORS[i % COLORS.length], backgroundColor: 'transparent', tension: 0.4, pointRadius: 5, borderWidth: 2 };
+  });
+  Chart.defaults.color = '#666';
+  evoChart = new Chart(ctx, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#999', boxWidth: 12, padding: 16, font: { size: 12 } } }, tooltip: { backgroundColor: '#1a1a1a', borderColor: '#333', borderWidth: 1, titleColor: '#f0f0f0', bodyColor: '#999' } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666' } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666' } } } } });
+}
+
+// ── PRONOSTICO TAB ────────────────────────────────────────
+let selGP = GPs[0].id;
+function renderPronosticoTab() {
+  // Pills row — compact, scrollable horizontally on mobile
+  document.getElementById('prono-gp-grid').innerHTML =
+    `<div style="display:flex;flex-wrap:wrap;gap:5px">` +
+    GPs.map(gp => {
+      const dg = gd(gp.id);
+      const anyOpen = dg.qualyOpen || dg.raceOpen;
+      const isSel = gp.id === selGP;
+      let s = `display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:16px;font-family:var(--fd);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;border:1px solid;white-space:nowrap;`;
+      if (isSel)        s += 'border-color:var(--red);background:rgba(225,6,0,.12);color:var(--text)';
+      else if (anyOpen) s += 'border-color:rgba(0,200,83,.5);background:rgba(0,200,83,.06);color:#00C853';
+      else              s += 'border-color:var(--border);background:transparent;color:var(--text3)';
+      const flagEl = `<img src="img/banderas/${gp.flagImg}.png" style="width:14px;height:10px;object-fit:cover;border-radius:1px;flex-shrink:0" onerror="this.outerHTML='${gp.flag}'">`;
+      return `<button onclick="selPronoGP('${gp.id}')" style="${s}">${flagEl}<span>${gp.name}</span></button>`;
+    }).join('') +
+    `</div>`;
+
+  renderPronoDetail(selGP);
+}
+function selPronoGP(id) {
+  selGP = id;
+  renderPronosticoTab();
+  // Show color bar with current GP colors
+  const bar = document.getElementById('gp-color-bar');
+  const bEl = document.getElementById('gp-color-border');
+  const bgEl = document.getElementById('gp-color-bg');
+  const tcEl = document.getElementById('team-colors-toggle');
+  if (bar && bEl && bgEl) {
+    bar.style.display = 'flex';
+    const c = S.colors?.gps?.[id] || GP_COLOR_DEFAULTS[id] || { border:'#444', bg:'rgba(50,50,50,0.05)' };
+    bEl.value = c.border;
+    bgEl.value = rgbaToHex(c.bg);
+    if (tcEl) tcEl.checked = colorsEnabled;
+  }
+}
+
+function applyGPColor() {
+  const id = selGP;
+  const border = document.getElementById('gp-color-border')?.value || '#444';
+  const bgHex  = document.getElementById('gp-color-bg')?.value || '#111111';
+  if (!S.colors) S.colors = { enabled: colorsEnabled, teams: {}, gps: {} };
+  S.colors.gps[id] = { border, bg: hexToRgba(bgHex, 0.07) };
+  saveState();
+  renderPronoDetail(id);
+}
+
+function resetGPColor() {
+  const id = selGP;
+  if (S.colors?.gps?.[id]) { delete S.colors.gps[id]; saveState(); }
+  const def = GP_COLOR_DEFAULTS[id] || { border:'#444', bg:'rgba(50,50,50,0.05)' };
+  const bEl = document.getElementById('gp-color-border');
+  const bgEl = document.getElementById('gp-color-bg');
+  if (bEl) bEl.value = def.border;
+  if (bgEl) bgEl.value = rgbaToHex(def.bg);
+  renderPronoDetail(id);
+}
+
+function toggleTeamColors(enabled) {
+  colorsEnabled = enabled;
+  if (!S.colors) S.colors = { enabled, teams: {}, gps: {} };
+  S.colors.enabled = enabled;
+  saveState();
+  renderPronoDetail(selGP);
+}
+
+function renderPronoDetail(gpId) {
+  const g = GPs.find(x => x.id === gpId);
+  const d = gd(gpId);
+  // Admin can view any player's pronostico
+  const viewUser = (S.users[currentUser]?.isAdmin && document.getElementById('prono-view-user')?.value) || currentUser;
+  const sv = S.pronosticos[viewUser]?.[gpId] || {};
+  const isOwnProno = viewUser === currentUser;
+
+  // GP info header
+  const flagImg = `<img src="img/banderas/${g.flagImg}.png" style="height:22px;border-radius:2px;object-fit:cover;vertical-align:middle" onerror="this.outerHTML='<span style=font-size:22px>${g.flag}</span>'">`;
+  const circuitImg = `<img src="img/circuitos/${g.circuitImg}.png" alt="${g.circuit}" style="width:100%;max-height:220px;object-fit:contain;opacity:.9" onerror="this.style.display='none'">`;
+  const inf = g.info;
+  const lastW = (inf?.lastWins?.filter(w => w.driver !== '—') || []).slice(0, 3);
+
+  const row = (label, value) =>
+    `<div style="display:grid;grid-template-columns:105px 1fr;align-items:baseline;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px;gap:6px">
+       <span style="color:var(--text3);white-space:nowrap">${label}</span>
+       <span style="color:var(--text2);font-weight:500">${value}</span>
+     </div>`;
+
+  const gpc = gpColor(gpId);
+  let h = `<div style="background:var(--dark);border:1px solid ${gpc?gpc.border:'var(--border2)'};border-radius:var(--rl);padding:1rem 1.25rem;margin-bottom:1rem;position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;background-image:url('img/circuitos/${g.circuitImg}.png');background-size:340px auto;background-repeat:no-repeat;background-position:center right 1rem;filter:invert(1);opacity:.1;pointer-events:none"></div>
+    <!-- Title -->
+    <div style="position:relative;z-index:1;display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      ${flagImg}
+      <span style="font-family:var(--fd);font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:1px">${g.name}</span>
+      <span style="font-size:12px;color:var(--text2)">${g.circuit} · R${g.round} · ${g.dateRace}</span>
+      ${g.sprint?'<span class="tag tag-sprint" style="font-size:9px">Sprint</span>':''}
+      <span class="tag ${d.qualyOpen?'tag-open':'tag-closed'}" style="font-size:9px;margin-left:auto">Q ${d.qualyOpen?'Abierta':'Cerrada'}</span>
+      <span class="tag ${d.raceOpen?'tag-open':'tag-closed'}" style="font-size:9px">R ${d.raceOpen?'Abierta':'Cerrada'}</span>
+    </div>
+    ${inf ? `<div style="position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;align-items:start">
+      <!-- Col 1: datos generales -->
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Datos generales</div>
+        ${row('Primer GP', inf.firstGP + (inf.firstGPCountry ? ` <span style="font-size:10px;color:var(--text3)">(${inf.firstGPCountry.name}, ${inf.firstGPCountry.year})</span>` : ''))}
+        ${row('GPs disputados', inf.totalGPs)}
+        ${row('Longitud', inf.length + ' km')}
+        ${row('Nº vueltas', inf.laps)}
+        ${row('Distancia total', inf.distance + ' km')}
+        ${row('Nº curvas', inf.corners)}
+      </div>
+      <!-- Col 2: rendimiento -->
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:6px">Rendimiento</div>
+        ${row('Récord carrera', `<span style="color:var(--red);font-weight:600">${inf.lapRecord.time}</span> · ${inf.lapRecord.driver} (${inf.lapRecord.year})`)}
+        ${row('Récord qualy', `<span style="color:var(--red);font-weight:600">${inf.qualyRecord.time}</span> · ${inf.qualyRecord.driver} (${inf.qualyRecord.year})`)}
+        ${row('Más victorias', `${inf.mostWins.driver} · ${inf.mostWins.wins}`)}
+        ${lastW.map((w,i) => row(i===0?'Últ. victorias':'', `${w.year} · ${w.driver} (${w.team})`)).join('')}
+      </div>
+    </div>` : ''}
+  </div>`;
+
+  const sectionTitle = (emoji, label, session) => {
+    const isOpen = session === 'race' ? d.raceOpen : d.qualyOpen;
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+      <span style="font-family:var(--fd);font-size:20px;font-weight:800;text-transform:uppercase;letter-spacing:1px">${emoji} ${label} ${g.name.toUpperCase()}</span>
+      <span class="tag ${isOpen?'tag-open':'tag-closed'}" style="margin-left:auto;font-size:9px">${isOpen?'Abierta':'Cerrada'}</span>
+    </div>`;
+  };
+
+  const viewingOther = viewUser !== currentUser;
+  const viewerName = viewingOther ? S.users[viewUser]?.name : null;
+
+  // Draft section first
+  h += buildDraftPronoSection(gpId, viewUser, d);
+
+  const gpcBorder = gpc ? gpc.border : 'var(--border2)';
+
+  h += `<div class="detail-card" style="margin-bottom:1rem;border-color:${gpcBorder}">
+    ${viewerName ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px;padding:5px 8px;background:var(--dark2);border-radius:var(--r)">👤 Viendo pronóstico de <strong style="color:var(--text)">${viewerName}</strong></div>` : ''}
+    ${sectionTitle('🏆','CARRERA','race')}
+    ${buildRacePanel(d, sv.race||[], d.raceOpen && !viewingOther, gpId, viewUser)}
+  </div>`;
+  h += `<div class="detail-card" style="border-color:${gpcBorder}">
+    ${viewerName ? `<div style="font-size:11px;color:var(--text3);margin-bottom:8px;padding:5px 8px;background:var(--dark2);border-radius:var(--r)">👤 Viendo pronóstico de <strong style="color:var(--text)">${viewerName}</strong></div>` : ''}
+    ${sectionTitle('🏁','CLASIFICACIÓN','qualy')}
+    ${buildQualyPanel(d, sv.qualy||[], d.qualyOpen && !viewingOther, gpId, viewUser)}
+  </div>`;
+
+  document.getElementById('prono-detail').innerHTML = h;
+  if (d.raceOpen && !viewingOther)  refreshDropdowns('race');
+  if (d.qualyOpen && !viewingOther) refreshDropdowns('qualy');
+}
+
+function buildDraftPronoSection(gpId, viewUser, d) {
+  const draft = getDraft();
+  const pilots = draft.pilots?.[viewUser] || [];
+  if (!pilots.length) return '';
+
+  const gpc = gpColor(gpId);
+  const borderColor = gpc ? gpc.border : 'var(--border2)';
+  // Get previous GP active as default
+  const gpIdx = GPs.findIndex(g => g.id === gpId);
+  let prevActive = pilots.slice(0,2);
+  for (let i = gpIdx - 1; i >= 0; i--) {
+    const prev = draft.active?.[viewUser]?.[GPs[i].id];
+    if (prev?.length) { prevActive = prev; break; }
+  }
+  const activeDrivers = draft.active?.[viewUser]?.[gpId] || prevActive;
+  const mostGained = applyMostGainedBonus(gpId);
+  const canEdit = d.qualyOpen && viewUser === currentUser;
+
+  let h = `<div class="detail-card" style="border-color:${borderColor};margin-bottom:1rem">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+      <span style="font-family:var(--fd);font-size:20px;font-weight:800;text-transform:uppercase;letter-spacing:1px">🏎️ DRAFT ${GPs.find(g=>g.id===gpId)?.name?.toUpperCase()||''}</span>
+      <span class="tag ${d.qualyOpen?'tag-open':'tag-closed'}" style="margin-left:auto;font-size:9px">${d.qualyOpen?'Qualy abierta':'Cerrada'}</span>
+    </div>`;
+
+  // Pilot selector — always show, disabled if closed
+  h += `<div style="font-size:11px;color:var(--text3);margin-bottom:8px">${canEdit ? 'Elige 2 pilotos activos para este GP:' : 'Pilotos activos este GP:'}</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:${canEdit?'10px':'1rem'}">`;
+  pilots.forEach(pilot => {
+    const isActive = activeDrivers.includes(pilot);
+    if (canEdit) {
+      h += `<button onclick="toggleDraftActive('${viewUser}','${gpId}','${pilot}')" style="padding:6px 14px;border-radius:20px;font-size:12px;font-family:var(--fd);font-weight:700;cursor:pointer;border:2px solid ${isActive?'#00C853':'var(--border)'};background:${isActive?'rgba(0,200,83,.12)':'transparent'};color:${isActive?'#00C853':'var(--text2)'}">${pilot.split(' ').pop()} ${isActive?'✓':''}</button>`;
+    } else {
+      h += `<span style="padding:5px 12px;border-radius:20px;font-size:12px;font-family:var(--fd);font-weight:700;border:2px solid ${isActive?'#00C853':'var(--border)'};background:${isActive?'rgba(0,200,83,.08)':'transparent'};color:${isActive?'#00C853':'var(--text3)'}">${pilot.split(' ').pop()} ${isActive?'✓':''}</span>`;
+    }
+  });
+  h += `</div>`;
+
+  if (canEdit) {
+    h += `<div style="margin-bottom:1rem">
+      <button onclick="saveDraftSelection('${viewUser}','${gpId}')" style="padding:6px 18px;background:var(--red);border:none;border-radius:var(--r);color:white;font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer">Guardar Draft</button>
+      <span id="draft-save-msg-${gpId}" style="font-size:11px;color:#00C853;margin-left:10px;display:none">✓ Guardado</span>
+    </div>`;
+  }
+
+  // Pilot cards
+  h += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">`;
+  pilots.forEach(driver => {
+    const isActive = activeDrivers.includes(driver);
+    const sc = isActive ? calcDraftGP(driver, gpId) : null;
+    const tc = getTeamColors(driver);
+    const isMostGained = driver === mostGained;
+    h += `<div style="border-radius:var(--r);padding:10px;opacity:${isActive?'1':'0.45'};background:${tc?tc.row:'var(--dark2)'};border:1px solid ${isActive?'#00C853':(tc?tc.border+'50':'var(--border)')}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        ${dImg(driver)}
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:700;color:${tc?tc.name:'var(--text)'}">${driver}</div>
+          <div style="font-size:10px;color:var(--text3)">${tName(driver)}</div>
+        </div>
+        ${isActive?`<span style="font-size:9px;background:rgba(0,200,83,.15);color:#00C853;border:1px solid rgba(0,200,83,.4);border-radius:3px;padding:2px 5px;font-family:var(--fd);font-weight:700">ACTIVO</span>`:''}
+      </div>
+      ${sc ? `<div style="border-top:1px solid var(--border);padding-top:6px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:10px;color:var(--text3)">Total GP</span>
+          <span style="font-family:var(--fd);font-size:18px;font-weight:700;color:#00C853">${sc.total.toFixed(2)}</span>
+        </div>
+        ${sc.qualyBreakdown?.length ? `<div style="font-size:10px;color:var(--text3);margin-bottom:2px">Qualy (${sc.qualyPts.toFixed(2)}pts): ${sc.qualyBreakdown.map(b=>`${b.label} <span style="color:var(--text2);font-weight:600">+${b.pts}</span>`).join(' · ')}</div>` : ''}
+        ${sc.raceBreakdown?.length ? `<div style="font-size:10px;color:var(--text3)">Carrera (${sc.racePts.toFixed(2)}pts): ${sc.raceBreakdown.map(b=>`${b.label} <span style="color:var(--text2);font-weight:600">+${b.pts}</span>`).join(' · ')}</div>` : ''}
+        ${isMostGained ? `<div style="font-size:10px;color:#00C853;margin-top:3px">⭐ Más posiciones ganadas +1</div>` : ''}
+      </div>` : `<div style="font-size:10px;color:var(--text3);padding-top:6px;border-top:1px solid var(--border)">Sin datos aún</div>`}
+    </div>`;
+  });
+  h += `</div></div>`;
+  return h;
+}
+
+// ── RACE PANEL (results + pronostico aligned) ─────────────
+function buildRacePanel(d, pred, isOpen, gpId, viewUser) {
+  const result = d.raceResult || [];
+  const hasResult = result.length > 0;
+  const TOTAL = 22;
+  const ts = 'font-size:10px;font-family:monospace;text-align:center;padding:4px 3px';
+  const gpc = gpColor(gpId);
+  const borderColor = gpc ? gpc.border : 'var(--border)';
+
+  let h = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden">`;
+
+  // headers
+  h += `<div style="display:grid;grid-template-columns:24px 1fr 1fr 36px 70px 30px;background:var(--dark2);padding:5px 6px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border2)">
+    <div></div><div>Piloto</div><div>Equipo</div><div style="text-align:center">Vlt</div><div style="text-align:center">Tiempo</div><div style="text-align:center">F1</div></div>`;
+  h += `<div style="display:grid;grid-template-columns:1fr ${hasResult?'46px 46px':''};background:var(--dark2);padding:5px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border2);border-left:2px solid var(--border2)">
+    <div>Mi pronóstico</div>${hasResult?'<div style="text-align:center">Pts</div><div style="text-align:center">Dif</div>':''}</div>`;
+
+  for (let i = 0; i < TOTAL; i++) {
+    const driver = result[i] || '';
+    const dt = (d.raceTimes || {})[driver] || {};
+    const f1 = i < F1PTS.length ? F1PTS[i] : 0;
+    const nc = i===0?'color:var(--gold)':i===1?'color:var(--silver)':i===2?'color:var(--bronze)':'color:var(--text3)';
+    const bg = i % 2 === 1 ? 'background:rgba(255,255,255,0.015)' : '';
+
+    const predDriver = pred[i] || '';
+    let pts = 0, difLabel = '', difStyle = 'color:var(--text3)';
+    if (hasResult && predDriver && i < 10) {
+      const ai = result.indexOf(predDriver);
+      if (ai >= 0) {
+        const diff = Math.abs(ai - i);
+        if (diff === 0) { pts = RPTS[i]; difLabel = '✓'; difStyle = 'color:#00C853'; }
+        else if (diff === 1) { pts = RPTS[i]*0.5; difLabel = (ai<i?'▲':'▼')+'1'; difStyle = 'color:var(--gold)'; }
+        else if (diff === 2) { pts = RPTS[i]*0.25; difLabel = (ai<i?'▲':'▼')+'2'; difStyle = 'color:var(--text2)'; }
+        else { difLabel = (ai<i?'▲':'▼')+diff; }
+      }
+    }
+
+    const tc = getTeamColors(driver);
+    const rowBg = tc ? tc.row : (i % 2 === 1 ? 'rgba(255,255,255,0.015)' : '');
+    const namColor = tc ? tc.name : 'var(--text)';
+    const borderColor = tc ? `border-top:1px solid ${tc.border}30` : 'border-top:1px solid var(--border)';
+
+    // left: result
+    h += `<div style="display:grid;grid-template-columns:24px 1fr 1fr 36px 70px 30px;align-items:center;padding:3px 6px;${borderColor};background:${rowBg}">
+      <span style="font-family:var(--fd);font-size:12px;font-weight:700;${nc}">${i+1}</span>
+      <div class="rt-driver" style="gap:5px">${dImg(driver)}<span style="font-size:10px;font-weight:600;color:${namColor}">${driver||'—'}</span></div>
+      <div class="rt-team" style="gap:4px">${driver?tImg(driver):''}<span style="font-size:10px;color:var(--text2)">${driver?tName(driver):''}</span></div>
+      <div style="${ts};color:var(--text3)">${dt.laps||'—'}</div>
+      <div style="${ts};color:${/^DNF|^DNS|^NC/i.test(dt.time||'')?'var(--text3)':i===0?'var(--red)':'var(--text2)'};font-style:${/^DNF|^DNS/i.test(dt.time||'')?'italic':''}">${dt.time||'—'}</div>
+      <div style="${ts};color:var(--text2);font-family:var(--fd);font-size:12px;font-weight:700">${f1||'—'}</div>
+    </div>`;
+
+    // right: pronostico (only top 10)
+    if (i < 10) {
+      const pilotCell = isOpen
+        ? `<select style="width:100%;padding:3px 4px;background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:10px" id="race-slot-${i}" onchange="autoSave('${gpId}','race','${viewUser||''}')">${buildOpts(predDriver,'race',i)}</select>`
+        : `<span style="font-size:10px;color:${predDriver?'var(--text)':'var(--text3)'}">${predDriver||'—'}</span>`;
+      h += `<div style="display:grid;grid-template-columns:1fr ${hasResult?'46px 46px':''};align-items:center;padding:3px 8px;border-top:1px solid var(--border);border-left:2px solid var(--border2);${bg}">
+        <div>${pilotCell}</div>
+        ${hasResult?`<div style="text-align:center;font-family:var(--fd);font-size:12px;font-weight:700;padding:0 2px;color:${pts>0?'#00C853':'var(--text3)'}">${pts>0?'+'+pts.toFixed(2):'—'}</div>
+        <div style="text-align:center;font-size:10px;font-weight:600;padding:0 2px;${difStyle}">${difLabel||'—'}</div>`:''}
+      </div>`;
+    } else {
+      h += `<div style="border-top:1px solid var(--border);border-left:2px solid var(--border2);${bg}"></div>`;
+    }
+  }
+
+  // total at position 11 (inline row)
+  if (hasResult && pred.length) {
+    const total = calcRace(pred, result);
+    h += `<div style="border-top:2px solid ${borderColor};padding:6px 8px;background:var(--dark2);font-size:10px;color:var(--text3);text-align:right;text-transform:uppercase;letter-spacing:1px;font-weight:600">PUNTUACIÓN PORRA</div>
+    <div style="border-top:2px solid ${borderColor};border-left:2px solid var(--border2);padding:6px 8px;background:var(--dark2);font-family:var(--fd);font-size:18px;font-weight:700;color:#00C853">${total.toFixed(2)} pts</div>`;
+  }
+  h += `</div>`;
+  if (isOpen) h += `<div style="font-size:11px;color:var(--text3);text-align:right;margin-top:6px;padding:0 2px">✓ Se guarda automáticamente</div>`;
+  return h;
+}
+
+// ── QUALY PANEL (results + pronostico aligned) ────────────
+function buildQualyPanel(d, pred, isOpen, gpId, viewUser) {
+  const result = d.qualyResult || [];
+  const hasResult = result.length > 0;
+  const TOTAL = 22;
+  const ts = 'font-size:10px;font-family:monospace;text-align:center;padding:4px 3px';
+  const gpc = gpColor(gpId);
+  const borderColor = gpc ? gpc.border : 'var(--border)';
+
+  let h = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden">`;
+
+  // headers
+  h += `<div style="display:grid;grid-template-columns:24px 1fr 1fr 50px 50px 50px;background:var(--dark2);padding:5px 6px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border2)">
+    <div></div><div>Piloto</div><div>Equipo</div><div style="text-align:center">Q1</div><div style="text-align:center">Q2</div><div style="text-align:center">Q3</div></div>`;
+  h += `<div style="display:grid;grid-template-columns:1fr ${hasResult?'40px 40px':''};background:var(--dark2);padding:5px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border2);border-left:2px solid var(--border2)">
+    <div>Mi pronóstico</div>${hasResult?'<div style="text-align:center">Pos</div><div style="text-align:center">Q3</div>':''}</div>`;
+
+  for (let i = 0; i < TOTAL; i++) {
+    const driver = result[i] || '';
+    const dt = (d.qualyTimes || {})[driver] || {};
+    const nc = i===0?'color:var(--gold)':i===1?'color:var(--silver)':i===2?'color:var(--bronze)':'color:var(--text3)';
+    // Q elimination labels: 17-22=Q1 elim, 11-16=Q2 elim, 1-10=Q3 (no label needed)
+    const elim = i>=16?`<span class="q-elim">Q1</span>`:i>=10?`<span class="q-elim">Q2</span>`:'';
+    const bg = i % 2 === 1 ? 'background:rgba(255,255,255,0.015)' : '';
+    const sep = (i===4||i===9||i===14) ? 'border-bottom:1px dashed var(--border2)' : '';
+
+    const predDriver = pred[i] || '';
+    let posPts = 0, q3hit = false;
+    if (hasResult && predDriver && i < 10) {
+      if (result.slice(0, 10).includes(predDriver)) q3hit = true;
+      if (i < 5) {
+        const ai = result.indexOf(predDriver);
+        if (ai >= 0) { const diff = Math.abs(ai-i); if (diff===0) posPts=QPTS[i]; else if (diff===1) posPts=QPTS[i]/2; }
+      }
+    }
+
+    // left: result (with team colors)
+    const tcQ = getTeamColors(driver);
+    const rowBgQ = tcQ ? tcQ.row : (bg || '');
+    const namColorQ = tcQ ? tcQ.name : 'var(--text)';
+    const borderColorQ = tcQ ? `border-top:1px solid ${tcQ.border}30` : `border-top:1px solid var(--border)`;
+    h += `<div style="display:grid;grid-template-columns:24px 1fr 1fr 50px 50px 50px;align-items:center;padding:3px 6px;${borderColorQ};background:${rowBgQ};${sep}">
+      <span style="font-family:var(--fd);font-size:12px;font-weight:700;${nc}">${i+1}${elim}</span>
+      <div class="rt-driver" style="gap:5px">${dImg(driver)}<span style="font-size:10px;font-weight:600;color:${namColorQ}">${driver||'—'}</span></div>
+      <div class="rt-team" style="gap:4px">${driver?tImg(driver):''}<span style="font-size:10px;color:var(--text2)">${driver?tName(driver):''}</span></div>
+      <div style="${ts};color:var(--text3)">${dt.q1||''}</div>
+      <div style="${ts};color:var(--text3)">${i<15?(dt.q2||''):'—'}</div>
+      <div style="${ts};color:${i===0?'var(--red)':'var(--text3)'}">${i<10?(dt.q3||''):'—'}</div>
+    </div>`;
+
+    // right: pronostico — neutral colors, no team styling
+    const borderNeutral = `border-top:1px solid var(--border)`;
+    if (i < 10) {
+      const pilotCell = isOpen
+        ? `<select style="width:100%;padding:3px 4px;background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:10px" id="qualy-slot-${i}" onchange="autoSave('${gpId}','qualy','${viewUser||''}')">${buildOpts(predDriver,'qualy',i)}</select>`
+        : `<span style="font-size:10px;color:${predDriver?'var(--text)':'var(--text3)'}">${predDriver||'—'}</span>`;
+      h += `<div style="display:grid;grid-template-columns:1fr ${hasResult?'40px 40px':''};align-items:center;padding:3px 8px;${borderNeutral};border-left:2px solid var(--border2);${bg};${sep}">
+        <div>${pilotCell}</div>
+        ${hasResult?`<div style="text-align:center;font-family:var(--fd);font-size:12px;font-weight:700;padding:0 2px;color:${posPts>0?'#00C853':'var(--text3)'}">${i<5?(posPts>0?'+'+posPts.toFixed(2):'—'):'—'}</div>
+        <div style="text-align:center;font-family:var(--fd);font-size:12px;font-weight:700;padding:0 2px;color:${q3hit?'#00C853':'var(--text3)'}">${predDriver?(q3hit?'+0.25':'—'):'—'}</div>`:''}
+      </div>`;
+    } else {
+      h += `<div style="${borderNeutral};border-left:2px solid var(--border2);${bg};${sep}"></div>`;
+    }
+  }
+
+  // total + bonus at position 11
+  if (hasResult && pred.length) {
+    const p10 = pred.slice(0,10).filter(Boolean), r10 = result.slice(0,10);
+    const allIn = r10.every(x=>p10.includes(x)) && p10.every(x=>r10.includes(x));
+    let ex5=0, ex10=0;
+    for (let i=0; i<10; i++) { if (pred[i] && pred[i]===result[i]) { if(i<5) ex5++; ex10++; } }
+    const bonus = ex10===10 ? 4 : ex5===5 ? 2 : 0;
+    const total = calcQualy(pred, result);
+    h += `<div style="border-top:2px solid ${borderColor};padding:5px 8px;background:var(--dark2);font-size:10px;color:var(--text3);text-align:right;text-transform:uppercase;letter-spacing:1px;font-weight:600">
+      PORRA · Top10: <span style="color:${allIn?'#00C853':'var(--text3)'}">${allIn?'+1 ✓':'—'}</span> · Bonus: <span style="color:${bonus>0?'#00C853':'var(--text3)'}">${bonus>0?'+'+bonus:'—'}</span>
+    </div>
+    <div style="border-top:2px solid ${borderColor};border-left:2px solid var(--border2);padding:5px 8px;background:var(--dark2);font-family:var(--fd);font-size:18px;font-weight:700;color:#00C853">${total.toFixed(2)} pts</div>`;
+  }
+  h += `</div>`;
+  if (isOpen) h += `<div style="font-size:11px;color:var(--text3);text-align:right;margin-top:6px;padding:0 2px">✓ Se guarda automáticamente</div>`;
+  return h;
+}
+
+// ── DROPDOWN HELPERS ──────────────────────────────────────
+function buildOpts(selected, session, idx) {
+  const chosen = new Set();
+  for (let i = 0; i < 10; i++) {
+    if (i === idx) continue;
+    const el = document.getElementById(`${session}-slot-${i}`);
+    if (el && el.value) chosen.add(el.value);
+  }
+  return `<option value="">— elegir —</option>` + DRIVERS.map(d =>
+    chosen.has(d) && d !== selected ? '' : `<option value="${d}" ${d===selected?'selected':''}>${d}</option>`
+  ).join('');
+}
+function autoSave(gpId, session, targetUser) {
+  const saveUser = (targetUser && targetUser !== '') ? targetUser : currentUser;
+  refreshDropdowns(session);
+  const slots = [];
+  for (let i = 0; i < 10; i++) { const s = document.getElementById(`${session}-slot-${i}`); slots.push(s ? s.value : ''); }
+  if (!S.pronosticos[saveUser]) S.pronosticos[saveUser] = {};
+  if (!S.pronosticos[saveUser][gpId]) S.pronosticos[saveUser][gpId] = {};
+  S.pronosticos[saveUser][gpId][session] = slots;
+  saveState();
+  const scrollY = window.scrollY;
+  renderPronoDetail(gpId);
+  window.scrollTo(0, scrollY);
+}
+function saveProno(gpId, session) { autoSave(gpId, session); }
+function refreshDropdowns(session) {
+  const chosen = new Set();
+  for (let i = 0; i < 10; i++) { const el = document.getElementById(`${session}-slot-${i}`); if (el && el.value) chosen.add(el.value); }
+  for (let i = 0; i < 10; i++) {
+    const el = document.getElementById(`${session}-slot-${i}`); if (!el) continue;
+    const cur = el.value;
+    el.innerHTML = `<option value="">— elegir —</option>` + DRIVERS.map(d =>
+      chosen.has(d) && d !== cur ? '' : `<option value="${d}" ${d===cur?'selected':''}>${d}</option>`
+    ).join('');
+  }
+}
+
+function toggleGPColorPicker(gpId) {
+  const el = document.getElementById('gp-color-picker-' + gpId);
+  if (!el) return;
+  el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+}
+function saveGPColor(gpId) {
+  const border = document.getElementById('gpc-border-' + gpId)?.value;
+  const bg = document.getElementById('gpc-bg-' + gpId)?.value;
+  if (!border || !bg) return;
+  if (!S.colors) S.colors = { enabled: true, teams: {}, gps: {} };
+  S.colors.enabled = true; colorsEnabled = true;
+  if (!S.colors.gps) S.colors.gps = {};
+  S.colors.gps[gpId] = { border, bg: hexToRgba(bg, 0.06) };
+  saveState();
+  renderPronoDetail(gpId);
+}
+function resetGPColor(gpId) {
+  if (S.colors?.gps) delete S.colors.gps[gpId];
+  saveState();
+  renderPronoDetail(gpId);
+}
+function rgbaToHex(rgba) {
+  if (!rgba) return '#111111';
+  if (rgba.startsWith('#')) return rgba;
+  const m = rgba.match(/[\d.]+/g);
+  if (!m || m.length < 3) return '#111111';
+  return '#' + [parseInt(m[0]),parseInt(m[1]),parseInt(m[2])].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+function hexToRgba(hex, alpha) {
+  if (!hex || !hex.startsWith('#')) return `rgba(80,80,80,${alpha||0.06})`;
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${alpha||0.06})`;
+}
+function saveColors() {
+  if (!S.colors) S.colors = {};
+  S.colors.enabled = colorsEnabled;
+  S.colors.teams = {}; S.colors.gps = {};
+  Object.keys(TEAM_COLORS).forEach(team => {
+    const key = team.replace(/[\s]/g,'_');
+    const nameEl = document.getElementById(`tc-name-${key}`);
+    const bgEl   = document.getElementById(`tc-bg-${key}`);
+    if (nameEl && bgEl) {
+      const nc = nameEl.value, rb = hexToRgba(bgEl.value, 0.12);
+      S.colors.teams[team] = { name: nc, row: rb, border: nc };
+      TEAM_COLORS[team] = { name: nc, row: rb, border: nc };
+    }
+  });
+  GPs.forEach(g => {
+    const be = document.getElementById(`gc-border-${g.id}`);
+    if (be) S.colors.gps[g.id] = { border: be.value, bg: 'transparent' };
+  });
+  saveState();
+  const msg = document.getElementById('colors-msg');
+  if (msg) { msg.innerHTML = '<span style="color:#00C853">✓ Guardado</span>'; setTimeout(()=>msg.innerHTML='',2000); }
+  if (document.getElementById('tab-pronostico')?.classList.contains('active')) renderPronoDetail(selGP);
+}
+
+// ── ADMIN ─────────────────────────────────────────────────
+let adminGP = GPs[0].id;
+function setAdminGP(id) {
+  adminGP = id;
+  document.querySelectorAll('#admin-gp-pills .gp-pill').forEach(p => p.classList.toggle('active', p.dataset.gp === id));
+  renderAdminEntry();
+}
+function renderDraftPilotStats() {
+  const div = document.getElementById('admin-draft-pilot-stats');
+  if (!div) return;
+
+  // Collect all GPs with results
+  const activeGPs = GPs.filter(g => gd(g.id).qualyResult?.length || gd(g.id).raceResult?.length);
+  if (!activeGPs.length) { div.innerHTML = '<div style="color:var(--text3);font-size:12px">Sin resultados aún.</div>'; return; }
+
+  // Compute per-pilot totals across all GPs
+  const pilotStats = {};
+  DRIVERS.forEach(driver => {
+    let totalQ = 0, totalR = 0;
+    const byGP = {};
+    activeGPs.forEach(g => {
+      const q = calcDraftQualy(driver, g.id);
+      const r = calcDraftRace(driver, g.id);
+      totalQ += q.pts;
+      totalR += r.pts;
+      byGP[g.id] = { q: q.pts, r: r.pts };
+    });
+    totalQ = Math.round(totalQ * 100) / 100;
+    totalR = Math.round(totalR * 100) / 100;
+    pilotStats[driver] = { totalQ, totalR, total: Math.round((totalQ+totalR)*100)/100, byGP };
+  });
+
+  // Sort by total desc
+  const sorted = Object.entries(pilotStats).sort((a,b) => b[1].total - a[1].total);
+
+  // Build table
+  let h = `<div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead>
+        <tr style="background:var(--dark2);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3)">
+          <th style="padding:8px 10px;text-align:left;font-weight:600">#</th>
+          <th style="padding:8px 10px;text-align:left;font-weight:600">Piloto</th>
+          <th style="padding:8px 10px;text-align:left;font-weight:600">Equipo</th>
+          ${activeGPs.map(g=>`<th style="padding:8px 6px;text-align:center;font-weight:600">${g.flag}</th>`).join('')}
+          <th style="padding:8px 10px;text-align:right;font-weight:600">Qualy</th>
+          <th style="padding:8px 10px;text-align:right;font-weight:600">Carrera</th>
+          <th style="padding:8px 10px;text-align:right;font-weight:600;color:var(--text)">Total</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  sorted.forEach(([driver, sc], i) => {
+    const tc = getTeamColors(driver);
+    const rowBg = tc ? tc.row : (i%2===1?'background:rgba(255,255,255,0.015)':'');
+    const nameColor = tc ? tc.name : 'var(--text)';
+    const pc = i===0?'color:var(--gold)':i===1?'color:var(--silver)':i===2?'color:var(--bronze)':'color:var(--text3)';
+    h += `<tr style="border-top:1px solid var(--border);${rowBg}">
+      <td style="padding:6px 10px;font-family:var(--fd);font-size:11px;font-weight:700;${pc}">${i+1}</td>
+      <td style="padding:6px 10px">
+        <div style="display:flex;align-items:center;gap:6px">
+          ${dImg(driver)}
+          <span style="font-weight:600;color:${nameColor}">${driver}</span>
+        </div>
+      </td>
+      <td style="padding:6px 10px">
+        <div style="display:flex;align-items:center;gap:5px">
+          ${tImg(driver)}
+          <span style="color:var(--text2);font-size:11px">${tName(driver)}</span>
+        </div>
+      </td>
+      ${activeGPs.map(g => {
+        const gpSc = sc.byGP[g.id];
+        const t = gpSc ? Math.round((gpSc.q+gpSc.r)*100)/100 : 0;
+        return `<td style="padding:6px 6px;text-align:center;font-size:11px;color:${t>0?'var(--text2)':'var(--text3)'}">${t>0?t.toFixed(2):'—'}</td>`;
+      }).join('')}
+      <td style="padding:6px 10px;text-align:right;font-size:11px;color:var(--text2)">${sc.totalQ.toFixed(2)}</td>
+      <td style="padding:6px 10px;text-align:right;font-size:11px;color:var(--text2)">${sc.totalR.toFixed(2)}</td>
+      <td style="padding:6px 10px;text-align:right;font-family:var(--fd);font-size:14px;font-weight:700;color:#00C853">${sc.total.toFixed(2)}</td>
+    </tr>`;
+  });
+
+  h += `</tbody></table></div>`;
+  div.innerHTML = h;
+}
+
+function renderAdminTab() {
+  document.getElementById('admin-toggles').innerHTML = GPs.map(g => {
+    const d = gd(g.id);
+    return `<div class="toggle-row"><span class="toggle-label">${g.flag} ${g.name} — Qualy</span><label class="toggle-wrap"><input type="checkbox" ${d.qualyOpen?'checked':''} onchange="toggleSess('${g.id}','qualy',this.checked)"><span class="toggle-track"></span></label></div>
+    <div class="toggle-row"><span class="toggle-label">${g.flag} ${g.name} — Carrera</span><label class="toggle-wrap"><input type="checkbox" ${d.raceOpen?'checked':''} onchange="toggleSess('${g.id}','race',this.checked)"><span class="toggle-track"></span></label></div>`;
+  }).join('');
+  document.getElementById('admin-gp-pills').innerHTML = GPs.map(g =>
+    `<button class="gp-pill ${g.id===adminGP?'active':''}" data-gp="${g.id}" onclick="setAdminGP('${g.id}')">${g.flag} ${g.name}</button>`
+  ).join('');
+  renderAdminEntry();
+  renderUserList();
+  populateEditSelectors();
+  renderColorAdmin();
+  renderDraftConfig();
+  renderDiscardPanel();
+  renderDraftPilotStats();
+  renderAdminAllProno();
+}
+function toggleSess(gpId, session, open) {
+  if (!S.gpState[gpId]) S.gpState[gpId] = {};
+  S.gpState[gpId][session + 'Open'] = open; saveState();
+}
+function renderAdminEntry() {
+  renderAdminEntryFor('qualy');
+  renderAdminEntryFor('race');
+}
+function renderAdminEntryFor(sess) {
+  const d = gd(adminGP);
+  const result = sess==='qualy' ? d.qualyResult||[] : d.raceResult||[];
+  const times  = sess==='qualy' ? d.qualyTimes||{}  : d.raceTimes||{};
+  const isQ = sess === 'qualy';
+  let h = `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">
+    <tr style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3)">
+      <td style="width:24px;padding:2px">#</td><td style="padding:2px 4px">Piloto</td>
+      ${isQ
+        ? '<td style="width:68px;padding:2px">Q1</td><td style="width:68px;padding:2px">Q2</td><td style="width:68px;padding:2px">Q3</td><td style="width:36px;padding:2px">Vlt</td>'
+        : '<td style="width:36px;padding:2px">Vlt</td><td style="width:120px;padding:2px">Tiempo</td>'}
+    </tr>`;
+  for (let i = 0; i < 22; i++) {
+    const driver = result[i] || '';
+    const dt = times[driver] || {};
+    const nc = i===0?'color:var(--gold)':i===1?'color:var(--silver)':i===2?'color:var(--bronze)':'color:var(--text3)';
+    const opts = DRIVERS.map(dr => `<option value="${dr}" ${dr===driver?'selected':''}>${dr}</option>`).join('');
+    const sep = (i===9||i===14) ? 'border-bottom:1px dashed var(--border2)' : '';
+    if (isQ) {
+      // Q3 only top 10, Q2 only top 15, Q1 all
+      const showQ2 = i < 15, showQ3 = i < 10;
+      h += `<tr style="${sep}">
+        <td style="padding:2px"><span style="font-family:var(--fd);font-size:11px;font-weight:700;${nc}">${i+1}</span></td>
+        <td style="padding:2px 4px"><select class="entry-sel" id="${sess}-ares-${i}">${opts}</select></td>
+        <td style="padding:2px"><input class="entry-time" style="width:68px" id="${sess}-t1-${i}" placeholder="1:20.1" value="${dt.q1||''}"></td>
+        <td style="padding:2px">${showQ2
+          ? `<input class="entry-time" style="width:68px" id="${sess}-t2-${i}" value="${dt.q2||''}">`
+          : `<span style="color:var(--text3);font-size:10px;padding:0 6px">—</span><input type="hidden" id="${sess}-t2-${i}" value="">`}</td>
+        <td style="padding:2px">${showQ3
+          ? `<input class="entry-time" style="width:68px" id="${sess}-t3-${i}" value="${dt.q3||''}">`
+          : `<span style="color:var(--text3);font-size:10px;padding:0 6px">—</span><input type="hidden" id="${sess}-t3-${i}" value="">`}</td>
+        <td style="padding:2px"><input class="entry-time" style="width:36px" id="${sess}-vlts-${i}" placeholder="Vlt" value="${dt.vlts||''}"></td>
+      </tr>`;
+    } else {
+      h += `<tr style="${sep}">
+        <td style="padding:2px"><span style="font-family:var(--fd);font-size:11px;font-weight:700;${nc}">${i+1}</span></td>
+        <td style="padding:2px 4px"><select class="entry-sel" id="${sess}-ares-${i}">${opts}</select></td>
+        <td style="padding:2px"><input class="entry-time" style="width:36px" id="${sess}-laps-${i}" placeholder="57" value="${dt.laps||''}"></td>
+        <td style="padding:2px"><input class="entry-time" style="width:120px" id="${sess}-time-${i}" placeholder="1:23:06.8 / +2.9s / DNF" value="${dt.time||''}"></td>
+      </tr>`;
+    }
+  }
+  h += `</table></div>`;
+  document.getElementById('admin-entry-' + sess).innerHTML = h;
+}
+function applyAdminPaste(sess) {
+  const ta = document.getElementById('admin-paste-' + sess); if (!ta || !ta.value.trim()) return;
+  const isQ = sess === 'qualy';
+  const lines = ta.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+  lines.forEach((line, i) => {
+    if (i >= 22) return;
+    const cols = line.split('\t').map(c => c.trim());
+
+    // Match driver name (col 0 always)
+    const raw = cols[0];
+    const matched = matchDriver(raw) || raw;
+    const sel = document.getElementById(`${sess}-ares-${i}`);
+    if (sel && matched && DRIVERS.includes(matched)) sel.value = matched;
+
+    if (cols.length === 1) return; // only driver name pasted, done
+
+    // Detect if col[1] is a team name (text, not a time/number)
+    const isTime = s => /^[\d+\-]|^DNF|^DNS|^NC/i.test(s);
+    const teamOffset = cols.length >= 2 && !isTime(cols[1]) ? 1 : 0;
+    const data = cols.slice(1 + teamOffset); // data cols after driver [+ team]
+
+    if (isQ) {
+      // Qualy: Q1, Q2, Q3, Vueltas
+      const [q1='', q2='', q3='', vlts=''] = data;
+      const e1=document.getElementById(`${sess}-t1-${i}`);
+      const e2=document.getElementById(`${sess}-t2-${i}`);
+      const e3=document.getElementById(`${sess}-t3-${i}`);
+      const ev=document.getElementById(`${sess}-vlts-${i}`);
+      if (e1) e1.value = q1;
+      if (e2) e2.value = q2;
+      if (e3) e3.value = q3;
+      if (ev) ev.value = vlts;
+    } else {
+      // Race: Laps, Time
+      const [laps='', time=''] = data;
+      const el=document.getElementById(`${sess}-laps-${i}`);
+      const et=document.getElementById(`${sess}-time-${i}`);
+      if (el) el.value = laps;
+      if (et) et.value = time;
+    }
+  });
+  ta.value = '';
+}
+function saveAdminResults() {
+  const qRes=[], qTimes={}, rRes=[], rTimes={};
+  for (let i = 0; i < 22; i++) {
+    const qs = document.getElementById(`qualy-ares-${i}`);
+    if (qs) {
+      const dr = qs.value; qRes.push(dr);
+      qTimes[dr] = {
+        q1:   document.getElementById(`qualy-t1-${i}`)?.value   || '',
+        q2:   document.getElementById(`qualy-t2-${i}`)?.value   || '',
+        q3:   document.getElementById(`qualy-t3-${i}`)?.value   || '',
+        vlts: document.getElementById(`qualy-vlts-${i}`)?.value || '',
+      };
+    }
+    const rs = document.getElementById(`race-ares-${i}`);
+    if (rs) {
+      const dr = rs.value; rRes.push(dr);
+      rTimes[dr] = {
+        laps: document.getElementById(`race-laps-${i}`)?.value || '',
+        time: document.getElementById(`race-time-${i}`)?.value || '',
+      };
+    }
+  }
+  if (!S.gpState[adminGP]) S.gpState[adminGP] = {};
+  S.gpState[adminGP].qualyResult = qRes; S.gpState[adminGP].qualyTimes = qTimes;
+  S.gpState[adminGP].raceResult  = rRes; S.gpState[adminGP].raceTimes  = rTimes;
+  saveState();
+  const msg = document.getElementById('admin-res-msg');
+  msg.innerHTML = '<div class="msg-box msg-ok">✓ Resultados guardados</div>';
+  setTimeout(() => msg.innerHTML = '', 3000);
+  renderAdminAllProno();
+}
+
+// ── EDIT PRONOSTICO (admin) ───────────────────────────────
+function populateEditSelectors() {
+  const uSel = document.getElementById('edit-prono-user');
+  const gSel = document.getElementById('edit-prono-gp');
+  if (!uSel || !gSel) return;
+  uSel.innerHTML = Object.entries(S.users)
+    .map(([uid,u]) => `<option value="${uid}">${u.name}</option>`).join('');
+  gSel.innerHTML = GPs.map(g => `<option value="${g.id}">${g.flag} GP ${g.name}</option>`).join('');
+  renderEditProno();
+}
+
+function renderEditProno() {
+  const uid  = document.getElementById('edit-prono-user')?.value;
+  const gpId = document.getElementById('edit-prono-gp')?.value;
+  const wrap = document.getElementById('edit-prono-wrap');
+  if (!uid || !gpId || !wrap) return;
+  const sv = S.pronosticos[uid]?.[gpId] || {};
+
+  let h = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">`;
+
+  // ── CARRERA ──
+  h += `<div><div style="font-family:var(--fd);font-size:13px;font-weight:700;text-transform:uppercase;color:var(--text2);margin-bottom:8px">🏆 Carrera</div>
+  <textarea id="ep-paste-race" style="width:100%;height:55px;padding:7px;background:var(--dark2);border:1px dashed var(--border2);border-radius:var(--r);color:var(--text);font-size:11px;resize:none;margin-bottom:5px" placeholder="Pega pilotos..."></textarea>
+  <button class="btn-apply" onclick="applyEPaste('race')" style="margin-bottom:8px">Aplicar →</button>
+  <table style="width:100%;border-collapse:collapse;font-size:12px">`;
+  for (let i = 0; i < 10; i++) {
+    const v = sv.race?.[i]||'';
+    const nc = i===0?'color:var(--gold)':i===1?'color:var(--silver)':i===2?'color:var(--bronze)':'color:var(--text3)';
+    const opts = `<option value="">—</option>`+DRIVERS.map(d=>`<option value="${d}"${d===v?' selected':''}>${d}</option>`).join('');
+    h += `<tr style="border-top:1px solid var(--border)"><td style="padding:3px 4px;width:24px"><span style="font-family:var(--fd);font-size:13px;font-weight:700;${nc}">${i+1}</span></td><td style="padding:3px 4px"><select id="epr-${i}" style="width:100%;padding:4px;background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:11px">${opts}</select></td></tr>`;
+  }
+  h += `</table><div style="margin-top:8px;text-align:right"><button class="btn-save" onclick="saveEProno('${uid}','${gpId}','race')">Guardar carrera</button></div></div>`;
+
+  // ── CLASIFICACIÓN ──
+  h += `<div><div style="font-family:var(--fd);font-size:13px;font-weight:700;text-transform:uppercase;color:var(--text2);margin-bottom:8px">🏁 Clasificación</div>
+  <textarea id="ep-paste-qualy" style="width:100%;height:55px;padding:7px;background:var(--dark2);border:1px dashed var(--border2);border-radius:var(--r);color:var(--text);font-size:11px;resize:none;margin-bottom:5px" placeholder="Pega pilotos..."></textarea>
+  <button class="btn-apply" onclick="applyEPaste('qualy')" style="margin-bottom:8px">Aplicar →</button>
+  <table style="width:100%;border-collapse:collapse;font-size:12px">`;
+  for (let i = 0; i < 10; i++) {
+    const v = sv.qualy?.[i]||'';
+    const nc = i===0?'color:var(--gold)':i===1?'color:var(--silver)':i===2?'color:var(--bronze)':'color:var(--text3)';
+    const sep = i===4?'border-top:2px solid var(--border2)':'border-top:1px solid var(--border)';
+    const opts = `<option value="">—</option>`+DRIVERS.map(d=>`<option value="${d}"${d===v?' selected':''}>${d}</option>`).join('');
+    h += `<tr style="${sep}"><td style="padding:3px 4px;width:24px"><span style="font-family:var(--fd);font-size:13px;font-weight:700;${nc}">${i+1}</span></td><td style="padding:3px 4px"><select id="epq-${i}" style="width:100%;padding:4px;background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:11px">${opts}</select></td></tr>`;
+  }
+  h += `</table><div style="margin-top:8px;text-align:right"><button class="btn-save" onclick="saveEProno('${uid}','${gpId}','qualy')">Guardar clasificación</button></div></div>`;
+
+  h += `</div>`;
+
+  // ── DRAFT PILOTS ──
+  const draftPilots = S.draft?.pilots?.[uid] || [];
+  if (draftPilots.length) {
+    const activeDrivers = S.draft?.active?.[uid]?.[gpId] || draftPilots.slice(0,2);
+    h += `<div style="margin-top:1rem;padding:10px 12px;background:var(--dark2);border:1px solid var(--border2);border-radius:var(--r)">
+      <div style="font-family:var(--fd);font-size:12px;font-weight:700;text-transform:uppercase;color:var(--text2);margin-bottom:8px">🏎️ Pilotos Draft — Selección activos GP</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">`;
+    draftPilots.forEach(pilot => {
+      const isActive = activeDrivers.includes(pilot);
+      h += `<label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:5px 10px;border-radius:20px;border:1px solid ${isActive?'#00C853':'var(--border)'};background:${isActive?'rgba(0,200,83,.08)':'transparent'}">
+        <input type="checkbox" id="draft-active-${uid}-${pilot.replace(/\s/g,'_')}" ${isActive?'checked':''} onchange="saveDraftActive('${uid}','${gpId}')" style="cursor:pointer">
+        <span style="font-size:12px;font-weight:600;color:${isActive?'#00C853':'var(--text2)'}">${pilot}</span>
+      </label>`;
+    });
+    h += `</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:6px">Marca exactamente 2 pilotos activos para este GP.</div>
+    </div>`;
+  }
+
+  wrap.innerHTML = h;
+}
+
+function saveDraftActive(uid, gpId) {
+  const pilots = S.draft?.pilots?.[uid] || [];
+  const active = pilots.filter(p => {
+    const cb = document.getElementById(`draft-active-${uid}-${p.replace(/\s/g,'_')}`);
+    return cb && cb.checked;
+  });
+  if (active.length !== 2) {
+    // show warning but don't save
+    const warn = document.querySelector(`#edit-prono-wrap [style*="Marca exactamente"]`);
+    if (warn) { warn.textContent = `⚠ Debes marcar exactamente 2 pilotos (tienes ${active.length}).`; warn.style.color = 'var(--red)'; }
+    return;
+  }
+  if (!S.draft.active) S.draft.active = {};
+  if (!S.draft.active[uid]) S.draft.active[uid] = {};
+  S.draft.active[uid][gpId] = active;
+  saveState();
+  // refresh styling
+  renderEditProno();
+}
+
+function applyEPaste(session) {
+  const ta = document.getElementById('ep-paste-' + session);
+  if (!ta || !ta.value.trim()) return;
+  const lines = ta.value.split(/\r?\n/).map(l=>l.split('\t')[0].trim()).filter(Boolean);
+  const prefix = session === 'race' ? 'epr' : 'epq';
+  lines.forEach((line, i) => {
+    if (i >= 10) return;
+    const low = line.toLowerCase().trim();
+    // direct match first
+    let matched = DRIVERS.find(d => d.toLowerCase() === low);
+    // then partial last name match
+    if (!matched) matched = DRIVERS.find(d => {
+      const parts = d.toLowerCase().split(' ');
+      return parts.some(p => p.length > 3 && low.includes(p));
+    });
+    const sel = document.getElementById(prefix + '-' + i);
+    if (sel && matched) sel.value = matched;
+  });
+  ta.value = '';
+}
+
+function saveEProno(uid, gpId, session) {
+  const prefix = session === 'race' ? 'epr' : 'epq';
+  const slots = [];
+  for (let i = 0; i < 10; i++) {
+    const s = document.getElementById(prefix + '-' + i);
+    slots.push(s ? s.value : '');
+  }
+  if (!S.pronosticos[uid]) S.pronosticos[uid] = {};
+  if (!S.pronosticos[uid][gpId]) S.pronosticos[uid][gpId] = {};
+  S.pronosticos[uid][gpId][session] = slots;
+  saveState();
+  const btn = document.querySelector(`#edit-prono-wrap button[onclick*="saveEProno"][onclick*="${session}"]`);
+  if (btn) { btn.textContent='✓ Guardado'; btn.style.background='#00C853'; setTimeout(()=>{btn.textContent=session==='race'?'Guardar carrera':'Guardar clasificación';btn.style.background='';},1500); }
+  renderAdminAllProno();
+}
+
+function applyEditPasteNow(session) {
+  const ta = document.getElementById('ep-paste-' + session);
+  if (!ta || !ta.value.trim()) return;
+  const lines = ta.value.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  lines.forEach((line, i) => {
+    if (i >= 10) return;
+    const raw = line.split('\t')[0].trim();
+    const matched = matchDriver(raw) || raw;
+    const sel = document.getElementById(`ep-${session}-${i}`);
+    if (sel && matched && DRIVERS.includes(matched)) sel.value = matched;
+  });
+  ta.value = '';
+}
+function applyEditPaste(uid, gpId, session) { applyEditPasteNow(session); }
+
+function saveEditProno(uid, gpId, session) {
+  const slots = [];
+  for (let i = 0; i < 10; i++) {
+    const s = document.getElementById(`ep-${session}-${i}`);
+    slots.push(s ? s.value : '');
+  }
+  if (!S.pronosticos[uid]) S.pronosticos[uid] = {};
+  if (!S.pronosticos[uid][gpId]) S.pronosticos[uid][gpId] = {};
+  S.pronosticos[uid][gpId][session] = slots;
+  saveState();
+  const btn = document.querySelector(`#edit-prono-wrap button[onclick*="'${session}'"]`);
+  if (btn) { btn.textContent = '✓ Guardado'; btn.style.background = '#00C853'; setTimeout(() => { btn.textContent = session==='race'?'Guardar carrera':'Guardar clasificación'; btn.style.background=''; }, 1500); }
+  renderAdminAllProno();
+}
+
+// ── USER MANAGEMENT ───────────────────────────────────────
+function genPass() {
+  const words = ['turbo','apex','pit','slick','sector','podio','vuelta','kers','drs','grid'];
+  document.getElementById('new-pass').value = words[Math.floor(Math.random()*words.length)] + (Math.floor(Math.random()*90)+10);
+}
+function createUser() {
+  const name = document.getElementById('new-name').value.trim();
+  const user = document.getElementById('new-user').value.trim().toLowerCase();
+  const pass = document.getElementById('new-pass').value.trim();
+  const msg  = document.getElementById('new-user-msg');
+  if (!name||!user||!pass) { msg.innerHTML='<div class="msg-box msg-err">Rellena todos los campos</div>'; return; }
+  if (S.users[user]) { msg.innerHTML='<div class="msg-box msg-err">Ese usuario ya existe</div>'; return; }
+  if (pass.length < 4) { msg.innerHTML='<div class="msg-box msg-err">Contraseña mínimo 4 caracteres</div>'; return; }
+  S.users[user] = { name, pass, isAdmin: false }; saveState();
+  document.getElementById('new-name').value=''; document.getElementById('new-user').value=''; document.getElementById('new-pass').value='';
+  msg.innerHTML=`<div class="msg-box msg-ok">✓ Jugador <strong>${name}</strong> creado</div>`;
+  setTimeout(()=>msg.innerHTML='',3000);
+  renderUserList(); renderAdminAllProno();
+}
+function deleteUser(uid) {
+  if (!confirm(`¿Eliminar a "${S.users[uid]?.name}"?`)) return;
+  delete S.users[uid]; delete S.pronosticos[uid]; saveState();
+  renderUserList(); renderAdminAllProno();
+}
+function renderUserList() {
+  const div = document.getElementById('user-list');
+  const players = Object.entries(S.users);
+  if (!players.length) { div.innerHTML='<p style="color:var(--text3);font-size:13px;padding:8px 0">No hay jugadores aún.</p>'; return; }
+  let h=`<div class="user-head"><div>Nombre</div><div>Usuario</div><div>Contraseña</div><div></div></div>`;
+  players.forEach(([uid,u]) => {
+    const adminBadge = u.isAdmin ? `<span style="font-size:9px;background:rgba(225,6,0,.15);color:var(--red);border:1px solid rgba(225,6,0,.3);border-radius:3px;padding:1px 5px;margin-left:4px;font-family:var(--fd);letter-spacing:1px">ADMIN</span>` : '';
+    const canDelete = !u.isAdmin;
+    h+=`<div class="user-row">
+      <div style="font-weight:600">${u.name}${adminBadge}</div>
+      <div style="color:var(--text3);font-size:12px">${uid}</div>
+      <div class="user-pass">${u.pass}</div>
+      ${canDelete ? `<button class="btn-del" onclick="deleteUser('${uid}')">Eliminar</button>` : '<div></div>'}
+    </div>`;
+  });
+  div.innerHTML = h;
+}
+function renderAdminAllProno() {
+  const div = document.getElementById('admin-all-prono');
+  const players = Object.entries(S.users); // all users including admin/pablo
+  if (!players.length) { div.innerHTML='<p style="color:var(--text3);font-size:13px">No hay jugadores aún.</p>'; return; }
+  let h = '';
+  GPs.forEach(g => {
+    const d = gd(g.id);
+    h += `<div style="margin-bottom:1.5rem"><div style="font-family:var(--fd);font-size:16px;font-weight:800;text-transform:uppercase;margin-bottom:10px">${g.flag} GP ${g.name}</div>
+    <div style="overflow-x:auto"><table class="prono-table"><thead><tr><th>Pos</th>${players.map(([,u])=>`<th colspan="2">${u.name}<small style="color:var(--text3);display:block;font-weight:400">Q / R</small></th>`).join('')}<th class="official">Oficial Q</th><th class="official">Oficial R</th></tr></thead><tbody>`+
+    Array.from({length:10},(_,i)=>`<tr><td style="color:var(--text3);font-family:var(--fd);font-weight:700">${i+1}</td>${players.map(([uid])=>{
+      const pq=S.pronosticos[uid]?.[g.id]?.qualy?.[i]?.split(' ').pop()||'—';
+      const pr=S.pronosticos[uid]?.[g.id]?.race?.[i]?.split(' ').pop()||'—';
+      return`<td>${pq}</td><td>${pr}</td>`;
+    }).join('')}<td class="official">${d.qualyResult?.[i]?.split(' ').pop()||'—'}</td><td class="official">${d.raceResult?.[i]?.split(' ').pop()||'—'}</td></tr>`).join('')+
+    `</tbody></table></div>`;
+    h+=`<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">`+players.map(([uid,u])=>{
+      const qp=calcQualy(S.pronosticos[uid]?.[g.id]?.qualy||[],d.qualyResult);
+      const rp=calcRace(S.pronosticos[uid]?.[g.id]?.race||[],d.raceResult);
+      return`<div style="background:var(--dark3);border-radius:var(--r);padding:6px 12px;font-size:12px"><span style="color:var(--text2)">${u.name}</span><span style="font-family:var(--fd);font-size:15px;color:var(--red);margin-left:8px">${(qp+rp).toFixed(2)}</span><span style="color:var(--text3);font-size:11px"> pts</span></div>`;
+    }).join('')+`</div></div>`;
+  });
+  div.innerHTML = h;
+}
+
+// ── DISCARD GPs ───────────────────────────────────────────
+function renderDiscardPanel() {
+  const wrap = document.getElementById('admin-discard-wrap');
+  if (!wrap) return;
+  const sc = getAllScoresRaw(); // raw without discard applied
+  const players = Object.entries(S.users);
+  const activeGPs = GPs.filter(g => gd(g.id).qualyResult?.length || gd(g.id).raceResult?.length);
+  if (!activeGPs.length) { wrap.innerHTML = '<div style="color:var(--text3);font-size:12px">Sin resultados aún.</div>'; return; }
+
+  let h = `<table style="border-collapse:collapse;font-size:12px;min-width:100%">
+    <thead><tr style="background:var(--dark2)">
+      <th style="padding:8px 12px;text-align:left;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);font-weight:600;white-space:nowrap">Jugador</th>`;
+  activeGPs.forEach(g => {
+    h += `<th style="padding:8px 8px;text-align:center;font-size:11px;color:var(--text3);font-weight:600">${g.flag}<br><span style="font-size:9px">${g.name}</span></th>`;
+  });
+  h += `<th style="padding:8px 12px;text-align:right;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);font-weight:600">Total</th>
+    </tr></thead><tbody>`;
+
+  players.forEach(([uid, u]) => {
+    const discarded = S.discards?.[uid] || [];
+    const playerSc = sc[uid];
+    if (!playerSc) return;
+    // total excluding discards
+    const total = activeGPs.reduce((sum, g) => {
+      if (discarded.includes(g.id)) return sum;
+      return Math.round((sum + (playerSc.byGP[g.id]?.t || 0)) * 100) / 100;
+    }, 0);
+    h += `<tr style="border-top:1px solid var(--border)">
+      <td style="padding:8px 12px;font-weight:600;white-space:nowrap">${u.name}</td>`;
+    activeGPs.forEach(g => {
+      const pts = playerSc.byGP[g.id]?.t || 0;
+      const isDiscarded = discarded.includes(g.id);
+      const cellBg = isDiscarded ? 'background:rgba(225,6,0,.12)' : pts > 0 ? '' : '';
+      h += `<td style="padding:4px 6px;text-align:center;${cellBg}">
+        <label style="cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px">
+          <input type="checkbox" ${isDiscarded?'checked':''} onchange="toggleDiscard('${uid}','${g.id}',this.checked)"
+            style="cursor:pointer;accent-color:var(--red)">
+          <span style="font-size:11px;color:${isDiscarded?'var(--text3)':pts>0?'var(--text)':'var(--text3)'};${isDiscarded?'text-decoration:line-through':''}">${pts>0?pts.toFixed(2):'—'}</span>
+        </label>
+      </td>`;
+    });
+    h += `<td style="padding:8px 12px;text-align:right;font-family:var(--fd);font-size:16px;font-weight:700;color:#00C853">${total.toFixed(2)}</td>
+    </tr>`;
+  });
+  h += `</tbody></table>`;
+  wrap.innerHTML = h;
+}
+
+function toggleDiscard(uid, gpId, checked) {
+  if (!S.discards) S.discards = {};
+  if (!S.discards[uid]) S.discards[uid] = [];
+  if (checked) {
+    if (!S.discards[uid].includes(gpId)) S.discards[uid].push(gpId);
+  } else {
+    S.discards[uid] = S.discards[uid].filter(id => id !== gpId);
+  }
+  saveState();
+  renderDiscardPanel();
+  // also refresh standings if visible
+  if (document.getElementById('tab-standings')?.classList.contains('active')) renderStandings();
+}
+
+// Raw scores without discard applied (for discard panel display)
+function getAllScoresRaw() {
+  const sc = {};
+  Object.entries(S.users).forEach(([uid, u]) => {
+    sc[uid] = { name: u.name, total: 0, byGP: {} };
+    GPs.forEach(g => {
+      const d = gd(g.id);
+      const pq = S.pronosticos[uid]?.[g.id]?.qualy || [];
+      const pr = S.pronosticos[uid]?.[g.id]?.race  || [];
+      const qp = calcQualy(pq, d.qualyResult), rp = calcRace(pr, d.raceResult);
+      sc[uid].byGP[g.id] = { q: qp, r: rp, t: Math.round((qp+rp)*100)/100 };
+      sc[uid].total = Math.round((sc[uid].total + qp + rp)*100)/100;
+    });
+  });
+  return sc;
+}
+
+// ── DRAFT ─────────────────────────────────────────────────
+let selDraftGP = GPs[0].id;
+
+// Draft state helpers
+function getDraft() { return S.draft || { pilots: {}, active: {}, qualyRecord: {} }; }
+function saveDraft() { saveState(); }
+
+// Get teammate of a driver
+function getTeammate(driver) {
+  const team = DD[driver]?.team;
+  if (!team) return null;
+  return DRIVERS.find(d => d !== driver && DD[d]?.team === team) || null;
+}
+
+// ── DRAFT SCORING ────────────────────────────────────────
+function calcDraftQualy(driver, gpId) {
+  const d = gd(gpId);
+  const g = GPs.find(x => x.id === gpId);
+  const result = d.qualyResult || [];
+  const pos = result.indexOf(driver); // 0-based
+  if (pos === -1) return { pts: 0, breakdown: [] };
+
+  let pts = 0;
+  const breakdown = [];
+
+  // Pole
+  if (pos === 0) {
+    pts += 1; breakdown.push({ label: 'Pole', pts: 1 });
+    // Qualy record
+    const dt = (d.qualyTimes || {})[driver];
+    const circuitRecord = g.info?.qualyRecord?.time;
+    if (dt?.q3 && circuitRecord && timeToMs(dt.q3) < timeToMs(circuitRecord)) {
+      pts += 1; breakdown.push({ label: 'Récord circuito (qualy)', pts: 1 });
+    }
+  }
+
+  // Q3 (top 10)
+  if (pos < 10) { pts += 2; breakdown.push({ label: 'Clasifica Q3', pts: 2 }); }
+
+  // Beat teammate in qualy
+  const teammate = getTeammate(driver);
+  if (teammate) {
+    const tmPos = result.indexOf(teammate);
+    if (tmPos !== -1 && pos < tmPos) {
+      pts += 1; breakdown.push({ label: 'Gana compañero qualy', pts: 1 });
+    }
+  }
+
+  return { pts: Math.min(pts, 5), breakdown };
+}
+
+function calcDraftRace(driver, gpId) {
+  const d = gd(gpId);
+  const g = GPs.find(x => x.id === gpId);
+  const qualyResult = d.qualyResult || [];
+  const raceResult  = d.raceResult  || [];
+  const raceTimes   = d.raceTimes   || {};
+
+  const qualyPos = qualyResult.indexOf(driver); // 0-based
+  const racePos  = raceResult.indexOf(driver);
+  if (racePos === -1) return { pts: 0, breakdown: [] };
+
+  // DNF/DNS check
+  const dt = raceTimes[driver] || {};
+  if (/^DNF|^DNS/i.test(dt.time || '')) return { pts: 0, breakdown: [{ label: 'DNF/DNS', pts: 0 }] };
+
+  let pts = 0;
+  const breakdown = [];
+
+  // Top 10 points
+  const racePts = [15,12,10,8,6,5,4,3,2,1];
+  if (racePos < 10) { pts += racePts[racePos]; breakdown.push({ label: `P${racePos+1} carrera`, pts: racePts[racePos] }); }
+
+  // Beat / remontada vs teammate
+  const teammate = getTeammate(driver);
+  if (teammate) {
+    const tmQualyPos = qualyResult.indexOf(teammate);
+    const tmRacePos  = raceResult.indexOf(teammate);
+    const tmDNF = /^DNF|^DNS/i.test((raceTimes[teammate]||{}).time||'');
+    if (!tmDNF && tmRacePos !== -1) {
+      const wonQualy = qualyPos !== -1 && tmQualyPos !== -1 && qualyPos < tmQualyPos;
+      const wonRace  = racePos < tmRacePos;
+      const lostQualy = qualyPos !== -1 && tmQualyPos !== -1 && qualyPos > tmQualyPos;
+      if (wonRace && !lostQualy) { pts += 1; breakdown.push({ label: 'Gana compañero carrera', pts: 1 }); }
+      if (wonRace && lostQualy)  { pts += 2; breakdown.push({ label: 'Remontada al compañero', pts: 2 }); }
+    }
+  }
+
+  // Positions gained (adjusted for DNF ahead)
+  if (qualyPos !== -1) {
+    let gained = qualyPos - racePos; // positive = moved forward
+    if (gained > 0) {
+      // Subtract DNF drivers who started ahead
+      let dnfAhead = 0;
+      for (let i = 0; i < qualyPos; i++) {
+        const d2 = qualyResult[i];
+        if (!d2) continue;
+        const t2 = (raceTimes[d2] || {}).time || '';
+        if (/^DNF|^DNS/i.test(t2)) dnfAhead++;
+      }
+      const realGained = Math.max(0, gained - dnfAhead);
+      if (realGained > 0) {
+        const posPts = realGained * 0.25;
+        pts += posPts; breakdown.push({ label: `${realGained} pos ganadas (×0.25)`, pts: posPts });
+        const bonusGroups = Math.floor(realGained / 5);
+        if (bonusGroups > 0) { pts += bonusGroups; breakdown.push({ label: `Bonus cada 5 pos (×${bonusGroups})`, pts: bonusGroups }); }
+      }
+    }
+  }
+
+  return { pts: Math.round(pts * 100) / 100, breakdown, racePos, qualyPos };
+}
+
+function calcDraftGP(driver, gpId) {
+  const q = calcDraftQualy(driver, gpId);
+  const r = calcDraftRace(driver, gpId);
+  return { qualyPts: q.pts, racePts: r.pts, total: Math.round((q.pts + r.pts) * 100) / 100, qualyBreakdown: q.breakdown, raceBreakdown: r.breakdown, racePos: r.racePos };
+}
+
+// +1 to the driver with most positions gained per GP
+function applyMostGainedBonus(gpId) {
+  const draft = getDraft();
+  const allPilots = [];
+  Object.values(draft.pilots || {}).forEach(pilots => pilots.forEach(p => { if (!allPilots.includes(p)) allPilots.push(p); }));
+  const d = gd(gpId);
+  const qualyResult = d.qualyResult || [], raceResult = d.raceResult || [], raceTimes = d.raceTimes || {};
+  let maxGained = 0, maxDriver = null;
+  allPilots.forEach(driver => {
+    const qp = qualyResult.indexOf(driver), rp = raceResult.indexOf(driver);
+    if (qp === -1 || rp === -1) return;
+    if (/^DNF|^DNS/i.test((raceTimes[driver]||{}).time||'')) return;
+    let gained = qp - rp;
+    if (gained > 0) {
+      let dnfAhead = 0;
+      for (let i = 0; i < qp; i++) { const t = (raceTimes[qualyResult[i]]||{}).time||''; if (/^DNF|^DNS/i.test(t)) dnfAhead++; }
+      gained = Math.max(0, gained - dnfAhead);
+    }
+    if (gained > maxGained) { maxGained = gained; maxDriver = driver; }
+  });
+  return maxDriver;
+}
+
+function getAllDraftScores() {
+  const draft = getDraft();
+  const scores = {};
+  Object.entries(S.users).forEach(([uid, u]) => {
+    const pilots = draft.pilots?.[uid] || [];
+    if (!pilots.length) return;
+    scores[uid] = { name: u.name, total: 0, byGP: {}, pilots };
+    GPs.forEach(g => {
+      const active = draft.active?.[uid]?.[g.id] || pilots.slice(0, 2);
+      const mostGained = applyMostGainedBonus(g.id);
+      let gpTotal = 0;
+      const pilotScores = {};
+      active.forEach(driver => {
+        const sc = calcDraftGP(driver, g.id);
+        let bonus = 0;
+        if (driver === mostGained && sc.racePos !== undefined && sc.racePos !== -1) {
+          bonus = 1;
+          sc.raceBreakdown = [...(sc.raceBreakdown||[]), { label: 'Más posiciones ganadas', pts: 1 }];
+          sc.racePts += 1; sc.total += 1;
+        }
+        pilotScores[driver] = sc;
+        gpTotal += sc.total;
+      });
+      scores[uid].byGP[g.id] = { total: Math.round(gpTotal * 100) / 100, pilots: pilotScores };
+      scores[uid].total = Math.round((scores[uid].total + gpTotal) * 100) / 100;
+    });
+  });
+  return scores;
+}
+
+// ── DRAFT TAB ─────────────────────────────────────────────
+function renderDraftStandings() {
+  const scores = getAllDraftScores();
+  const tbl = document.getElementById('draft-standings-table');
+  if (!tbl) return;
+  const sorted = Object.entries(scores).sort((a,b) => b[1].total - a[1].total);
+  if (!sorted.length) { tbl.innerHTML = '<div class="no-data">Sin datos de draft</div>'; return; }
+  let h = `<div class="standings-head"><div>#</div><div>Jugador</div><div style="text-align:right">Qualy</div><div style="text-align:right">Carrera</div><div style="text-align:right">Total</div></div>`;
+  sorted.forEach(([uid, data], i) => {
+    const pc = i===0?'pos-1':i===1?'pos-2':i===2?'pos-3':'pos-other';
+    const q = Object.values(data.byGP).reduce((s,g)=>s+Object.values(g.pilots).reduce((a,p)=>a+p.qualyPts,0),0);
+    const r = Object.values(data.byGP).reduce((s,g)=>s+Object.values(g.pilots).reduce((a,p)=>a+p.racePts,0),0);
+    h += `<div class="standings-row"><div class="pos-num ${pc}">${i+1}</div><div class="player-name-cell">${data.name}<div style="font-size:10px;color:var(--text3);font-weight:400;margin-top:1px">${data.pilots.join(', ')}</div></div><div class="pts-cell">${q.toFixed(2)}</div><div class="pts-cell">${r.toFixed(2)}</div><div class="pts-total">${data.total.toFixed(2)}</div></div>`;
+  });
+  tbl.innerHTML = h;
+}
+
+function renderDraftEvo() {
+  const el = document.getElementById('draft-evo-chart');
+  if (!el) return;
+  const ctx = el.getContext('2d');
+  if (draftEvoChart) draftEvoChart.destroy();
+  const scores = getAllDraftScores();
+  const activeGPs = GPs.filter(g => gd(g.id).qualyResult?.length || gd(g.id).raceResult?.length);
+  if (!activeGPs.length || !Object.keys(scores).length) return;
+  const labels = activeGPs.map(g => g.flag + ' ' + g.name);
+  const sorted = Object.entries(scores).sort((a,b) => b[1].total - a[1].total);
+  const datasets = sorted.map(([uid,data],i) => {
+    let cum = 0;
+    const pts = activeGPs.map(g => { cum = Math.round((cum + (data.byGP[g.id]?.total||0))*100)/100; return cum; });
+    return { label: data.name, data: pts, borderColor: COLORS[i%COLORS.length], backgroundColor:'transparent', tension:0.4, pointRadius:5, borderWidth:2 };
+  });
+  Chart.defaults.color = '#666';
+  draftEvoChart = new Chart(ctx, { type:'line', data:{labels,datasets}, options:{responsive:true, plugins:{legend:{position:'bottom',labels:{color:'#999',boxWidth:12,padding:16,font:{size:12}}},tooltip:{backgroundColor:'#1a1a1a',borderColor:'#333',borderWidth:1,titleColor:'#f0f0f0',bodyColor:'#999'}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#666'}},y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#666'}}}}});
+}
+function selDraftGPFn(id) { selDraftGP = id; renderStandings(); }
+
+function toggleDraftActive(uid, gpId, driver) {
+  if (!S.draft) S.draft = { pilots: {}, active: {} };
+  if (!S.draft.active) S.draft.active = {};
+  if (!S.draft.active[uid]) S.draft.active[uid] = {};
+  const pilots = S.draft.pilots?.[uid] || [];
+  // Get current active for this GP (use previous GP default if not set)
+  const gpIdx = GPs.findIndex(g => g.id === gpId);
+  let prevActive = pilots.slice(0,2);
+  for (let i = gpIdx - 1; i >= 0; i--) {
+    const prev = S.draft.active?.[uid]?.[GPs[i].id];
+    if (prev?.length) { prevActive = prev; break; }
+  }
+  let active = [...(S.draft.active[uid][gpId] || prevActive)];
+  if (active.includes(driver)) {
+    active = active.filter(d => d !== driver);
+  } else {
+    if (active.length >= 2) active.shift();
+    active.push(driver);
+  }
+  S.draft.active[uid][gpId] = active;
+  // Re-render without saving (save is explicit)
+  const scrollY = window.scrollY;
+  renderPronoDetail(gpId);
+  window.scrollTo(0, scrollY);
+}
+
+function saveDraftSelection(uid, gpId) {
+  saveState();
+  const msg = document.getElementById(`draft-save-msg-${gpId}`);
+  if (msg) { msg.style.display = 'inline'; setTimeout(() => msg.style.display = 'none', 2000); }
+}
+
+// ── DRAFT ADMIN CONFIG ────────────────────────────────────
+function renderDraftConfig() {
+  const wrap = document.getElementById('draft-config-wrap');
+  if (!wrap) return;
+  const draft = getDraft();
+  const players = Object.entries(S.users);
+  const cols = draft.cols || 3;
+
+  let h = `<table style="width:100%;border-collapse:collapse;font-size:13px">
+    <thead><tr style="background:var(--dark2)">
+      <th style="padding:8px 12px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);font-weight:600">Jugador</th>`;
+  for (let c = 0; c < cols; c++) {
+    h += `<th style="padding:8px 12px;text-align:left;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);font-weight:600">Piloto ${c+1}</th>`;
+  }
+  h += `<th style="padding:8px 12px">
+    <button onclick="addDraftCol()" style="padding:4px 8px;background:transparent;border:1px solid var(--border2);border-radius:var(--r);color:var(--text2);font-size:16px;cursor:pointer;line-height:1;margin-right:4px">+</button>
+    <button onclick="removeDraftCol()" style="padding:4px 8px;background:transparent;border:1px solid var(--border2);border-radius:var(--r);color:var(--text2);font-size:16px;cursor:pointer;line-height:1">−</button>
+  </th>
+    </tr></thead><tbody>`;
+
+  players.forEach(([uid, u]) => {
+    const pilots = draft.pilots?.[uid] || [];
+    h += `<tr style="border-top:1px solid var(--border)">
+      <td style="padding:8px 12px;font-weight:600">${u.name}</td>`;
+    for (let c = 0; c < cols; c++) {
+      const val = pilots[c] || '';
+      const opts = `<option value="">—</option>` + DRIVERS.map(d => `<option value="${d}" ${d===val?'selected':''}>${d}</option>`).join('');
+      h += `<td style="padding:6px 8px"><select id="draft-${uid}-${c}" style="width:100%;padding:5px 7px;background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:12px">${opts}</select></td>`;
+    }
+    h += `<td></td></tr>`;
+  });
+  h += `</tbody></table>`;
+  wrap.innerHTML = h;
+}
+
+function addDraftCol() {
+  if (!S.draft) S.draft = { pilots: {}, active: {}, cols: 3 };
+  S.draft.cols = (S.draft.cols || 3) + 1;
+  renderDraftConfig();
+}
+function removeDraftCol() {
+  if (!S.draft) S.draft = { pilots: {}, active: {}, cols: 3 };
+  if ((S.draft.cols || 3) <= 1) return;
+  S.draft.cols = (S.draft.cols || 3) - 1;
+  renderDraftConfig();
+}
+
+function saveDraftConfig() {
+  if (!S.draft) S.draft = { pilots: {}, active: {} };
+  const players = Object.entries(S.users);
+  const cols = S.draft.cols || 3;
+  players.forEach(([uid]) => {
+    const pilots = [];
+    for (let c = 0; c < cols; c++) {
+      const sel = document.getElementById(`draft-${uid}-${c}`);
+      if (sel && sel.value) pilots.push(sel.value);
+    }
+    S.draft.pilots[uid] = pilots;
+  });
+  saveState();
+  const msg = document.getElementById('draft-config-msg');
+  if (msg) { msg.innerHTML = '<span style="color:#00C853">✓ Draft guardado</span>'; setTimeout(()=>msg.innerHTML='',2000); }
+}
+
+// Time string to ms for record comparison
+function timeToMs(t) {
+  if (!t) return Infinity;
+  const parts = t.replace('s','').split(':');
+  if (parts.length === 2) return parseFloat(parts[0])*60000 + parseFloat(parts[1])*1000;
+  return parseFloat(t) * 1000;
+}
+
+// ── INIT ─────────────────────────────────────────────────
+(async () => {
+  // Show loading overlay
+  document.body.insertAdjacentHTML('afterbegin',
+    `<div id="loading-overlay" style="position:fixed;inset:0;background:#0a0a0a;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;letter-spacing:2px;color:#fff">PORRA <span style="color:#E10600">F1</span> 2026</div>
+      <div style="font-size:13px;color:#666;letter-spacing:1px">Cargando datos...</div>
+    </div>`
+  );
+  await loadState();
+  document.getElementById('loading-overlay')?.remove();
+  startRealtimeSync();
+})();
+</script>
+</body>
+</html>
