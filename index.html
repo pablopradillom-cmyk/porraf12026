@@ -23,6 +23,9 @@ html,body{height:100%;background:var(--black);color:var(--text);font-family:var(
 /* AUTH */
 #auth-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--black);position:relative;overflow:hidden;}
 #auth-page::before{content:'F1';position:absolute;font-family:var(--fd);font-size:40vw;font-weight:800;color:rgba(255,255,255,0.02);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+#auth-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 1s ease;z-index:0;}
+#auth-bg.loaded{opacity:1;}
+#auth-page .auth-box{position:relative;z-index:1;backdrop-filter:blur(2px);background:rgba(17,17,17,0.85);}
 .auth-box{background:var(--dark);border:1px solid var(--border2);border-radius:var(--rl);padding:2.5rem;width:360px;position:relative;z-index:1;}
 .auth-logo{font-family:var(--fd);font-size:13px;font-weight:700;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:.5rem;}
 .auth-title{font-family:var(--fd);font-size:32px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:2rem;line-height:1;}
@@ -160,6 +163,7 @@ html,body{height:100%;background:var(--black);color:var(--text);font-family:var(
 
 <!-- AUTH -->
 <div id="auth-page">
+  <div id="auth-bg"></div>
   <div class="auth-box">
     <div class="auth-logo">Porra · Temporada 2026</div>
     <div class="auth-title" id="auth-title">Iniciar <span>sesión</span></div>
@@ -957,6 +961,27 @@ function parsePaste(text) {
 }
 
 // ── AUTH ─────────────────────────────────────────────────
+function setPortadaImg() {
+  // Images should be in img/portada/1.jpg, 2.jpg, etc.
+  // Try up to 20 images, pick a random one
+  const PORTADA_COUNT = 10; // change this to match how many images you have
+  const n = Math.floor(Math.random() * PORTADA_COUNT) + 1;
+  const bg = document.getElementById('auth-bg');
+  if (!bg) return;
+  const img = new Image();
+  img.onload = () => {
+    bg.style.backgroundImage = `url('img/portada/${n}.jpg')`;
+    bg.classList.add('loaded');
+  };
+  img.onerror = () => {
+    // Try .png if .jpg fails
+    const img2 = new Image();
+    img2.onload = () => { bg.style.backgroundImage = `url('img/portada/${n}.png')`; bg.classList.add('loaded'); };
+    img2.src = `img/portada/${n}.png`;
+  };
+  img.src = `img/portada/${n}.jpg`;
+}
+
 let currentUser = null, authMode = 'login';
 function toggleMode() {
   authMode = authMode === 'login' ? 'register' : 'login';
@@ -991,7 +1016,6 @@ function doLogin(uid) {
   document.getElementById('topbar-avatar').textContent = u.name[0].toUpperCase();
   document.getElementById('topbar-name').textContent = u.name;
   document.getElementById('nav-admin').style.display = u.isAdmin ? 'block' : 'none';
-  // Admin: show player selector in pronostico tab
   if (u.isAdmin) {
     const sel = document.getElementById('prono-view-user');
     const wrap = document.getElementById('prono-user-selector');
@@ -1001,12 +1025,15 @@ function doLogin(uid) {
       sel.value = 'pablo';
     }
   }
+  // Remember session
+  localStorage.setItem('f1porra26_session', uid);
   document.getElementById('auth-page').style.display = 'none';
   document.getElementById('app-page').classList.add('visible');
   switchTab('standings');
 }
 function logout() {
   currentUser = null;
+  localStorage.removeItem('f1porra26_session');
   document.getElementById('auth-page').style.display = 'flex';
   document.getElementById('app-page').classList.remove('visible');
   document.getElementById('inp-pass').value = '';
@@ -2284,14 +2311,26 @@ function renderDraftStandings() {
   const scores = getAllDraftScores();
   const tbl = document.getElementById('draft-standings-table');
   if (!tbl) return;
-  const sorted = Object.entries(scores).sort((a,b) => b[1].total - a[1].total);
+  const sorted = Object.entries(scores).sort((a,b) => {
+    if (sfilt === 'all') return b[1].total - a[1].total;
+    return (b[1].byGP[sfilt]?.total||0) - (a[1].byGP[sfilt]?.total||0);
+  });
   if (!sorted.length) { tbl.innerHTML = '<div class="no-data">Sin datos de draft</div>'; return; }
   let h = `<div class="standings-head"><div>#</div><div>Jugador</div><div style="text-align:right">Qualy</div><div style="text-align:right">Carrera</div><div style="text-align:right">Total</div></div>`;
   sorted.forEach(([uid, data], i) => {
     const pc = i===0?'pos-1':i===1?'pos-2':i===2?'pos-3':'pos-other';
-    const q = Object.values(data.byGP).reduce((s,g)=>s+Object.values(g.pilots).reduce((a,p)=>a+p.qualyPts,0),0);
-    const r = Object.values(data.byGP).reduce((s,g)=>s+Object.values(g.pilots).reduce((a,p)=>a+p.racePts,0),0);
-    h += `<div class="standings-row"><div class="pos-num ${pc}">${i+1}</div><div class="player-name-cell">${data.name}<div style="font-size:10px;color:var(--text3);font-weight:400;margin-top:1px">${data.pilots.join(', ')}</div></div><div class="pts-cell">${q.toFixed(2)}</div><div class="pts-cell">${r.toFixed(2)}</div><div class="pts-total">${data.total.toFixed(2)}</div></div>`;
+    let q, r, t;
+    if (sfilt === 'all') {
+      q = Object.values(data.byGP).reduce((s,g)=>s+Object.values(g.pilots).reduce((a,p)=>a+p.qualyPts,0),0);
+      r = Object.values(data.byGP).reduce((s,g)=>s+Object.values(g.pilots).reduce((a,p)=>a+p.racePts,0),0);
+      t = data.total;
+    } else {
+      const gpData = data.byGP[sfilt];
+      q = gpData ? Object.values(gpData.pilots).reduce((a,p)=>a+p.qualyPts,0) : 0;
+      r = gpData ? Object.values(gpData.pilots).reduce((a,p)=>a+p.racePts,0) : 0;
+      t = gpData?.total || 0;
+    }
+    h += `<div class="standings-row"><div class="pos-num ${pc}">${i+1}</div><div class="player-name-cell">${data.name}<div style="font-size:10px;color:var(--text3);font-weight:400;margin-top:1px">${data.pilots.join(', ')}</div></div><div class="pts-cell">${q.toFixed(2)}</div><div class="pts-cell">${r.toFixed(2)}</div><div class="pts-total">${t.toFixed(2)}</div></div>`;
   });
   tbl.innerHTML = h;
 }
@@ -2432,6 +2471,14 @@ function timeToMs(t) {
   await loadState();
   document.getElementById('loading-overlay')?.remove();
   startRealtimeSync();
+  // Auto-login if session saved
+  const savedSession = localStorage.getItem('f1porra26_session');
+  if (savedSession && S.users[savedSession]) {
+    doLogin(savedSession);
+  } else {
+    // Show random portada image
+    setPortadaImg();
+  }
 })();
 </script>
 </body>
