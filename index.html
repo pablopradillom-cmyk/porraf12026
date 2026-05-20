@@ -49,7 +49,7 @@ html,body{height:100%;background:var(--black);color:var(--text);font-family:var(
 .topbar-logo{font-family:var(--fd);font-size:20px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-right:1rem;}
 .topbar-logo span{color:var(--red);}
 .topbar-nav{display:flex;gap:2px;flex:1;}
-.topbar-btn{padding:6px 16px;border:none;border-radius:var(--r);background:transparent;color:var(--text2);font-family:var(--fd);font-size:15px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .15s;}
+.topbar-btn{padding:6px 16px;border:none;border-radius:var(--r);background:transparent;color:var(--text2);font-family:var(--fd);font-size:18px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .15s;}
 .topbar-btn:hover{color:var(--text);background:var(--dark3);}
 .topbar-btn.active{color:var(--text);background:var(--dark3);}
 .topbar-right{display:flex;align-items:center;gap:10px;margin-left:auto;}
@@ -1112,7 +1112,7 @@ function renderEvo(sc) {
       if (!discarded.includes(g.id)) cum = Math.round((cum + (data.byGP[g.id]?.t || 0)) * 100) / 100;
       return cum;
     });
-    return { label: data.name, data: pts, borderColor: COLORS[i % COLORS.length], backgroundColor: 'transparent', tension: 0.4, pointRadius: 5, borderWidth: 2 };
+    return { label: data.name, data: pts, borderColor: COLORS[i % COLORS.length], backgroundColor: 'transparent', tension: 0, pointRadius: 5, borderWidth: 2 };
   });
   Chart.defaults.color = '#666';
   evoChart = new Chart(ctx, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#999', boxWidth: 12, padding: 16, font: { size: 12 } } }, tooltip: { backgroundColor: '#1a1a1a', borderColor: '#333', borderWidth: 1, titleColor: '#f0f0f0', bodyColor: '#999' } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666' } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666' } } } } });
@@ -1121,6 +1121,9 @@ function renderEvo(sc) {
 // ── PRONOSTICO TAB ────────────────────────────────────────
 let selGP = GPs[0].id;
 function renderPronosticoTab() {
+  // Auto-select the GP with an open session, fallback to current selGP
+  const openGP = GPs.find(g => { const d = gd(g.id); return d.qualyOpen || d.raceOpen; });
+  if (openGP && selGP === GPs[0].id) selGP = openGP.id; // only auto-select on first render
   // Pills row — compact, scrollable horizontally on mobile
   document.getElementById('prono-gp-grid').innerHTML =
     `<div style="display:flex;flex-wrap:wrap;gap:5px">` +
@@ -2348,7 +2351,7 @@ function renderDraftEvo() {
   const datasets = sorted.map(([uid,data],i) => {
     let cum = 0;
     const pts = activeGPs.map(g => { cum = Math.round((cum + (data.byGP[g.id]?.total||0))*100)/100; return cum; });
-    return { label: data.name, data: pts, borderColor: COLORS[i%COLORS.length], backgroundColor:'transparent', tension:0.4, pointRadius:5, borderWidth:2 };
+    return { label: data.name, data: pts, borderColor: COLORS[i%COLORS.length], backgroundColor:'transparent', tension:0, pointRadius:5, borderWidth:2 };
   });
   Chart.defaults.color = '#666';
   draftEvoChart = new Chart(ctx, { type:'line', data:{labels,datasets}, options:{responsive:true, plugins:{legend:{position:'bottom',labels:{color:'#999',boxWidth:12,padding:16,font:{size:12}}},tooltip:{backgroundColor:'#1a1a1a',borderColor:'#333',borderWidth:1,titleColor:'#f0f0f0',bodyColor:'#999'}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#666'}},y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#666'}}}}});
