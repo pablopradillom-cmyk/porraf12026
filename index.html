@@ -1062,7 +1062,7 @@ function switchTab(tab) {
   document.getElementById('tab-' + tab).classList.add('active');
   document.getElementById('nav-' + tab).classList.add('active');
   if (tab === 'standings')   renderStandings();
-  if (tab === 'pronostico')  renderPronosticoTab();
+  if (tab === 'pronostico')  { selGPManual = false; renderPronosticoTab(); }
   if (tab === 'admin')       renderAdminTab();
 }
 
@@ -1135,10 +1135,14 @@ function renderEvo(sc) {
 
 // ── PRONOSTICO TAB ────────────────────────────────────────
 let selGP = GPs[0].id;
+let selGPManual = false; // tracks if user has manually selected a GP
+
 function renderPronosticoTab() {
-  // Auto-select the GP with an open session, fallback to current selGP
-  const openGP = GPs.find(g => { const d = gd(g.id); return d.qualyOpen || d.raceOpen; });
-  if (openGP && selGP === GPs[0].id) selGP = openGP.id; // only auto-select on first render
+  // Auto-select open GP only if user hasn't manually picked one
+  if (!selGPManual) {
+    const openGP = GPs.find(g => { const d = gd(g.id); return d.qualyOpen || d.raceOpen; });
+    if (openGP) selGP = openGP.id;
+  }
   // Pills row — compact, scrollable horizontally on mobile
   document.getElementById('prono-gp-grid').innerHTML =
     `<div style="display:flex;flex-wrap:wrap;gap:5px">` +
@@ -1159,6 +1163,7 @@ function renderPronosticoTab() {
 }
 function selPronoGP(id) {
   selGP = id;
+  selGPManual = true;
   renderPronosticoTab();
   // Show color bar with current GP colors
   const bar = document.getElementById('gp-color-bar');
