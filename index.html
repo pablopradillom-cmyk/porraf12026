@@ -180,6 +180,10 @@ html,body{height:100%;background:var(--black);color:var(--text);font-family:var(
       <label>Contraseña</label>
       <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth()">
     </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
+      <input type="checkbox" id="remember-me" checked style="cursor:pointer;accent-color:var(--red)">
+      <label for="remember-me" style="font-size:12px;color:var(--text3);cursor:pointer">Recordar sesión</label>
+    </div>
     <button class="btn-red" onclick="doAuth()">Entrar</button>
     <div class="auth-switch"><span id="auth-switch-txt">¿No tienes cuenta? </span><a onclick="toggleMode()">Regístrate</a></div>
   </div>
@@ -387,7 +391,13 @@ const DRIVERS = Object.keys(DD);
 const F1PTS  = [25,18,15,12,10,8,6,4,2,1];
 const QPTS   = [6,4,3,2,1];
 const RPTS   = [15,12,10,8,6,5,4,3,2,1];
-const COLORS = ['#E10600','#185FA5','#00C853','#FFD700','#CD7F32','#AF52DE','#FF6B35'];
+const COLORS = ['#E10600','#185FA5','#00C853','#FFD700','#CD7F32','#AF52DE','#FF6B35','#00BCD4','#FF4081','#8BC34A'];
+function getUserColor(uid) {
+  // Assign a stable color based on insertion order of user
+  const uids = Object.keys(S.users || {});
+  const idx = uids.indexOf(uid);
+  return COLORS[idx >= 0 ? idx % COLORS.length : 0];
+}
 
 const GPs = [
   { id:'aus', name:'Australia', flag:'🇦🇺', flagImg:'australia',
@@ -1025,8 +1035,13 @@ function doLogin(uid) {
       sel.value = 'pablo';
     }
   }
-  // Remember session
-  localStorage.setItem('f1porra26_session', uid);
+  // Remember session if checkbox checked
+  const rememberMe = document.getElementById('remember-me');
+  if (!rememberMe || rememberMe.checked) {
+    localStorage.setItem('f1porra26_session', uid);
+  } else {
+    localStorage.removeItem('f1porra26_session');
+  }
   document.getElementById('auth-page').style.display = 'none';
   document.getElementById('app-page').classList.add('visible');
   switchTab('standings');
@@ -1112,7 +1127,7 @@ function renderEvo(sc) {
       if (!discarded.includes(g.id)) cum = Math.round((cum + (data.byGP[g.id]?.t || 0)) * 100) / 100;
       return cum;
     });
-    return { label: data.name, data: pts, borderColor: COLORS[i % COLORS.length], backgroundColor: 'transparent', tension: 0, pointRadius: 5, borderWidth: 2 };
+    return { label: data.name, data: pts, borderColor: getUserColor(uid), backgroundColor: 'transparent', tension: 0, pointRadius: 5, borderWidth: 2 };
   });
   Chart.defaults.color = '#666';
   evoChart = new Chart(ctx, { type: 'line', data: { labels, datasets }, options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { color: '#999', boxWidth: 12, padding: 16, font: { size: 12 } } }, tooltip: { backgroundColor: '#1a1a1a', borderColor: '#333', borderWidth: 1, titleColor: '#f0f0f0', bodyColor: '#999' } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666' } }, y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666' } } } } });
@@ -2021,18 +2036,36 @@ function renderUserList() {
   const div = document.getElementById('user-list');
   const players = Object.entries(S.users);
   if (!players.length) { div.innerHTML='<p style="color:var(--text3);font-size:13px;padding:8px 0">No hay jugadores aún.</p>'; return; }
-  let h=`<div class="user-head"><div>Nombre</div><div>Usuario</div><div>Contraseña</div><div></div></div>`;
+  let h=`<div class="user-head"><div>Usuario</div><div>Nombre</div><div>Contraseña</div><div></div></div>`;
   players.forEach(([uid,u]) => {
     const adminBadge = u.isAdmin ? `<span style="font-size:9px;background:rgba(225,6,0,.15);color:var(--red);border:1px solid rgba(225,6,0,.3);border-radius:3px;padding:1px 5px;margin-left:4px;font-family:var(--fd);letter-spacing:1px">ADMIN</span>` : '';
     const canDelete = !u.isAdmin;
     h+=`<div class="user-row">
-      <div style="font-weight:600">${u.name}${adminBadge}</div>
-      <div style="color:var(--text3);font-size:12px">${uid}</div>
-      <div class="user-pass">${u.pass}</div>
-      ${canDelete ? `<button class="btn-del" onclick="deleteUser('${uid}')">Eliminar</button>` : '<div></div>'}
+      <div style="color:var(--text3);font-size:12px">${uid}${adminBadge}</div>
+      <div><input id="edit-name-${uid}" value="${u.name}" style="width:100%;padding:4px 8px;background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:12px"></div>
+      <div><input id="edit-pass-${uid}" value="${u.pass}" style="width:100%;padding:4px 8px;background:var(--dark2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:12px"></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn-save" style="padding:4px 10px;font-size:11px" onclick="saveUserEdit('${uid}')">✓</button>
+        ${canDelete ? `<button class="btn-del" onclick="deleteUser('${uid}')">✕</button>` : ''}
+      </div>
     </div>`;
   });
   div.innerHTML = h;
+}
+
+function saveUserEdit(uid) {
+  const name = document.getElementById(`edit-name-${uid}`)?.value.trim();
+  const pass = document.getElementById(`edit-pass-${uid}`)?.value.trim();
+  if (!name || !pass) return;
+  S.users[uid].name = name;
+  S.users[uid].pass = pass;
+  saveState();
+  renderUserList();
+  // Update topbar if editing current user
+  if (uid === currentUser) {
+    document.getElementById('topbar-name').textContent = name;
+    document.getElementById('topbar-avatar').textContent = name[0].toUpperCase();
+  }
 }
 function renderAdminAllProno() {
   const div = document.getElementById('admin-all-prono');
@@ -2351,7 +2384,7 @@ function renderDraftEvo() {
   const datasets = sorted.map(([uid,data],i) => {
     let cum = 0;
     const pts = activeGPs.map(g => { cum = Math.round((cum + (data.byGP[g.id]?.total||0))*100)/100; return cum; });
-    return { label: data.name, data: pts, borderColor: COLORS[i%COLORS.length], backgroundColor:'transparent', tension:0, pointRadius:5, borderWidth:2 };
+    return { label: data.name, data: pts, borderColor: getUserColor(uid), backgroundColor:'transparent', tension:0, pointRadius:5, borderWidth:2 };
   });
   Chart.defaults.color = '#666';
   draftEvoChart = new Chart(ctx, { type:'line', data:{labels,datasets}, options:{responsive:true, plugins:{legend:{position:'bottom',labels:{color:'#999',boxWidth:12,padding:16,font:{size:12}}},tooltip:{backgroundColor:'#1a1a1a',borderColor:'#333',borderWidth:1,titleColor:'#f0f0f0',bodyColor:'#999'}},scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#666'}},y:{beginAtZero:true,grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#666'}}}}});
