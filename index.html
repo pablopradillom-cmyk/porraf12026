@@ -595,22 +595,163 @@ const GPs = [
   { id:'hun', name:'Hungría', flag:'🇭🇺', flagImg:'hungria',
     circuit:'Hungaroring', circuitImg:'hungaroring', round:11, dateRace:'26 Jul',
     qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-07-25T15:00:00+02:00', race:'2026-07-26T15:00:00+02:00' },
     info:{
-      firstGP: 1986, firstGPCountry: null,
-      totalGPs: 40, length: 4.381, laps: 70, distance: 306.630, corners: 14,
+      firstGP: 1986, totalGPs: 40, length: 4.381, laps: 70, distance: 306.630, corners: 14,
       lapRecord:   { time:'1:16.627', driver:'Lewis Hamilton',   car:'Mercedes W11',     year:2020 },
       qualyRecord: { time:'1:14.407', driver:'George Russell',   car:'Mercedes W15',     year:2024 },
       mostWins:    { driver:'Lewis Hamilton', wins:9 },
-      lastWins: [
-        {year:2026, driver:'—', team:'—'},
-        {year:2025, driver:'Oscar Piastri',     team:'McLaren'},
-        {year:2024, driver:'Oscar Piastri',     team:'McLaren'},
-        {year:2023, driver:'Max Verstappen',    team:'Red Bull'},
-        {year:2022, driver:'Max Verstappen',    team:'Red Bull'},
-      ]
-    },
-    qualyResult:[], raceResult:[] },
+      lastWins: [{year:2026,driver:'—',team:'—'},{year:2025,driver:'Oscar Piastri',team:'McLaren'},{year:2024,driver:'Oscar Piastri',team:'McLaren'},{year:2023,driver:'Max Verstappen',team:'Red Bull'},{year:2022,driver:'Max Verstappen',team:'Red Bull'}]
+    }, qualyResult:[], raceResult:[] },
+
+  { id:'ned', name:'Países Bajos', flag:'🇳🇱', flagImg:'paises_bajos', sprint:true,
+    circuit:'Zandvoort', circuitImg:'zandvoort', round:12, dateRace:'23 Ago',
+    qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-08-22T15:00:00+02:00', race:'2026-08-23T15:00:00+02:00' },
+    info:{
+      firstGP: 1952, totalGPs: 36, length: 4.259, laps: 72, distance: 306.648, corners: 14,
+      lapRecord:   { time:'1:11.097', driver:'Lewis Hamilton',   car:'Mercedes W12',     year:2021 },
+      qualyRecord: { time:'1:09.273', driver:'Max Verstappen',   car:'Red Bull RB20',    year:2024 },
+      mostWins:    { driver:'Max Verstappen', wins:3 },
+      lastWins: [{year:2026,driver:'—',team:'—'},{year:2025,driver:'Lando Norris',team:'McLaren'},{year:2024,driver:'Lando Norris',team:'McLaren'},{year:2023,driver:'Max Verstappen',team:'Red Bull'},{year:2022,driver:'Max Verstappen',team:'Red Bull'}]
+    }, qualyResult:[], raceResult:[] },
+
+  { id:'ita', name:'Italia', flag:'🇮🇹', flagImg:'italia',
+    circuit:'Monza', circuitImg:'monza', round:13, dateRace:'6 Sep',
+    qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-09-05T15:00:00+02:00', race:'2026-09-06T15:00:00+02:00' },
+    info:{
+      firstGP: 1950, totalGPs: 75, length: 5.793, laps: 53, distance: 306.720, corners: 11,
+      lapRecord:   { time:'1:21.046', driver:'Rubens Barrichello', car:'Ferrari F2004',   year:2004 },
+      qualyRecord: { time:'1:19.318', driver:'Max Verstappen',     car:'Red Bull RB20',   year:2024 },
+      mostWins:    { driver:'Michael Schumacher', wins:5 },
+      lastWins: [{year:2026,driver:'—',team:'—'},{year:2025,driver:'Charles Leclerc',team:'Ferrari'},{year:2024,driver:'Charles Leclerc',team:'Ferrari'},{year:2023,driver:'Max Verstappen',team:'Red Bull'},{year:2022,driver:'Max Verstappen',team:'Red Bull'}]
+    }, qualyResult:[], raceResult:[] },
+
+  { id:'mad', name:'Madrid', flag:'🇪🇸', flagImg:'madrid',
+    circuit:'Madring', circuitImg:'madrid', round:14, dateRace:'13 Sep',
+    qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-09-12T15:00:00+02:00', race:'2026-09-13T15:00:00+02:00' },
+    info:{
+      firstGP: 2026, totalGPs: 1, length: 5.466, laps: 57, distance: 311.562, corners: 20,
+      lapRecord:   { time:'—', driver:'—', car:'—', year:2026 },
+      qualyRecord: { time:'—', driver:'—', car:'—', year:2026 },
+      mostWins:    { driver:'—', wins:0 },
+      lastWins: [{year:2026,driver:'—',team:'—'}]
+    }, qualyResult:[], raceResult:[] },
+
+  { id:'aze', name:'Azerbaiyán', flag:'🇦🇿', flagImg:'azerbaiyan',
+    circuit:'Bakú', circuitImg:'baku', round:15, dateRace:'27 Sep',
+    qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-09-26T13:00:00+02:00', race:'2026-09-27T13:00:00+02:00' },
+    info:{
+      firstGP: 2017, totalGPs: 8, length: 6.003, laps: 51, distance: 306.049, corners: 20,
+      lapRecord:   { time:'1:43.009', driver:'Charles Leclerc',  car:'Ferrari SF-21',    year:2021 },
+      qualyRecord: { time:'1:40.203', driver:'Charles Leclerc',  car:'Ferrari SF-24',    year:2024 },
+      mostWins:    { driver:'Sergio Pérez', wins:2 },
+      lastWins: [{year:2026,driver:'—',team:'—'},{year:2025,driver:'Charles Leclerc',team:'Ferrari'},{year:2024,driver:'Oscar Piastri',team:'McLaren'},{year:2023,driver:'Sergio Pérez',team:'Red Bull'},{year:2022,driver:'Max Verstappen',team:'Red Bull'}]
+    }, qualyResult:[], raceResult:[] },
+
+  { id:'sin', name:'Singapur', flag:'🇸🇬', flagImg:'singapur', sprint:true,
+    circuit:'Marina Bay', circuitImg:'marina_bay', round:16, dateRace:'11 Oct',
+    qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-10-10T14:00:00+02:00', race:'2026-10-11T14:00:00+02:00' },
+    info:{
+      firstGP: 2008, totalGPs: 17, length: 5.063, laps: 62, distance: 313.906, corners: 23,
+      lapRecord:   { time:'1:35.867', driver:'Kevin Magnussen',  car:'Haas VF-18',       year:2018 },
+      qualyRecord: { time:'1:29.525', driver:'Carlos Sainz Jr.', car:'Ferrari SF-24',    year:2024 },
+      mostWins:    { driver:'Sebastian Vettel', wins:5 },
+      lastWins: [{year:2026,driver:'—',team:'—'},{year:2025,driver:'Lando Norris',team:'McLaren'},{year:2024,driver:'Lando Norris',team:'McLaren'},{year:2023,driver:'Carlos Sainz Jr.',team:'Ferrari'},{year:2022,driver:'Sergio Pérez',team:'Red Bull'}]
+    }, qualyResult:[], raceResult:[] },
+
+  { id:'usa', name:'Estados Unidos', flag:'🇺🇸', flagImg:'usa_austin',
+    circuit:'Circuit of the Americas', circuitImg:'cota', round:17, dateRace:'25 Oct',
+    qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-10-24T22:00:00+02:00', race:'2026-10-25T21:00:00+02:00' },
+    info:{
+      firstGP: 2012, totalGPs: 12, length: 5.513, laps: 56, distance: 308.405, corners: 20,
+      lapRecord:   { time:'1:36.169', driver:'Charles Leclerc',  car:'Ferrari SF-23',    year:2023 },
+      qualyRecord: { time:'1:32.725', driver:'Carlos Sainz Jr.', car:'Ferrari SF-23',    year:2023 },
+      mostWins:    { driver:'Lewis Hamilton', wins:7 },
+      lastWins: [{year:2026,driver:'—',team:'—'},{year:2025,driver:'Max Verstappen',team:'Red Bull'},{year:2024,driver:'Carlos Sainz Jr.',team:'Ferrari'},{year:2023,driver:'Max Verstappen',team:'Red Bull'},{year:2022,driver:'Max Verstappen',team:'Red Bull'}]
+    }, qualyResult:[], raceResult:[] },
+
+  { id:'mex', name:'México', flag:'🇲🇽', flagImg:'mexico',
+    circuit:'Autódromo Hermanos Rodríguez', circuitImg:'mexico', round:18, dateRace:'1 Nov',
+    qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-10-31T22:00:00+01:00', race:'2026-11-01T21:00:00+01:00' },
+    info:{
+      firstGP: 1963, totalGPs: 22, length: 4.304, laps: 71, distance: 305.354, corners: 17,
+      lapRecord:   { time:'1:17.774', driver:'Valtteri Bottas',  car:'Mercedes W10',     year:2019 },
+      qualyRecord: { time:'1:15.295', driver:'Max Verstappen',   car:'Red Bull RB20',    year:2024 },
+      mostWins:    { driver:'Max Verstappen', wins:5 },
+      lastWins: [{year:2026,driver:'—',team:'—'},{year:2025,driver:'Carlos Sainz Jr.',team:'Williams'},{year:2024,driver:'Carlos Sainz Jr.',team:'Ferrari'},{year:2023,driver:'Max Verstappen',team:'Red Bull'},{year:2022,driver:'Max Verstappen',team:'Red Bull'}]
+    }, qualyResult:[], raceResult:[] },
+
+  { id:'bra', name:'Brasil', flag:'🇧🇷', flagImg:'brasil', sprint:true,
+    circuit:'Interlagos', circuitImg:'interlagos', round:19, dateRace:'8 Nov',
+    qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-11-07T21:00:00+01:00', race:'2026-11-08T19:00:00+01:00' },
+    info:{
+      firstGP: 1972, totalGPs: 38, length: 4.309, laps: 71, distance: 305.879, corners: 15,
+      lapRecord:   { time:'1:10.540', driver:'Valtteri Bottas',  car:'Mercedes W10',     year:2019 },
+      qualyRecord: { time:'1:07.298', driver:'Max Verstappen',   car:'Red Bull RB20',    year:2024 },
+      mostWins:    { driver:'Michael Schumacher', wins:4 },
+      lastWins: [{year:2026,driver:'—',team:'—'},{year:2025,driver:'Max Verstappen',team:'Red Bull'},{year:2024,driver:'Max Verstappen',team:'Red Bull'},{year:2023,driver:'Max Verstappen',team:'Red Bull'},{year:2022,driver:'George Russell',team:'Mercedes'}]
+    }, qualyResult:[], raceResult:[] },
+
+  { id:'lv', name:'Las Vegas', flag:'🇺🇸', flagImg:'las_vegas',
+    circuit:'Las Vegas Strip Circuit', circuitImg:'las_vegas', round:20, dateRace:'21 Nov',
+    qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-11-21T07:00:00+01:00', race:'2026-11-22T07:00:00+01:00' },
+    info:{
+      firstGP: 2023, totalGPs: 3, length: 6.201, laps: 50, distance: 309.958, corners: 17,
+      lapRecord:   { time:'1:35.490', driver:'Oscar Piastri',    car:'McLaren MCL38',    year:2024 },
+      qualyRecord: { time:'1:31.345', driver:'Carlos Sainz Jr.', car:'Ferrari SF-24',    year:2024 },
+      mostWins:    { driver:'Max Verstappen', wins:2 },
+      lastWins: [{year:2026,driver:'—',team:'—'},{year:2025,driver:'Carlos Sainz Jr.',team:'Williams'},{year:2024,driver:'Carlos Sainz Jr.',team:'Ferrari'},{year:2023,driver:'Max Verstappen',team:'Red Bull'}]
+    }, qualyResult:[], raceResult:[] },
+
+  { id:'qat', name:'Qatar', flag:'🇶🇦', flagImg:'qatar', sprint:true,
+    circuit:'Lusail', circuitImg:'lusail', round:21, dateRace:'29 Nov',
+    qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-11-28T18:00:00+01:00', race:'2026-11-29T18:00:00+01:00' },
+    info:{
+      firstGP: 2021, totalGPs: 4, length: 5.380, laps: 57, distance: 306.660, corners: 16,
+      lapRecord:   { time:'1:24.319', driver:'Max Verstappen',   car:'Red Bull RB19',    year:2023 },
+      qualyRecord: { time:'1:21.122', driver:'George Russell',   car:'Mercedes W15',     year:2024 },
+      mostWins:    { driver:'Max Verstappen', wins:2 },
+      lastWins: [{year:2026,driver:'—',team:'—'},{year:2025,driver:'Lando Norris',team:'McLaren'},{year:2024,driver:'Max Verstappen',team:'Red Bull'},{year:2023,driver:'Max Verstappen',team:'Red Bull'},{year:2021,driver:'Lewis Hamilton',team:'Mercedes'}]
+    }, qualyResult:[], raceResult:[] },
+
+  { id:'abu', name:'Abu Dhabi', flag:'🇦🇪', flagImg:'abu_dhabi',
+    circuit:'Yas Marina', circuitImg:'yas_marina', round:22, dateRace:'6 Dic',
+    qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-12-05T17:00:00+01:00', race:'2026-12-06T17:00:00+01:00' },
+    info:{
+      firstGP: 2009, totalGPs: 16, length: 5.281, laps: 58, distance: 306.183, corners: 16,
+      lapRecord:   { time:'1:26.103', driver:'Max Verstappen',   car:'Red Bull RB19',    year:2023 },
+      qualyRecord: { time:'1:22.595', driver:'George Russell',   car:'Mercedes W15',     year:2024 },
+      mostWins:    { driver:'Lewis Hamilton', wins:5 },
+      lastWins: [{year:2026,driver:'—',team:'—'},{year:2025,driver:'Lando Norris',team:'McLaren'},{year:2024,driver:'Lando Norris',team:'McLaren'},{year:2023,driver:'Max Verstappen',team:'Red Bull'},{year:2022,driver:'Max Verstappen',team:'Red Bull'}]
+    }, qualyResult:[], raceResult:[] },
 ];
+
+// Add sessions to existing GPs that were missing them
+const GP_SESSIONS = {
+  aus: { qualy:'2026-03-07T06:00:00+01:00', race:'2026-03-08T05:00:00+01:00' },
+  chn: { qualy:'2026-03-14T08:00:00+01:00', race:'2026-03-15T08:00:00+01:00' },
+  jpn: { qualy:'2026-03-28T07:00:00+01:00', race:'2026-03-29T07:00:00+01:00' },
+  mia: { qualy:'2026-05-02T22:00:00+02:00', race:'2026-05-03T19:00:00+02:00' },
+  can: { qualy:'2026-05-23T22:00:00+02:00', race:'2026-05-24T22:00:00+02:00' },
+  mon: { qualy:'2026-06-06T15:00:00+02:00', race:'2026-06-07T15:00:00+02:00' },
+  esp: { qualy:'2026-06-13T15:00:00+02:00', race:'2026-06-14T15:00:00+02:00' },
+  aut: { qualy:'2026-06-27T15:00:00+02:00', race:'2026-06-28T15:00:00+02:00' },
+  gbr: { qualy:'2026-07-04T16:00:00+02:00', race:'2026-07-05T16:00:00+02:00' },
+  bel: { qualy:'2026-07-18T15:00:00+02:00', race:'2026-07-19T15:00:00+02:00' },
+  hun: { qualy:'2026-07-25T15:00:00+02:00', race:'2026-07-26T15:00:00+02:00' },
+};
+GPs.forEach(g => { if (GP_SESSIONS[g.id] && !g.sessions) g.sessions = GP_SESSIONS[g.id]; });
 
 // ── STATE ────────────────────────────────────────────────
 // ── SUPABASE ──────────────────────────────────────────────
@@ -666,12 +807,17 @@ async function loadState() {
 
   GPs.forEach(g => {
     if (!S.gpState[g.id]) S.gpState[g.id] = {
-      qualyOpen: g.qualyOpen, raceOpen: g.raceOpen,
       qualyResult: g.qualyResult || [], raceResult: g.raceResult || [],
       qualyTimes: {}, raceTimes: {}
     };
     if (!S.gpState[g.id].qualyTimes) S.gpState[g.id].qualyTimes = {};
     if (!S.gpState[g.id].raceTimes)  S.gpState[g.id].raceTimes  = {};
+    // Migrate old manual qualyOpen/raceOpen to override system
+    const st = S.gpState[g.id];
+    if (st.qualyOpen === true  && st.qualyOpenOverride === undefined) st.qualyOpenOverride = true;
+    if (st.qualyOpen === false && st.qualyOpenOverride === undefined && !g.sessions) st.qualyOpenOverride = false;
+    if (st.raceOpen  === true  && st.raceOpenOverride  === undefined) st.raceOpenOverride  = true;
+    if (st.raceOpen  === false && st.raceOpenOverride  === undefined && !g.sessions) st.raceOpenOverride  = false;
   });
 
   if (!S.colors) S.colors = { enabled: false, teams: {}, gps: {} };
@@ -704,7 +850,29 @@ function showSyncStatus(ok) {
 }
 
 let S = {};
-function gd(id) { return S.gpState?.[id] || {}; }
+function gd(id) {
+  const state = S.gpState?.[id] || {};
+  const gp = GPs.find(g => g.id === id);
+  if (!gp?.sessions) return state;
+
+  const now = new Date();
+  const qualyStart = new Date(gp.sessions.qualy);
+  const raceStart  = new Date(gp.sessions.race);
+
+  // Session is open if: now is before session start AND not manually overridden by admin
+  // Admin can still force-open/close via toggleSess — stored in S.gpState[id].qualyOpenOverride
+  const qualyOverride = state.qualyOpenOverride; // true=force open, false=force closed, undefined=auto
+  const raceOverride  = state.raceOpenOverride;
+
+  const autoQualyOpen = now < qualyStart;
+  const autoRaceOpen  = now < raceStart;
+
+  return {
+    ...state,
+    qualyOpen: qualyOverride !== undefined ? qualyOverride : autoQualyOpen,
+    raceOpen:  raceOverride  !== undefined ? raceOverride  : autoRaceOpen,
+  };
+}
 
 // ── IMAGE HELPERS ────────────────────────────────────────
 function dImg(driver) {
@@ -1240,6 +1408,11 @@ function renderPronoDetail(gpId) {
       <span class="tag ${d.qualyOpen?'tag-open':'tag-closed'}" style="font-size:9px;margin-left:auto">Q ${d.qualyOpen?'Abierta':'Cerrada'}</span>
       <span class="tag ${d.raceOpen?'tag-open':'tag-closed'}" style="font-size:9px">R ${d.raceOpen?'Abierta':'Cerrada'}</span>
     </div>
+    ${g.sessions ? `<div style="position:relative;z-index:1;display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:8px;font-size:11px;color:var(--text3)">
+      <span>🏁 <strong style="color:var(--text2)">Qualy:</strong> ${formatSessionTime(g.sessions.qualy)}</span>
+      <span>🏆 <strong style="color:var(--text2)">Carrera:</strong> ${formatSessionTime(g.sessions.race)}</span>
+      ${S.users[currentUser]?.isAdmin && (!d.qualyResult?.length || !d.raceResult?.length) ? `<button onclick="autoFetchResults('${gpId}')" style="padding:2px 8px;background:transparent;border:1px solid var(--border2);border-radius:var(--r);color:var(--text3);font-size:10px;cursor:pointer;font-family:var(--fb)">🔄 Cargar resultados</button>` : ''}
+    </div>` : ''}
     ${inf ? `<div style="position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:.75rem;align-items:start">
       <!-- Col 1: datos generales -->
       <div>
@@ -1711,8 +1884,21 @@ function renderDraftPilotStats() {
 function renderAdminTab() {
   document.getElementById('admin-toggles').innerHTML = GPs.map(g => {
     const d = gd(g.id);
-    return `<div class="toggle-row"><span class="toggle-label">${g.flag} ${g.name} — Qualy</span><label class="toggle-wrap"><input type="checkbox" ${d.qualyOpen?'checked':''} onchange="toggleSess('${g.id}','qualy',this.checked)"><span class="toggle-track"></span></label></div>
-    <div class="toggle-row"><span class="toggle-label">${g.flag} ${g.name} — Carrera</span><label class="toggle-wrap"><input type="checkbox" ${d.raceOpen?'checked':''} onchange="toggleSess('${g.id}','race',this.checked)"><span class="toggle-track"></span></label></div>`;
+    const state = S.gpState?.[g.id] || {};
+    const gp = GPs.find(x => x.id === g.id);
+    const hasTime = !!gp?.sessions;
+
+    function sessionRow(session, isOpen, label) {
+      const override = state[session + 'OpenOverride'];
+      const isAuto = override === undefined;
+      const autoLabel = isAuto ? `<span style="font-size:10px;color:var(--text3);margin-left:4px">⏱ auto</span>` : `<span style="font-size:10px;color:var(--gold);margin-left:4px;cursor:pointer" onclick="resetSessOverride('${g.id}','${session}');renderAdminTab()">↺ manual</span>`;
+      return `<div class="toggle-row">
+        <span class="toggle-label">${g.flag} ${g.name} — ${label}${hasTime ? autoLabel : ''}</span>
+        <label class="toggle-wrap"><input type="checkbox" ${isOpen?'checked':''} onchange="toggleSess('${g.id}','${session}',this.checked);renderAdminTab()"><span class="toggle-track"></span></label>
+      </div>`;
+    }
+
+    return sessionRow('qualy', d.qualyOpen, 'Qualy') + sessionRow('race', d.raceOpen, 'Carrera');
   }).join('');
   document.getElementById('admin-gp-pills').innerHTML = GPs.map(g =>
     `<button class="gp-pill ${g.id===adminGP?'active':''}" data-gp="${g.id}" onclick="setAdminGP('${g.id}')">${g.flag} ${g.name}</button>`
@@ -1728,7 +1914,14 @@ function renderAdminTab() {
 }
 function toggleSess(gpId, session, open) {
   if (!S.gpState[gpId]) S.gpState[gpId] = {};
-  S.gpState[gpId][session + 'Open'] = open; saveState();
+  // Store as override so admin can force open/close regardless of time
+  S.gpState[gpId][session + 'OpenOverride'] = open;
+  saveState();
+}
+function resetSessOverride(gpId, session) {
+  if (!S.gpState[gpId]) return;
+  delete S.gpState[gpId][session + 'OpenOverride'];
+  saveState();
 }
 function renderAdminEntry() {
   renderAdminEntryFor('qualy');
@@ -2500,6 +2693,165 @@ function timeToMs(t) {
   return parseFloat(t) * 1000;
 }
 
+function formatSessionTime(isoStr) {
+  if (!isoStr) return '—';
+  const d = new Date(isoStr);
+  const days = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const day = days[d.getDay()];
+  const date = d.getDate();
+  const month = months[d.getMonth()];
+  const h = d.getHours().toString().padStart(2,'0');
+  const m = d.getMinutes().toString().padStart(2,'0');
+  return `${day} ${date} ${month} · ${h}:${m}h`;
+}
+
+// ── OPENF1 AUTO-FETCH ─────────────────────────────────────
+const OPENF1 = 'https://api.openf1.org/v1';
+const FETCH_DELAY_QUALY = 2 * 60 * 60 * 1000;  // +2h after qualy start
+const FETCH_DELAY_RACE  = 3 * 60 * 60 * 1000;  // +3h after race start
+
+// Map OpenF1 driver names to our driver IDs
+function matchDriverName(name) {
+  const lower = name.toLowerCase();
+  return DRIVERS.find(d => {
+    const dl = d.toLowerCase();
+    const parts = dl.split(' ');
+    const lastName = parts[parts.length - 1];
+    return dl.includes(lower) || lower.includes(lastName) || lower.includes(parts[0]);
+  }) || name;
+}
+
+async function fetchOpenF1Results(gpId, session) {
+  const gp = GPs.find(g => g.id === gpId);
+  if (!gp?.sessions) return null;
+
+  const sessionTime = new Date(session === 'qualy' ? gp.sessions.qualy : gp.sessions.race);
+  const delay = session === 'qualy' ? FETCH_DELAY_QUALY : FETCH_DELAY_RACE;
+  const fetchAfter = new Date(sessionTime.getTime() + delay);
+  const now = new Date();
+
+  if (now < fetchAfter) return null; // too early
+
+  try {
+    // Get session key
+    const sessionName = session === 'qualy' ? 'Qualifying' : 'Race';
+    const year = sessionTime.getFullYear();
+    const sessRes = await fetch(`${OPENF1}/sessions?year=${year}&session_name=${sessionName}&circuit_short_name=${gpId}`);
+    const sessions = await sessRes.json();
+
+    // Try by country/location if circuit_short_name doesn't match
+    let sessionKey = sessions?.[0]?.session_key;
+    if (!sessionKey) {
+      const sessRes2 = await fetch(`${OPENF1}/sessions?year=${year}&session_name=${sessionName}`);
+      const allSessions = await sessRes2.json();
+      // Find by date proximity
+      const target = sessionTime.getTime();
+      const closest = allSessions?.reduce((best, s) => {
+        const d = Math.abs(new Date(s.date_start).getTime() - target);
+        return (!best || d < best.diff) ? { ...s, diff: d } : best;
+      }, null);
+      if (closest?.diff < 7 * 24 * 60 * 60 * 1000) sessionKey = closest.session_key; // within 7 days
+    }
+
+    if (!sessionKey) return null;
+
+    // Get positions
+    const posRes = await fetch(`${OPENF1}/position?session_key=${sessionKey}`);
+    const positions = await posRes.json();
+    if (!positions?.length) return null;
+
+    // Get final positions (last entry per driver)
+    const finalPos = {};
+    positions.forEach(p => {
+      if (!finalPos[p.driver_number] || p.date > finalPos[p.driver_number].date) {
+        finalPos[p.driver_number] = p;
+      }
+    });
+
+    // Get driver info
+    const drvRes = await fetch(`${OPENF1}/drivers?session_key=${sessionKey}`);
+    const drivers = await drvRes.json();
+
+    // Build sorted result
+    const sorted = Object.values(finalPos)
+      .sort((a, b) => a.position - b.position)
+      .map(p => {
+        const drv = drivers.find(d => d.driver_number === p.driver_number);
+        const fullName = drv ? `${drv.first_name} ${drv.last_name}` : `#${p.driver_number}`;
+        return matchDriverName(fullName);
+      });
+
+    return sorted.length >= 10 ? sorted : null;
+  } catch(e) {
+    console.warn('OpenF1 fetch error:', e);
+    return null;
+  }
+}
+
+async function autoFetchResults(gpId) {
+  const gp = GPs.find(g => g.id === gpId);
+  if (!gp) return;
+  const d = gd(gpId);
+  let updated = false;
+
+  // Fetch qualy if no results yet
+  if (!d.qualyResult?.length) {
+    const result = await fetchOpenF1Results(gpId, 'qualy');
+    if (result?.length >= 10) {
+      if (!S.gpState[gpId]) S.gpState[gpId] = {};
+      S.gpState[gpId].qualyResult = result;
+      S.gpState[gpId].qualyOpen = false;
+      updated = true;
+      showAutoFetchMsg(gpId, 'qualy', result.length);
+    }
+  }
+
+  // Fetch race if no results yet
+  if (!d.raceResult?.length) {
+    const result = await fetchOpenF1Results(gpId, 'race');
+    if (result?.length >= 10) {
+      if (!S.gpState[gpId]) S.gpState[gpId] = {};
+      S.gpState[gpId].raceResult = result;
+      S.gpState[gpId].raceOpen = false;
+      updated = true;
+      showAutoFetchMsg(gpId, 'race', result.length);
+    }
+  }
+
+  if (updated) {
+    saveState();
+    renderStandings();
+    if (document.getElementById('tab-pronostico')?.classList.contains('active')) renderPronosticoTab();
+  }
+}
+
+function showAutoFetchMsg(gpId, session, count) {
+  const gp = GPs.find(g => g.id === gpId);
+  const msg = `✅ Resultados de ${session === 'qualy' ? 'clasificación' : 'carrera'} de ${gp?.name} cargados automáticamente (${count} pilotos)`;
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1a1a1a;border:1px solid #00C853;border-radius:8px;padding:12px 16px;font-size:13px;color:#00C853;z-index:9999;max-width:340px';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 6000);
+}
+
+// Check all GPs for pending results on load and every 30 min
+async function checkAllPendingResults() {
+  for (const gp of GPs) {
+    if (!gp.sessions) continue;
+    const d = gd(gp.id);
+    const now = new Date();
+    const qualyEnd = new Date(new Date(gp.sessions.qualy).getTime() + FETCH_DELAY_QUALY);
+    const raceEnd  = new Date(new Date(gp.sessions.race).getTime() + FETCH_DELAY_RACE);
+    const needsQualy = !d.qualyResult?.length && now > qualyEnd;
+    const needsRace  = !d.raceResult?.length  && now > raceEnd;
+    if (needsQualy || needsRace) {
+      await autoFetchResults(gp.id);
+    }
+  }
+}
+
 // ── INIT ─────────────────────────────────────────────────
 (async () => {
   // Show loading overlay
@@ -2517,9 +2869,11 @@ function timeToMs(t) {
   if (savedSession && S.users[savedSession]) {
     doLogin(savedSession);
   } else {
-    // Show random portada image
     setPortadaImg();
   }
+  // Auto-fetch results from OpenF1
+  checkAllPendingResults();
+  setInterval(checkAllPendingResults, 30 * 60 * 1000);
 })();
 </script>
 </body>
