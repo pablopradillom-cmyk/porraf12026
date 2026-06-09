@@ -168,9 +168,10 @@ html,body{height:100%;background:var(--black);color:var(--text);font-family:var(
     <div class="auth-logo">Porra · Temporada 2026</div>
     <div class="auth-title" id="auth-title">Iniciar <span>sesión</span></div>
     <div id="auth-msg"></div>
+    <form onsubmit="doAuth();return false;" autocomplete="on">
     <div class="field" id="field-name" style="display:none">
       <label>Nombre completo</label>
-      <input type="text" id="inp-name" placeholder="Ej: Carlos García">
+      <input type="text" id="inp-name" placeholder="Ej: Carlos García" autocomplete="name">
     </div>
     <div class="field">
       <label>Usuario</label>
@@ -178,13 +179,14 @@ html,body{height:100%;background:var(--black);color:var(--text);font-family:var(
     </div>
     <div class="field">
       <label>Contraseña</label>
-      <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAuth()">
+      <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password">
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:1rem">
       <input type="checkbox" id="remember-me" checked style="cursor:pointer;accent-color:var(--red)">
       <label for="remember-me" style="font-size:12px;color:var(--text3);cursor:pointer">Recordar sesión</label>
     </div>
-    <button class="btn-red" onclick="doAuth()">Entrar</button>
+    <button type="submit" class="btn-red">Entrar</button>
+    </form>
     <div class="auth-switch"><span id="auth-switch-txt">¿No tienes cuenta? </span><a onclick="toggleMode()">Regístrate</a></div>
   </div>
 </div>
@@ -760,36 +762,79 @@ const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 let saveTimer = null;
 
+function mergeStatesF1(local, server) {
+  const merged = JSON.parse(JSON.stringify(server));
+  // Keep ALL users from both
+  merged.users = Object.assign({}, local.users||{}, server.users||{});
+  if(server.users?.pablo) merged.users.pablo = server.users.pablo;
+  // Keep ALL pronósticos from both, server wins on conflicts
+  merged.pronosticos = Object.assign({}, local.pronosticos||{}, server.pronosticos||{});
+  // gpState: merge per GP, server wins
+  merged.gpState = Object.assign({}, local.gpState||{}, server.gpState||{});
+  // Admin-controlled fields: server always wins
+  merged.draft = server.draft || local.draft || {};
+  merged.discards = server.discards || local.discards || {};
+  merged.colors = server.colors || local.colors || {};
+  return merged;
+}
+
 function saveState() {
   localStorage.setItem('f1porra26', JSON.stringify(S));
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async () => {
     try {
-      const { error } = await supa.from('gamestate').upsert({ id: 'main', data: S, updated_at: new Date().toISOString() });
-      showSyncStatus(!error);
-    } catch(e) { showSyncStatus(false); }
+      // Read current server state, merge, then save
+      const { data, error } = await supa.from('gamestate').select('data').eq('id','main').single();
+      let toSave = S;
+      if (!error && data?.data && Object.keys(data.data).length > 0) {
+        toSave = mergeStatesF1(S, data.data);
+        S = toSave;
+        localStorage.setItem('f1porra26', JSON.stringify(S));
+      }
+      const { error: saveErr } = await supa.from('gamestate').upsert({ id: 'main', data: toSave, updated_at: new Date().toISOString() });
+      showSyncStatus(!saveErr);
+    } catch(e) {
+      // Fallback: save without merge
+      try {
+        const { error } = await supa.from('gamestate').upsert({ id: 'main', data: S, updated_at: new Date().toISOString() });
+        showSyncStatus(!error);
+      } catch(e2) { showSyncStatus(false); }
+    }
   }, 800);
 }
 
 async function loadState() {
-  let loaded = false;
+  let local = {};
+  try { local = JSON.parse(localStorage.getItem('f1porra26') || '{}'); } catch(e) { local = {}; }
+
   try {
     const { data, error } = await supa.from('gamestate').select('data').eq('id', 'main').single();
     if (!error && data?.data && Object.keys(data.data).length > 0) {
-      S = data.data;
+      S = mergeStatesF1(local, data.data);
       localStorage.setItem('f1porra26', JSON.stringify(S));
-      loaded = true;
       showSyncStatus(true);
+      // If local had extra users/pronos not on server, push merged back
+      const serverUsers = Object.keys(data.data.users||{}).length;
+      const mergedUsers = Object.keys(S.users||{}).length;
+      if (mergedUsers > serverUsers) {
+        supa.from('gamestate').upsert({ id: 'main', data: S, updated_at: new Date().toISOString() }).then();
+      }
+      // Auto-backup
+      try {
+        const backups = JSON.parse(localStorage.getItem('f1porra26_backups')||'[]');
+        backups.unshift({ts:new Date().toISOString(), data:JSON.parse(JSON.stringify(S))});
+        localStorage.setItem('f1porra26_backups', JSON.stringify(backups.slice(0,3)));
+      } catch(e) {}
+    } else {
+      S = Object.keys(local).length > 0 ? local : {};
+      if (Object.keys(S).length > 0) {
+        supa.from('gamestate').upsert({ id: 'main', data: S, updated_at: new Date().toISOString() }).then();
+      }
+      showSyncStatus(false);
     }
-  } catch(e) { showSyncStatus(false); }
-
-  if (!loaded) {
-    // Fall back to localStorage
-    try { S = JSON.parse(localStorage.getItem('f1porra26') || '{}'); } catch(e) { S = {}; }
-    // If local data exists, migrate it to Supabase
-    if (Object.keys(S).length > 0) {
-      supa.from('gamestate').upsert({ id: 'main', data: S, updated_at: new Date().toISOString() }).then();
-    }
+  } catch(e) {
+    S = local;
+    showSyncStatus(false);
   }
 
   if (!S.users) S.users = {};
@@ -831,7 +876,7 @@ function startRealtimeSync() {
   supa.channel('gamestate-changes')
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'gamestate' }, payload => {
       if (!payload.new?.data) return;
-      S = payload.new.data;
+      S = mergeStatesF1(S, payload.new.data);
       localStorage.setItem('f1porra26', JSON.stringify(S));
       colorsEnabled = S.colors?.enabled || false;
       const activeTab = document.querySelector('.tab-page.active')?.id?.replace('tab-','');
