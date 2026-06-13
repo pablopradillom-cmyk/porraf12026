@@ -767,10 +767,18 @@ function mergeStatesF1(local, server) {
   // Keep ALL users from both
   merged.users = Object.assign({}, local.users||{}, server.users||{});
   if(server.users?.pablo) merged.users.pablo = server.users.pablo;
-  // Keep ALL pronósticos from both, server wins on conflicts
-  merged.pronosticos = Object.assign({}, local.pronosticos||{}, server.pronosticos||{});
-  // gpState: merge per GP, server wins
-  merged.gpState = Object.assign({}, local.gpState||{}, server.gpState||{});
+  // Pronosticos: current user's local wins, server wins for others
+  merged.pronosticos = {};
+  const allUids = Object.keys(Object.assign({}, local.pronosticos||{}, server.pronosticos||{}));
+  allUids.forEach(uid => {
+    const lp = (local.pronosticos||{})[uid];
+    const sp = (server.pronosticos||{})[uid];
+    if(!lp) { merged.pronosticos[uid] = sp; return; }
+    if(!sp) { merged.pronosticos[uid] = lp; return; }
+    merged.pronosticos[uid] = (uid === currentUser) ? lp : sp;
+  });
+  // gpState: server always wins (admin sets these)
+  merged.gpState = server.gpState || local.gpState || {};
   // Admin-controlled fields: server always wins
   merged.draft = server.draft || local.draft || {};
   merged.discards = server.discards || local.discards || {};
@@ -782,22 +790,33 @@ function saveState() {
   localStorage.setItem('f1porra26', JSON.stringify(S));
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async () => {
+    if(!currentUser) return;
+    const userProno = (S.pronosticos && S.pronosticos[currentUser]) || {};
     try {
-      // Read current server state, merge, then save
-      const { data, error } = await supa.from('gamestate').select('data').eq('id','main').single();
-      let toSave = S;
-      if (!error && data?.data && Object.keys(data.data).length > 0) {
-        toSave = mergeStatesF1(S, data.data);
+      // Use merge_f1 RPC if available, otherwise direct upsert
+      const { error } = await supa.rpc('merge_f1', {
+        user_id: currentUser,
+        user_prono: userProno,
+        new_users: S.users || {}
+      });
+      showSyncStatus(!error);
+      if(!error) {
+        const { data: r2 } = await supa.from('gamestate').select('data').eq('id','main').single();
+        if(r2?.data) {
+          S = mergeStatesF1(S, r2.data);
+          localStorage.setItem('f1porra26', JSON.stringify(S));
+        }
+      }
+    } catch(e) {
+      // Fallback: direct upsert (works but not race-condition safe)
+      try {
+        const { data: cur } = await supa.from('gamestate').select('data').eq('id','main').single();
+        let toSave = S;
+        if(cur?.data) toSave = mergeStatesF1(S, cur.data);
+        await supa.from('gamestate').upsert({ id: 'main', data: toSave, updated_at: new Date().toISOString() });
         S = toSave;
         localStorage.setItem('f1porra26', JSON.stringify(S));
-      }
-      const { error: saveErr } = await supa.from('gamestate').upsert({ id: 'main', data: toSave, updated_at: new Date().toISOString() });
-      showSyncStatus(!saveErr);
-    } catch(e) {
-      // Fallback: save without merge
-      try {
-        const { error } = await supa.from('gamestate').upsert({ id: 'main', data: S, updated_at: new Date().toISOString() });
-        showSyncStatus(!error);
+        showSyncStatus(true);
       } catch(e2) { showSyncStatus(false); }
     }
   }, 800);
@@ -810,15 +829,25 @@ async function loadState() {
   try {
     const { data, error } = await supa.from('gamestate').select('data').eq('id', 'main').single();
     if (!error && data?.data && Object.keys(data.data).length > 0) {
-      S = mergeStatesF1(local, data.data);
+      const server = data.data;
+      // Always start from server — server is authoritative for gpState/draft/discards
+      S = JSON.parse(JSON.stringify(server));
+      // Merge only pronosticos: add local ones not on server
+      if(local.pronosticos) {
+        Object.keys(local.pronosticos).forEach(uid => {
+          if(!S.pronosticos) S.pronosticos = {};
+          if(!S.pronosticos[uid]) S.pronosticos[uid] = local.pronosticos[uid];
+        });
+      }
+      // Merge users: add local users not on server
+      if(local.users) {
+        Object.keys(local.users).forEach(uid => {
+          if(!S.users) S.users = {};
+          if(!S.users[uid]) S.users[uid] = local.users[uid];
+        });
+      }
       localStorage.setItem('f1porra26', JSON.stringify(S));
       showSyncStatus(true);
-      // If local had extra users/pronos not on server, push merged back
-      const serverUsers = Object.keys(data.data.users||{}).length;
-      const mergedUsers = Object.keys(S.users||{}).length;
-      if (mergedUsers > serverUsers) {
-        supa.from('gamestate').upsert({ id: 'main', data: S, updated_at: new Date().toISOString() }).then();
-      }
       // Auto-backup
       try {
         const backups = JSON.parse(localStorage.getItem('f1porra26_backups')||'[]');
@@ -827,9 +856,6 @@ async function loadState() {
       } catch(e) {}
     } else {
       S = Object.keys(local).length > 0 ? local : {};
-      if (Object.keys(S).length > 0) {
-        supa.from('gamestate').upsert({ id: 'main', data: S, updated_at: new Date().toISOString() }).then();
-      }
       showSyncStatus(false);
     }
   } catch(e) {
