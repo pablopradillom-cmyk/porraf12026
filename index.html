@@ -405,6 +405,7 @@ const GPs = [
   { id:'aus', name:'Australia', flag:'🇦🇺', flagImg:'australia',
     circuit:'Albert Park', circuitImg:'albert_park', round:1, dateRace:'8 Mar',
     qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-03-07T07:00:00+01:00', race:'2026-03-08T06:00:00+01:00' },
     info:{
       firstGP: 1996, firstGPCountry: null,
       totalGPs: 31, length: 5.278, laps: 58, distance: 306.124, corners: 16,
@@ -425,6 +426,7 @@ const GPs = [
   { id:'chn', name:'China', flag:'🇨🇳', flagImg:'china', sprint:true,
     circuit:'Shanghai Int. Circuit', circuitImg:'shanghai', round:2, dateRace:'15 Mar',
     qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-03-14T09:00:00+01:00', race:'2026-03-15T08:00:00+01:00' },
     info:{
       firstGP: 2004, firstGPCountry: null,
       totalGPs: 20, length: 5.451, laps: 56, distance: 305.066, corners: 16,
@@ -445,6 +447,7 @@ const GPs = [
   { id:'jpn', name:'Japón', flag:'🇯🇵', flagImg:'japon',
     circuit:'Suzuka', circuitImg:'suzuka', round:3, dateRace:'29 Mar',
     qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-03-28T08:00:00+01:00', race:'2026-03-29T07:00:00+01:00' },
     info:{
       firstGP: 1987, firstGPCountry: null,
       totalGPs: 38, length: 5.807, laps: 53, distance: 307.471, corners: 18,
@@ -464,6 +467,7 @@ const GPs = [
   { id:'mia', name:'Miami', flag:'🇺🇸', flagImg:'usa', sprint:true,
     circuit:'Miami Int. Autodrome', circuitImg:'miami', round:4, dateRace:'3 May',
     qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-05-02T22:00:00+02:00', race:'2026-05-03T22:00:00+02:00' },
     info:{
       firstGP: 2022, firstGPCountry: null,
       totalGPs: 5, length: 5.412, laps: 57, distance: 308.326, corners: 19,
@@ -483,6 +487,7 @@ const GPs = [
   { id:'can', name:'Canadá', flag:'🇨🇦', flagImg:'canada', sprint:true,
     circuit:'Circuit Gilles-Villeneuve', circuitImg:'montreal', round:5, dateRace:'24 May',
     qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-05-23T22:00:00+02:00', race:'2026-05-24T20:00:00+02:00' },
     info:{
       firstGP: 1978, firstGPCountry:{ year:1967, name:'GP de Canadá (Mosport)' },
       totalGPs: 57, length: 4.361, laps: 70, distance: 305.270, corners: 14,
@@ -502,6 +507,7 @@ const GPs = [
   { id:'mon', name:'Mónaco', flag:'🇲🇨', flagImg:'monaco',
     circuit:'Circuit de Monaco', circuitImg:'monaco', round:6, dateRace:'7 Jun',
     qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-06-06T16:00:00+02:00', race:'2026-06-07T15:00:00+02:00' },
     info:{
       firstGP: 1950, firstGPCountry: null,
       totalGPs: 69, length: 3.337, laps: 78, distance: 260.286, corners: 19,
@@ -521,6 +527,7 @@ const GPs = [
   { id:'esp', name:'España', flag:'🇪🇸', flagImg:'españa',
     circuit:'Circuit de Barcelona-Catalunya', circuitImg:'barcelona', round:7, dateRace:'14 Jun',
     qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-06-13T16:00:00+02:00', race:'2026-06-14T15:00:00+02:00' },
     info:{
       firstGP: 1991, firstGPCountry:{ year:1969, name:'GP de España (Montjuïc/Jarama)' },
       totalGPs: 56, length: 4.657, laps: 66, distance: 307.104, corners: 14,
@@ -540,6 +547,7 @@ const GPs = [
   { id:'aut', name:'Austria', flag:'🇦🇹', flagImg:'austria',
     circuit:'Red Bull Ring', circuitImg:'red_bull_ring', round:8, dateRace:'28 Jun',
     qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-06-27T16:00:00+02:00', race:'2026-06-28T15:00:00+02:00' },
     info:{
       firstGP: 1970, firstGPCountry: null,
       totalGPs: 35, length: 4.318, laps: 71, distance: 306.452, corners: 10,
@@ -559,6 +567,7 @@ const GPs = [
   { id:'gbr', name:'Gran Bretaña', flag:'🇬🇧', flagImg:'reino_unido', sprint:true,
     circuit:'Silverstone', circuitImg:'silverstone', round:9, dateRace:'5 Jul',
     qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-07-04T16:00:00+02:00', race:'2026-07-05T16:00:00+02:00' },
     info:{
       firstGP: 1950, firstGPCountry: null,
       totalGPs: 74, length: 5.891, laps: 52, distance: 306.198, corners: 18,
@@ -578,6 +587,7 @@ const GPs = [
   { id:'bel', name:'Bélgica', flag:'🇧🇪', flagImg:'belgica',
     circuit:'Spa-Francorchamps', circuitImg:'spa', round:10, dateRace:'19 Jul',
     qualyOpen:false, raceOpen:false,
+    sessions:{ qualy:'2026-07-18T15:00:00+02:00', race:'2026-07-19T15:00:00+02:00' },
     info:{
       firstGP: 1950, firstGPCountry: null,
       totalGPs: 61, length: 7.004, laps: 44, distance: 308.052, corners: 19,
@@ -1378,14 +1388,31 @@ function renderEvo(sc) {
 }
 
 // ── PRONOSTICO TAB ────────────────────────────────────────
-let selGP = GPs[0].id;
+// Returns the current/next GP based on race date
+function getCurrentGP() {
+  const now = new Date();
+  for (let i = 0; i < GPs.length; i++) {
+    const g = GPs[i];
+    // Check saved session override first, then static definition
+    const savedSess = S.gpState?.[g.id]?.sessions;
+    const staticSess = g.sessions;
+    const raceDateStr = (savedSess && savedSess.race) || (staticSess && staticSess.race);
+    if (raceDateStr) {
+      const raceEnd = new Date(new Date(raceDateStr).getTime() + 4*60*60*1000);
+      if (now < raceEnd) return g.id;
+    }
+  }
+  return GPs[GPs.length - 1].id;
+}
+
+let selGP = getCurrentGP();
 let selGPManual = false; // tracks if user has manually selected a GP
 
 function renderPronosticoTab() {
-  // Auto-select open GP only if user hasn't manually picked one
+  // Auto-select current GP based on date if user hasn't manually picked one
   if (!selGPManual) {
     const openGP = GPs.find(g => { const d = gd(g.id); return d.qualyOpen || d.raceOpen; });
-    if (openGP) selGP = openGP.id;
+    selGP = openGP ? openGP.id : getCurrentGP();
   }
   // Pills row — compact, scrollable horizontally on mobile
   document.getElementById('prono-gp-grid').innerHTML =
@@ -1873,7 +1900,7 @@ function saveColors() {
 }
 
 // ── ADMIN ─────────────────────────────────────────────────
-let adminGP = GPs[0].id;
+let adminGP = getCurrentGP();
 function setAdminGP(id) {
   adminGP = id;
   document.querySelectorAll('#admin-gp-pills .gp-pill').forEach(p => p.classList.toggle('active', p.dataset.gp === id));
@@ -1962,23 +1989,40 @@ function renderAdminTab() {
     const d = gd(g.id);
     const state = S.gpState?.[g.id] || {};
     const gp = GPs.find(x => x.id === g.id);
-    const hasTime = !!gp?.sessions;
+    // Get sessions from static definition or from saved state overrides
+    const savedSessions = S.gpState?.[g.id]?.sessions || {};
+    const staticSess = gp?.sessions || {};
+    const qualyDateVal = savedSessions.qualy || staticSess.qualy || '';
+    const raceDateVal  = savedSessions.race  || staticSess.race  || '';
 
-    function sessionRow(session, isOpen, label) {
+    function sessionRow(session, isOpen, label, dateVal) {
       const override = state[session + 'OpenOverride'];
       const isAuto = override === undefined;
-      const autoLabel = isAuto ? `<span style="font-size:10px;color:var(--text3);margin-left:4px">⏱ auto</span>` : `<span style="font-size:10px;color:var(--gold);margin-left:4px;cursor:pointer" onclick="resetSessOverride('${g.id}','${session}');renderAdminTab()">↺ manual</span>`;
-      return `<div class="toggle-row">
-        <span class="toggle-label">${g.flag} ${g.name} — ${label}${hasTime ? autoLabel : ''}</span>
+      const autoLabel = isAuto
+        ? `<span style="font-size:10px;color:var(--text3);margin-left:4px">⏱ auto</span>`
+        : `<span style="font-size:10px;color:var(--gold);margin-left:4px;cursor:pointer" onclick="resetSessOverride('${g.id}','${session}');renderAdminTab()">↺ manual</span>`;
+      // Format datetime-local value from ISO string
+      const dtLocal = dateVal ? dateVal.slice(0,16) : '';
+      return `<div class="toggle-row" style="flex-wrap:wrap;gap:4px">
+        <span class="toggle-label" style="flex:1;min-width:160px">${g.flag} ${g.name} — ${label}${autoLabel}</span>
+        <input type="datetime-local" value="${dtLocal}"
+          onchange="saveSessionDate('${g.id}','${session}',this.value)"
+          style="padding:3px 6px;background:var(--dark3);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-size:11px">
+        <span class="tag ${isOpen?'tag-open':'tag-closed'}" style="font-size:10px">${isOpen?'Abierta':'Cerrada'}</span>
         <label class="toggle-wrap"><input type="checkbox" ${isOpen?'checked':''} onchange="toggleSess('${g.id}','${session}',this.checked);renderAdminTab()"><span class="toggle-track"></span></label>
       </div>`;
     }
 
-    return sessionRow('qualy', d.qualyOpen, 'Qualy') + sessionRow('race', d.raceOpen, 'Carrera');
+    return sessionRow('qualy', d.qualyOpen, 'Qualy', qualyDateVal)
+         + sessionRow('race',  d.raceOpen,  'Carrera', raceDateVal);
   }).join('');
-  document.getElementById('admin-gp-pills').innerHTML = GPs.map(g =>
-    `<button class="gp-pill ${g.id===adminGP?'active':''}" data-gp="${g.id}" onclick="setAdminGP('${g.id}')">${g.flag} ${g.name}</button>`
-  ).join('');
+
+  document.getElementById('admin-gp-pills').innerHTML = GPs.map(g => {
+    const d = gd(g.id);
+    const isOpen = d.qualyOpen || d.raceOpen;
+    const isCur = g.id === getCurrentGP();
+    return `<button class="gp-pill ${g.id===adminGP?'active':''}" data-gp="${g.id}" onclick="setAdminGP('${g.id}')">${g.flag} ${g.name}${isOpen?' 🟢':isCur?' 📍':''}</button>`;
+  }).join('');
   renderAdminEntry();
   renderUserList();
   populateEditSelectors();
@@ -1995,6 +2039,16 @@ async function saveAdminStateF1() {
     const { error } = await supa.from('gamestate').upsert({ id: 'main', data: S, updated_at: new Date().toISOString() });
     showSyncStatus(!error);
   } catch(e) { showSyncStatus(false); }
+}
+
+function saveSessionDate(gpId, session, dtLocalValue) {
+  // Convert datetime-local (YYYY-MM-DDTHH:MM) to ISO with Spain offset
+  if (!dtLocalValue) return;
+  if (!S.gpState[gpId]) S.gpState[gpId] = {};
+  if (!S.gpState[gpId].sessions) S.gpState[gpId].sessions = {};
+  // Store as-is with local offset assumed (user enters Spain time)
+  S.gpState[gpId].sessions[session] = dtLocalValue + ':00';
+  saveAdminStateF1();
 }
 
 function toggleSess(gpId, session, open) {
@@ -2139,7 +2193,12 @@ function populateEditSelectors() {
   if (!uSel || !gSel) return;
   uSel.innerHTML = Object.entries(S.users)
     .map(([uid,u]) => `<option value="${uid}">${u.name}</option>`).join('');
-  gSel.innerHTML = GPs.map(g => `<option value="${g.id}">${g.flag} GP ${g.name}</option>`).join('');
+  const curGP = getCurrentGP();
+  gSel.innerHTML = GPs.map(g => {
+    const d = gd(g.id);
+    const status = d.qualyOpen ? ' 🟢Q' : d.raceOpen ? ' 🟢R' : ' 🔒';
+    return `<option value="${g.id}" ${g.id===curGP?'selected':''}>${g.flag} GP ${g.name}${status}</option>`;
+  }).join('');
   renderEditProno();
 }
 
@@ -2149,8 +2208,16 @@ function renderEditProno() {
   const wrap = document.getElementById('edit-prono-wrap');
   if (!uid || !gpId || !wrap) return;
   const sv = S.pronosticos[uid]?.[gpId] || {};
+  const d = gd(gpId);
+  const statusBadge = d.qualyOpen
+    ? `<span class="tag tag-open" style="font-size:10px">🟢 Qualy abierta</span>`
+    : d.raceOpen
+    ? `<span class="tag tag-open" style="font-size:10px">🟢 Carrera abierta</span>`
+    : `<span class="tag tag-closed" style="font-size:10px">🔒 GP cerrado</span>`;
 
-  let h = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">`;
+  let h = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">`
+    + `<span style="font-size:13px;color:var(--text3)">Estado:</span>${statusBadge}</div>`;
+  h += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">`;
 
   // ── CARRERA ──
   h += `<div><div style="font-family:var(--fd);font-size:13px;font-weight:700;text-transform:uppercase;color:var(--text2);margin-bottom:8px">🏆 Carrera</div>
@@ -2218,7 +2285,7 @@ function saveDraftActive(uid, gpId) {
   if (!S.draft.active) S.draft.active = {};
   if (!S.draft.active[uid]) S.draft.active[uid] = {};
   S.draft.active[uid][gpId] = active;
-  saveState();
+  saveAdminStateF1(); // draft.active needs full save
   // refresh styling
   renderEditProno();
 }
@@ -2693,7 +2760,7 @@ function toggleDraftActive(uid, gpId, driver) {
     active.push(driver);
   }
   S.draft.active[uid][gpId] = active;
-  saveState();
+  saveAdminStateF1(); // draft.active needs full save
   const scrollY = window.scrollY;
   renderPronoDetail(gpId);
   window.scrollTo(0, scrollY);
