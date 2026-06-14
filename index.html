@@ -793,29 +793,34 @@ function saveState() {
     if(!currentUser) return;
     const userProno = (S.pronosticos && S.pronosticos[currentUser]) || {};
     try {
-      // Use merge_f1 RPC if available, otherwise direct upsert
+      // Atomic per-user save — safe against race conditions
       const { error } = await supa.rpc('merge_f1', {
         user_id: currentUser,
         user_prono: userProno,
         new_users: S.users || {}
       });
-      showSyncStatus(!error);
       if(!error) {
+        showSyncStatus(true);
+        // Re-read so we pick up other users' changes
         const { data: r2 } = await supa.from('gamestate').select('data').eq('id','main').single();
         if(r2?.data) {
           S = mergeStatesF1(S, r2.data);
           localStorage.setItem('f1porra26', JSON.stringify(S));
         }
+      } else {
+        throw new Error(error.message);
       }
     } catch(e) {
-      // Fallback: direct upsert (works but not race-condition safe)
+      // Fallback: read-merge-write (less safe but better than nothing)
       try {
         const { data: cur } = await supa.from('gamestate').select('data').eq('id','main').single();
         let toSave = S;
-        if(cur?.data) toSave = mergeStatesF1(S, cur.data);
+        if(cur?.data) {
+          toSave = mergeStatesF1(S, cur.data);
+          S = toSave;
+          localStorage.setItem('f1porra26', JSON.stringify(S));
+        }
         await supa.from('gamestate').upsert({ id: 'main', data: toSave, updated_at: new Date().toISOString() });
-        S = toSave;
-        localStorage.setItem('f1porra26', JSON.stringify(S));
         showSyncStatus(true);
       } catch(e2) { showSyncStatus(false); }
     }
@@ -1983,16 +1988,24 @@ function renderAdminTab() {
   renderDraftPilotStats();
   renderAdminAllProno();
 }
+// Admin saves: full upsert — gpState/draft/discards must go through here not merge_f1
+async function saveAdminStateF1() {
+  localStorage.setItem('f1porra26', JSON.stringify(S));
+  try {
+    const { error } = await supa.from('gamestate').upsert({ id: 'main', data: S, updated_at: new Date().toISOString() });
+    showSyncStatus(!error);
+  } catch(e) { showSyncStatus(false); }
+}
+
 function toggleSess(gpId, session, open) {
   if (!S.gpState[gpId]) S.gpState[gpId] = {};
-  // Store as override so admin can force open/close regardless of time
   S.gpState[gpId][session + 'OpenOverride'] = open;
-  saveState();
+  saveAdminStateF1();
 }
 function resetSessOverride(gpId, session) {
   if (!S.gpState[gpId]) return;
   delete S.gpState[gpId][session + 'OpenOverride'];
-  saveState();
+  saveAdminStateF1();
 }
 function renderAdminEntry() {
   renderAdminEntryFor('qualy');
@@ -2112,7 +2125,7 @@ function saveAdminResults() {
   if (!S.gpState[adminGP]) S.gpState[adminGP] = {};
   S.gpState[adminGP].qualyResult = qRes; S.gpState[adminGP].qualyTimes = qTimes;
   S.gpState[adminGP].raceResult  = rRes; S.gpState[adminGP].raceTimes  = rTimes;
-  saveState();
+  saveAdminStateF1();
   const msg = document.getElementById('admin-res-msg');
   msg.innerHTML = '<div class="msg-box msg-ok">✓ Resultados guardados</div>';
   setTimeout(() => msg.innerHTML = '', 3000);
@@ -2416,7 +2429,7 @@ function toggleDiscard(uid, gpId, checked) {
   } else {
     S.discards[uid] = S.discards[uid].filter(id => id !== gpId);
   }
-  saveState();
+  saveAdminStateF1();
   renderDiscardPanel();
   // also refresh standings if visible
   if (document.getElementById('tab-standings')?.classList.contains('active')) renderStandings();
