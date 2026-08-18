@@ -1,0 +1,3018 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juegos de grupo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;0,900;1,600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --plum:#241536;
+    --plum-2:#33204a;
+    --paper:#F5EFE2;
+    --paper-2:#ece2cd;
+    --ink:#241536;
+    --mustard:#F2B705;
+    --coral:#E8553F;
+    --teal:#3FA796;
+    --line: rgba(36,21,54,0.12);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 10%, var(--plum-2) 0%, var(--plum) 45%),
+      var(--plum);
+    color:var(--paper);
+    font-family:'Space Grotesk', sans-serif;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    overflow-x:hidden;
+  }
+  .wrap{
+    width:100%;
+    max-width:480px;
+    padding:28px 20px 40px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:100vh;
+  }
+  header{
+    width:100%;
+    text-align:center;
+    margin-bottom:6px;
+  }
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--mustard);
+    font-weight:700;
+    margin-bottom:6px;
+  }
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:900;
+    font-size:clamp(28px,7vw,36px);
+    margin:0;
+    line-height:1.05;
+  }
+  h1 em{
+    font-style:italic;
+    font-weight:600;
+    color:var(--mustard);
+  }
+  .sub{
+    margin-top:8px;
+    font-size:13.5px;
+    color:rgba(245,239,226,0.65);
+    max-width:340px;
+  }
+  .progress-row{
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:22px 0 18px;
+  }
+  .progress-track{
+    flex:1;
+    height:5px;
+    background:rgba(245,239,226,0.15);
+    border-radius:4px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--mustard);
+    border-radius:4px;
+    transition:width .35s ease;
+  }
+  .progress-count{
+    font-size:12px;
+    color:rgba(245,239,226,0.55);
+    font-variant-numeric: tabular-nums;
+    white-space:nowrap;
+  }
+
+  .stage{
+    position:relative;
+    width:100%;
+    height:300px;
+    margin-bottom:26px;
+  }
+  .card{
+    position:absolute;
+    inset:0;
+    border-radius:18px;
+    background:var(--paper);
+    color:var(--ink);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:34px 28px;
+    text-align:center;
+  }
+  .card.behind-1{
+    transform: translateY(10px) scale(0.96) rotate(-2deg);
+    background:var(--paper-2);
+    z-index:1;
+  }
+  .card.behind-2{
+    transform: translateY(18px) scale(0.92) rotate(2deg);
+    background:var(--paper-2);
+    opacity:0.7;
+    z-index:0;
+  }
+  .card.top{
+    z-index:2;
+    transition: transform .28s ease, opacity .28s ease;
+  }
+  .card.top.leave-like{
+    transform: translateX(140%) rotate(14deg);
+    opacity:0;
+  }
+  .card.top.leave-dislike{
+    transform: translateX(-140%) rotate(-14deg);
+    opacity:0;
+  }
+  .card.top.enter{
+    animation: cardIn .3s ease;
+  }
+  @keyframes cardIn{
+    from{ transform: translateY(14px) scale(0.97); opacity:0; }
+    to{ transform: translateY(0) scale(1); opacity:1; }
+  }
+  .card-index{
+    position:absolute;
+    top:16px;
+    left:18px;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:rgba(36,21,54,0.4);
+    font-weight:700;
+  }
+  .card-text{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(20px,5.2vw,25px);
+    line-height:1.3;
+  }
+  .finger{
+    position:absolute;
+    bottom:14px;
+    right:18px;
+    font-size:20px;
+    opacity:0.5;
+  }
+
+  .actions{
+    width:100%;
+    display:flex;
+    gap:14px;
+    margin-bottom:8px;
+  }
+  button.choice{
+    flex:1;
+    border:none;
+    border-radius:14px;
+    padding:16px 10px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
+    transition: transform .12s ease, filter .12s ease;
+    color:var(--paper);
+  }
+  button.choice:active{ transform: scale(0.96); }
+  .btn-dislike{ background:var(--coral); }
+  .btn-like{ background:var(--teal); }
+  .btn-icon{ font-size:22px; }
+
+  .skip-row{
+    width:100%;
+    text-align:center;
+    margin-top:4px;
+  }
+  .link-btn{
+    background:none;
+    border:none;
+    color:rgba(245,239,226,0.55);
+    font-family:'Space Grotesk', sans-serif;
+    font-size:12.5px;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:6px;
+  }
+
+  .done{
+    width:100%;
+    text-align:center;
+    padding:50px 10px 20px;
+  }
+  .done h2{
+    font-family:'Fraunces', serif;
+    font-weight:900;
+    font-size:26px;
+    margin-bottom:8px;
+  }
+  .done p{
+    color:rgba(245,239,226,0.65);
+    font-size:14px;
+    margin-bottom:24px;
+  }
+  .restart-btn{
+    background:var(--mustard);
+    color:var(--plum);
+    border:none;
+    border-radius:12px;
+    padding:14px 26px;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+  }
+
+  /* Menú principal */
+  .menu-header{
+    text-align:center;
+    margin-bottom:34px;
+  }
+  .menu-list{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .game-card{
+    width:100%;
+    background:var(--paper);
+    color:var(--ink);
+    border:none;
+    border-radius:16px;
+    padding:20px 20px;
+    text-align:left;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    box-shadow: 0 14px 28px rgba(0,0,0,0.25);
+    transition: transform .12s ease;
+  }
+  .game-card:active{ transform: scale(0.97); }
+  .game-emoji{
+    font-size:30px;
+    flex-shrink:0;
+    width:52px;
+    height:52px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .game-card.probable .game-emoji{ background:rgba(63,167,150,0.18); }
+  .game-card.song .game-emoji{ background:rgba(232,85,63,0.15); }
+  .game-title{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:18px;
+    margin-bottom:3px;
+  }
+  .game-desc{
+    font-size:12.5px;
+    color:rgba(36,21,54,0.6);
+    line-height:1.35;
+  }
+  .top-back{
+    align-self:flex-start;
+    background:none;
+    border:1px solid rgba(245,239,226,0.3);
+    color:var(--paper);
+    border-radius:20px;
+    padding:6px 14px;
+    font-size:12px;
+    cursor:pointer;
+    margin-bottom:18px;
+  }
+
+  /* Canta la palabra */
+  .word-stage{
+    width:100%;
+    background:var(--paper);
+    border-radius:20px;
+    padding:46px 24px;
+    text-align:center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+    margin-bottom:22px;
+    position:relative;
+    overflow:hidden;
+  }
+  .word-stage::before{
+    content:"♪";
+    position:absolute;
+    top:-10px;
+    right:10px;
+    font-size:90px;
+    color:rgba(232,85,63,0.08);
+  }
+  .word-label{
+    font-size:11px;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--coral);
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .word-text{
+    font-family:'Fraunces', serif;
+    font-weight:900;
+    font-size:clamp(34px,10vw,48px);
+    color:var(--ink);
+    line-height:1.1;
+  }
+  .next-word-btn{
+    width:100%;
+    background:var(--coral);
+    color:var(--paper);
+    border:none;
+    border-radius:14px;
+    padding:18px 10px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:16px;
+    cursor:pointer;
+    margin-bottom:26px;
+    transition: transform .12s ease;
+  }
+  .next-word-btn:active{ transform: scale(0.97); }
+
+  .scoreboard{
+    width:100%;
+  }
+  .scoreboard-title{
+    font-family:'Fraunces', serif;
+    font-size:16px;
+    margin-bottom:10px;
+    color:rgba(245,239,226,0.85);
+  }
+  .player-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:rgba(245,239,226,0.08);
+    border-radius:12px;
+    padding:10px 12px;
+    margin-bottom:8px;
+  }
+  .player-name{
+    flex:1;
+    font-size:14px;
+    font-weight:500;
+  }
+  .player-score{
+    font-family:'Fraunces', serif;
+    font-weight:900;
+    font-size:18px;
+    color:var(--mustard);
+    min-width:22px;
+    text-align:center;
+  }
+  .score-btn{
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    border:none;
+    background:rgba(245,239,226,0.15);
+    color:var(--paper);
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    line-height:1;
+  }
+  .score-btn:active{ transform: scale(0.9); }
+  .remove-player{
+    background:none;
+    border:none;
+    color:rgba(245,239,226,0.35);
+    font-size:15px;
+    cursor:pointer;
+    padding:2px 4px;
+  }
+  .add-player-row{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+  }
+  .add-player-row input{
+    flex:1;
+    background:rgba(245,239,226,0.08);
+    border:1px solid rgba(245,239,226,0.2);
+    border-radius:10px;
+    padding:10px 12px;
+    color:var(--paper);
+    font-family:'Space Grotesk', sans-serif;
+    font-size:14px;
+  }
+  .add-player-row input::placeholder{ color:rgba(245,239,226,0.4); }
+  .add-player-row button{
+    background:var(--mustard);
+    color:var(--plum);
+    border:none;
+    border-radius:10px;
+    padding:0 18px;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .empty-players{
+    color:rgba(245,239,226,0.45);
+    font-size:12.5px;
+    padding:6px 2px 4px;
+  }
+
+  /* Contador */
+  .citadels-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:16px;
+    padding:14px 16px;
+    margin-bottom:12px;
+    box-shadow: 0 10px 22px rgba(0,0,0,0.2);
+  }
+  .citadels-name{
+    flex:1;
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:16px;
+  }
+  .citadels-score{
+    font-family:'Fraunces', serif;
+    font-weight:900;
+    font-size:26px;
+    min-width:38px;
+    text-align:center;
+    color:var(--plum);
+  }
+  .citadels-arrows{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .arrow-btn{
+    width:34px;
+    height:26px;
+    border:none;
+    border-radius:8px;
+    background:var(--paper-2);
+    color:var(--plum);
+    font-size:13px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .arrow-btn.up{ background:rgba(63,167,150,0.18); color:var(--teal); }
+  .arrow-btn.down{ background:rgba(232,85,63,0.14); color:var(--coral); }
+  .arrow-btn:active{ transform: scale(0.9); }
+  .citadels-remove{
+    background:none;
+    border:none;
+    color:rgba(36,21,54,0.3);
+    font-size:15px;
+    cursor:pointer;
+    padding:2px 2px 2px 6px;
+  }
+  .citadels-reset{
+    width:100%;
+    background:rgba(245,239,226,0.1);
+    border:1px solid rgba(245,239,226,0.25);
+    color:var(--paper);
+    border-radius:12px;
+    padding:12px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    cursor:pointer;
+    margin-top:16px;
+  }
+
+  /* Emparejar con el dedo */
+  .stepper-row{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:22px;
+    margin:28px 0 8px;
+  }
+  .stepper-btn{
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    border:none;
+    background:var(--paper);
+    color:var(--plum);
+    font-size:22px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .stepper-btn:active{ transform: scale(0.92); }
+  .stepper-value{
+    font-family:'Fraunces', serif;
+    font-weight:900;
+    font-size:40px;
+    min-width:50px;
+    text-align:center;
+  }
+  .stepper-label{
+    text-align:center;
+    font-size:12.5px;
+    color:rgba(245,239,226,0.55);
+    margin-bottom:6px;
+  }
+  .start-fingers-btn{
+    width:100%;
+    background:var(--mustard);
+    color:var(--plum);
+    border:none;
+    border-radius:14px;
+    padding:16px 10px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    margin-top:26px;
+  }
+
+  .fingers-wrap{
+    position:fixed;
+    inset:0;
+    z-index:50;
+    display:flex;
+    flex-direction:column;
+    background: radial-gradient(circle at 50% 30%, var(--plum-2) 0%, var(--plum) 60%);
+    touch-action:none;
+  }
+  .fingers-header{
+    flex-shrink:0;
+    padding:18px 18px 14px;
+    text-align:center;
+  }
+  .fingers-header .top-back{ margin-bottom:10px; }
+  .fingers-status{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:17px;
+    color:var(--paper);
+  }
+  .fingers-hint{
+    font-size:12.5px;
+    color:rgba(245,239,226,0.55);
+    margin-top:4px;
+  }
+  .fingers-touch-area{
+    flex:1;
+    position:relative;
+    touch-action:none;
+  }
+  .lines-svg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+  }
+  .finger-circle{
+    position:absolute;
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    background:rgba(245,239,226,0.16);
+    border:2px solid rgba(245,239,226,0.5);
+    transform:translate(-50%,-50%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--paper);
+    font-family:'Fraunces', serif;
+    font-weight:900;
+    font-size:22px;
+    pointer-events:none;
+    transition: opacity .45s ease;
+  }
+  .finger-circle.fading{
+    opacity:0;
+  }
+  .finger-circle.pulse{
+    animation: fingerPulse 1s ease-in-out infinite;
+  }
+  @keyframes fingerPulse{
+    0%,100%{ transform:translate(-50%,-50%) scale(1); }
+    50%{ transform:translate(-50%,-50%) scale(1.08); }
+  }
+  .countdown-overlay{
+    position:absolute;
+    top:14px;
+    left:50%;
+    transform:translateX(-50%);
+    font-family:'Fraunces', serif;
+    font-weight:900;
+    font-size:20px;
+    color:var(--mustard);
+    display:none;
+  }
+  .legend-panel{
+    flex-shrink:0;
+    padding:14px 20px 22px;
+    display:none;
+  }
+  .legend-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    justify-content:center;
+    margin-bottom:16px;
+  }
+  .legend-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:rgba(245,239,226,0.1);
+    border-radius:20px;
+    padding:6px 12px 6px 8px;
+    font-size:12.5px;
+    color:var(--paper);
+  }
+  .legend-swatch{
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+  .fingers-actions{
+    display:flex;
+    gap:10px;
+  }
+  .fingers-actions button{
+    flex:1;
+    border:none;
+    border-radius:12px;
+    padding:13px 8px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .retry-btn{ background:var(--mustard); color:var(--plum); }
+  .regroup-btn{ background:rgba(245,239,226,0.12); color:var(--paper); }
+
+  /* Tests de personalidad */
+  .quiz-card{
+    width:100%;
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:18px;
+    padding:26px 22px;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.3);
+    margin-bottom:20px;
+  }
+  .quiz-qnum{
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--coral);
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .quiz-qtext{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:19px;
+    line-height:1.35;
+    margin-bottom:18px;
+  }
+  .quiz-options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .quiz-option{
+    text-align:left;
+    padding:13px 15px;
+    border-radius:12px;
+    border:1.5px solid rgba(36,21,54,0.12);
+    background:var(--paper-2);
+    color:var(--ink);
+    font-family:'Space Grotesk', sans-serif;
+    font-size:13.5px;
+    line-height:1.4;
+    cursor:pointer;
+    transition: background .12s ease, transform .12s ease;
+  }
+  .quiz-option:active{ transform: scale(0.98); }
+
+  .name-card{
+    width:100%;
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:18px;
+    padding:30px 24px;
+    text-align:center;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.3);
+  }
+  .name-card label{
+    display:block;
+    font-size:12.5px;
+    color:rgba(36,21,54,0.6);
+    margin-bottom:10px;
+  }
+  .name-card input{
+    width:100%;
+    background:var(--paper-2);
+    border:1.5px solid rgba(36,21,54,0.15);
+    border-radius:12px;
+    padding:14px 14px;
+    font-family:'Space Grotesk', sans-serif;
+    font-size:15px;
+    color:var(--ink);
+    text-align:center;
+    margin-bottom:18px;
+  }
+
+  .result-emoji-badge{
+    font-size:38px;
+    text-align:center;
+    margin-bottom:6px;
+  }
+  .result-player-name{
+    text-align:center;
+    font-size:12.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--mustard);
+    font-weight:700;
+    margin-bottom:14px;
+  }
+  .result-meter-track{
+    height:14px;
+    border-radius:8px;
+    background:rgba(245,239,226,0.15);
+    overflow:hidden;
+  }
+  .result-meter-fill{
+    height:100%;
+    border-radius:8px;
+    background:linear-gradient(90deg, var(--teal), var(--mustard), var(--coral));
+    transition: width .6s ease;
+  }
+  .result-percent{
+    font-family:'Fraunces', serif;
+    font-weight:900;
+    font-size:36px;
+    text-align:center;
+    margin-top:10px;
+  }
+  .result-cat{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:21px;
+    text-align:center;
+    color:var(--mustard);
+    margin:4px 0 12px;
+  }
+  .result-desc{
+    font-size:13.5px;
+    text-align:center;
+    color:rgba(245,239,226,0.75);
+    line-height:1.5;
+    max-width:340px;
+    margin:0 auto 20px;
+  }
+  .trait-panel{
+    background:var(--paper);
+    border-radius:14px;
+    padding:14px 18px;
+    margin-bottom:20px;
+  }
+  .trait-panel-title{
+    font-size:10.5px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:rgba(36,21,54,0.5);
+    margin-bottom:6px;
+  }
+  .trait-row{
+    display:flex;
+    justify-content:space-between;
+    font-size:13px;
+    color:var(--ink);
+    padding:6px 0;
+    border-bottom:1px dotted rgba(36,21,54,0.15);
+  }
+  .trait-row:last-child{ border-bottom:none; }
+  .trait-row span:last-child{ color:var(--coral); font-weight:700; }
+
+  .quiz-actions{
+    display:flex;
+    gap:10px;
+  }
+  .quiz-actions button{
+    flex:1;
+    border:none;
+    border-radius:12px;
+    padding:14px 8px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .quiz-btn-primary{ background:var(--mustard); color:var(--plum); }
+  .quiz-btn-secondary{ background:rgba(245,239,226,0.12); color:var(--paper); }
+
+  .leaderboard-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:14px;
+    padding:13px 16px;
+    margin-bottom:10px;
+  }
+  .leaderboard-rank{
+    font-family:'Fraunces', serif;
+    font-weight:900;
+    font-size:16px;
+    width:22px;
+    text-align:center;
+    opacity:0.4;
+  }
+  .leaderboard-name{ flex:1; }
+  .leaderboard-name strong{
+    font-family:'Fraunces', serif;
+    font-size:15px;
+    display:block;
+  }
+  .leaderboard-name span{
+    font-size:11.5px;
+    color:rgba(36,21,54,0.55);
+  }
+  .leaderboard-percent{
+    font-family:'Fraunces', serif;
+    font-weight:900;
+    font-size:19px;
+    color:var(--coral);
+  }
+  .quiz-disclaimer{
+    font-size:11.5px;
+    line-height:1.5;
+    color:rgba(245,239,226,0.5);
+    text-align:center;
+    margin:18px auto 0;
+    max-width:340px;
+  }
+
+  /* Test científico: escala Likert y cuadrantes */
+  .likert-labels{
+    display:flex;
+    justify-content:space-between;
+    font-size:10.5px;
+    color:rgba(36,21,54,0.5);
+    margin-bottom:6px;
+    line-height:1.3;
+  }
+  .likert-labels span{ max-width:38%; }
+  .likert-labels span:last-child{ text-align:right; }
+  .likert-row{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .likert-btn{
+    flex:1;
+    aspect-ratio:1/1;
+    border-radius:50%;
+    border:1.5px solid rgba(36,21,54,0.2);
+    background:var(--paper-2);
+    color:var(--ink);
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .likert-btn:active{ transform:scale(0.92); }
+
+  .axis-block{ margin-bottom:16px; }
+  .axis-block-label{
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    font-weight:700;
+    color:rgba(245,239,226,0.8);
+    margin-bottom:5px;
+  }
+  .axis-block-label span:last-child{ color:var(--mustard); }
+
+  .quadrant-box{
+    position:relative;
+    width:100%;
+    max-width:250px;
+    aspect-ratio:1/1;
+    margin:18px auto 6px;
+    background:var(--paper);
+    border-radius:16px;
+    box-shadow:0 12px 26px rgba(0,0,0,0.25);
+  }
+  .quadrant-cross{
+    position:absolute;
+    background:rgba(36,21,54,0.12);
+  }
+  .quadrant-cross.h{ left:0; right:0; top:50%; height:1px; }
+  .quadrant-cross.v{ top:0; bottom:0; left:50%; width:1px; }
+  .quadrant-corner{
+    position:absolute;
+    font-size:8.5px;
+    color:rgba(36,21,54,0.4);
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+  }
+  .quadrant-corner.tl{ top:7px; left:9px; }
+  .quadrant-corner.tr{ top:7px; right:9px; text-align:right; }
+  .quadrant-corner.bl{ bottom:7px; left:9px; }
+  .quadrant-corner.br{ bottom:7px; right:9px; text-align:right; }
+  .quadrant-axis-name{
+    position:absolute;
+    font-size:9px;
+    color:rgba(36,21,54,0.5);
+    font-weight:700;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+  }
+  .quadrant-axis-name.x{ bottom:-20px; left:50%; transform:translateX(-50%); }
+  .quadrant-axis-name.y{ top:50%; left:-8px; transform:translateY(-50%) rotate(-90deg); }
+  .quadrant-dot{
+    position:absolute;
+    width:16px; height:16px;
+    border-radius:50%;
+    border:2px solid var(--paper);
+    transform:translate(-50%,-50%);
+    box-shadow:0 2px 6px rgba(0,0,0,0.35);
+  }
+  .quadrant-dot.big{ width:24px; height:24px; }
+  .quadrant-wrap{ padding-bottom:20px; }
+
+  .summary-card{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:14px;
+    padding:16px 18px;
+    margin-top:16px;
+  }
+  .summary-tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .summary-tab{
+    flex:1;
+    border:none;
+    border-radius:10px;
+    padding:9px 6px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    cursor:pointer;
+    background:rgba(36,21,54,0.08);
+    color:var(--ink);
+  }
+  .summary-tab.active{
+    background:var(--plum);
+    color:var(--paper);
+  }
+  .summary-text{
+    font-size:13.5px;
+    line-height:1.6;
+  }
+
+  .saved-panel{
+    width:100%;
+    margin-top:10px;
+  }
+  .saved-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .saved-header h3{
+    font-family:'Fraunces', serif;
+    font-size:20px;
+    margin:0;
+  }
+  .back-link{
+    background:none;
+    border:1px solid rgba(245,239,226,0.3);
+    color:var(--paper);
+    border-radius:20px;
+    padding:6px 14px;
+    font-size:12px;
+    cursor:pointer;
+  }
+  .saved-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .saved-item{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:12px;
+    padding:14px 16px;
+    font-size:14px;
+    font-weight:500;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    line-height:1.35;
+  }
+  .remove-btn{
+    background:none;
+    border:none;
+    color:var(--coral);
+    font-size:18px;
+    cursor:pointer;
+    flex-shrink:0;
+    line-height:1;
+  }
+  .empty-saved{
+    color:rgba(245,239,226,0.5);
+    font-size:13.5px;
+    text-align:center;
+    padding:30px 10px;
+  }
+
+  footer{
+    margin-top:auto;
+    padding-top:30px;
+  }
+  .saved-toggle{
+    color:rgba(245,239,226,0.6);
+    font-size:12.5px;
+    background:none;
+    border:none;
+    text-decoration:underline;
+    cursor:pointer;
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+const QUESTIONS_CLASICAS = [
+"¿Quién es más probable que llegue tarde a su propia boda?",
+"¿Quién es más probable que se pierda usando el GPS?",
+"¿Quién es más probable que se quede dormido en el cine?",
+"¿Quién es más probable que hable solo en voz alta sin darse cuenta?",
+"¿Quién es más probable que acabe bailando encima de una mesa?",
+"¿Quién es más probable que mande un mensaje a la persona equivocada?",
+"¿Quién es más probable que se le olvide dónde aparcó el coche?",
+"¿Quién es más probable que se haga millonario?",
+"¿Quién es más probable que salga en las noticias, para bien o para mal?",
+"¿Quién es más probable que termine viviendo en otro país?",
+"¿Quién es más probable que se enamore a primera vista?",
+"¿Quién es más probable que sea el último en quedarse soltero del grupo?",
+"¿Quién es más probable que llore viendo un anuncio?",
+"¿Quién es más probable que se compre algo carísimo sin pensarlo?",
+"¿Quién es más probable que gane un premio Nobel?",
+"¿Quién es más probable que se olvide del cumpleaños de alguien del grupo?",
+"¿Quién es más probable que acabe montando su propia empresa?",
+"¿Quién es más probable que se ría en el peor momento posible?",
+"¿Quién es más probable que sobreviva a un apocalipsis zombi?",
+"¿Quién es más probable que se tire un pedo y culpe a otro?",
+"¿Quién es más probable que se convierta en influencer?",
+"¿Quién es más probable que pierda el móvil teniéndolo en la mano?",
+"¿Quién es más probable que se quede sin batería en el peor momento?",
+"¿Quién es más probable que se apunte a algo random sin avisar a nadie?",
+"¿Quién es más probable que discuta con un camarero?",
+"¿Quién es más probable que se enfade jugando a un juego de mesa?",
+"¿Quién es más probable que aparezca en un reality show?",
+"¿Quién es más probable que se tatúe algo random en un viaje?",
+"¿Quién es más probable que llegue con resaca a trabajar?",
+"¿Quién es más probable que sea el primero en irse de una fiesta?",
+"¿Quién es más probable que sea el último en irse de una fiesta?",
+"¿Quién es más probable que se crea una teoría de la conspiración?",
+"¿Quién es más probable que gane la lotería y siga trabajando igual?",
+"¿Quién es más probable que se pierda en su propio barrio?",
+"¿Quién es más probable que rompa algo en casa de otro sin decir nada?",
+"¿Quién es más probable que se enamore de un ex otra vez?",
+"¿Quién es más probable que adopte 10 mascotas?",
+"¿Quién es más probable que se quede dormido conduciendo en un semáforo?",
+"¿Quién es más probable que monte una bronca en un grupo de WhatsApp?",
+"¿Quién es más probable que se disfrace mejor en Halloween?",
+"¿Quién es más probable que gane un concurso de comer picante?",
+"¿Quién es más probable que se le dé mejor mentir?",
+"¿Quién es más probable que llore de risa hasta hacerse pis?",
+"¿Quién es más probable que se pase de frenada en una discusión?",
+"¿Quién es más probable que acabe haciendo de mediador en cualquier pelea?",
+"¿Quién es más probable que se pase toda una peli mirando el móvil?",
+"¿Quién es más probable que se vaya de viaje sin planear nada?",
+"¿Quién es más probable que sobreviva perdido en el monte con lo puesto?",
+"¿Quién es más probable que cambie de carrera o de trabajo de la nada?",
+"¿Quién es más probable que se quede en el sitio equivocado esperando a alguien?",
+"¿Quién es más probable que gane un maratón sin haber entrenado?",
+"¿Quién es más probable que se lesione haciendo algo ridículo?",
+"¿Quién es más probable que se coma algo que se le ha caído al suelo?",
+"¿Quién es más probable que confunda sal con azúcar cocinando?",
+"¿Quién es más probable que pida lo mismo siempre en un restaurante?",
+"¿Quién es más probable que se acabe una bolsa entera de patatas sin darse cuenta?",
+"¿Quién es más probable que tenga la nevera más vacía de todo el grupo?",
+"¿Quién es más probable que se compre un gadget carísimo y no lo use nunca?",
+"¿Quién es más probable que tenga 500 fotos sin borrar en el móvil?",
+"¿Quién es más probable que se le rompa la pantalla del móvil el primer día?",
+"¿Quién es más probable que sea el primero en tener un asistente de IA como mejor amigo?",
+"¿Quién es más probable que se quede sin cobertura en el peor momento?",
+"¿Quién es más probable que gane un torneo de videojuegos sin practicar?",
+"¿Quién es más probable que se convierta en el jefe de todos algún día?",
+"¿Quién es más probable que renuncie a su trabajo sin tener otro?",
+"¿Quién es más probable que llegue a la reunión sin haberla preparado y aun así salga bien?",
+"¿Quién es más probable que se quede dormido en una reunión importante?",
+"¿Quién es más probable que se ponga a cantar en la ducha lo bastante fuerte como para que se oiga fuera?",
+"¿Quién es más probable que llore en una boda que no es la suya?",
+"¿Quién es más probable que se le olvide una cita médica?",
+"¿Quién es más probable que acabe adoptando un animal random en un viaje?",
+"¿Quién es más probable que se pinte el pelo de un color random?",
+"¿Quién es más probable que aparezca en la boda de alguien sin haber sido invitado?",
+"¿Quién es más probable que organice la despedida de soltero/a más loca?",
+"¿Quién es más probable que se quede sin dinero antes de fin de mes?",
+"¿Quién es más probable que gane discutiendo aunque no tenga razón?",
+"¿Quién es más probable que se apunte al gimnasio y lo deje a la semana?",
+"¿Quién es más probable que se coma algo picante y diga que no pica nada?",
+"¿Quién es más probable que se quede atrapado en un ascensor y lo cuente como si nada?",
+"¿Quién es más probable que gane un premio sin haberlo esperado?",
+"¿Quién es más probable que se olvide de la contraseña de su propio móvil?",
+"¿Quién es más probable que acabe siendo el/la típico/a que manda memes a las 3 de la mañana?",
+"¿Quién es más probable que se enamore de alguien que acaba de conocer en un viaje?",
+"¿Quién es más probable que se quede sin voz de tanto gritar en un concierto?",
+"¿Quién es más probable que sea el último en enterarse de cualquier cotilleo?",
+"¿Quién es más probable que se pierda una boda por quedarse dormido?",
+"¿Quién es más probable que acabe teniendo una mascota exótica?"
+];
+
+const QUESTIONS_LOCURA = [
+"¿Quién es más probable que se despierte en otra ciudad sin saber cómo llegó?",
+"¿Quién es más probable que acabe casándose en Las Vegas por sorpresa?",
+"¿Quién es más probable que se suba a un escenario random y se robe el micrófono?",
+"¿Quién es más probable que termine en la cárcel por una tontería?",
+"¿Quién es más probable que se pelee con un desconocido por un sitio de aparcamiento?",
+"¿Quién es más probable que acabe siendo parte de una secta sin darse cuenta?",
+"¿Quién es más probable que se tire de un puente bungee sin pensárselo dos veces?",
+"¿Quién es más probable que acabe liándose con alguien famoso?",
+"¿Quién es más probable que se despierte con un tatuaje que no recuerda haberse hecho?",
+"¿Quién es más probable que monte un numerito en pleno aeropuerto?",
+"¿Quién es más probable que acabe viviendo en una furgoneta por decisión propia?",
+"¿Quién es más probable que le declare su amor a alguien delante de todo el grupo?",
+"¿Quién es más probable que acabe robando algo random de una tienda sin querer?",
+"¿Quién es más probable que se meta en una pelea defendiendo a un desconocido?",
+"¿Quién es más probable que acabe siendo el protagonista de una leyenda urbana del barrio?",
+"¿Quién es más probable que se suba a un tejado en una fiesta y no sepa bajar?",
+"¿Quién es más probable que acabe teniendo tres trabajos secretos a la vez?",
+"¿Quién es más probable que le pida matrimonio a alguien a los tres meses de conocerle?",
+"¿Quién es más probable que se convierta en el líder de una revolución sin buscarlo?",
+"¿Quién es más probable que acabe en un programa de trasnochadores contando una batallita?",
+"¿Quién es más probable que se pierda en un festival y aparezca tres días después sin móvil?",
+"¿Quién es más probable que acabe adoptando a todo un grupo de animales callejeros en un viaje?",
+"¿Quién es más probable que se meta a hacer un reto viral absurdo y se haga daño?",
+"¿Quién es más probable que acabe hablando con un famoso como si fueran amigos de toda la vida?",
+"¿Quién es más probable que se despierte en la playa después de una fiesta sin recordar cómo llegó?",
+"¿Quién es más probable que monte un negocio ilegal sin darse cuenta de que lo era?",
+"¿Quién es más probable que acabe siendo el rostro de una campaña publicitaria random?",
+"¿Quién es más probable que le grite algo vergonzoso a un ex delante de todos?",
+"¿Quién es más probable que acabe metido en una persecución policial sin ser el culpable?"
+];
+
+const PROBABLE_CATEGORIES = {
+  clasicas: { label: 'Clásicas', emoji: '👉', desc: 'Lo típico del grupo: despistes, líos y momentos random del día a día.', list: QUESTIONS_CLASICAS },
+  locura: { label: 'Locura total', emoji: '🌀', desc: 'Escenarios absurdos y extremos, para cuando la fiesta ya está animada.', list: QUESTIONS_LOCURA }
+};
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+const WORDS = [
+"Corazón","Noche","Bailar","Fuego","Amor","Luna","Lluvia","Libertad","Sueño","Ojos",
+"Mar","Calle","Tiempo","Vida","Adiós","Beso","Verano","Silencio","Camino","Locura",
+"Ángel","Cielo","Rosa","Guerra","Paz","Dinero","Carretera","Ciudad","Fiesta","Lágrimas",
+"Humo","Veneno","Gasolina","Chocolate","Cintura","Piel","Boca","Sol","Estrella","Invierno",
+"Recuerdos","Mentira","Verdad","Espejo","Ventana","Baile","Whisky","Café","Ritmo","Locos",
+"Volver","Perdón","Distancia","Frontera","Barrio","Domingo","Lunes","Botella","Cadenas","Alas"
+];
+
+const STORAGE_KEY = 'liked-questions';
+
+const GROUP_COLORS = [
+  { bg:'#3FA796', name:'Verde' },
+  { bg:'#E8553F', name:'Coral' },
+  { bg:'#F2B705', name:'Mostaza' },
+  { bg:'#4C8BF5', name:'Azul' },
+  { bg:'#E85DA0', name:'Rosa' },
+  { bg:'#8BC34A', name:'Lima' }
+];
+
+const SCI_TEST = {
+  label: 'Agencia y Comunión',
+  emoji: '🧭',
+  tagline: 'Un test más largo y con escala de matices, inspirado en modelos reales de psicología de la personalidad.',
+  intro: 'Este test es distinto a los otros dos: en vez de una única escala "masculino–femenino", mide dos rasgos de personalidad por separado — Agencia (orientación a la acción) y Comunión (orientación al vínculo) — y te sitúa en un mapa con ambos.',
+  disclaimer: 'Está inspirado en el modelo de agencia/comunión de Bakan (1966) y en escalas académicas como el Bem Sex Role Inventory (1974) y el Personal Attributes Questionnaire (Spence & Helmreich, 1974), simplificado para jugar en grupo — no es un instrumento clínico validado. Estos rasgos no dependen del sexo, género o identidad de nadie: cualquier persona puede puntuar alto o bajo en cualquiera de los dos ejes, en cualquier combinación.',
+  agencyItems: [
+    "Me resulta fácil tomar el mando cuando un grupo necesita dirección.",
+    "Tomo decisiones importantes sin necesitar la aprobación de los demás.",
+    "Soy una persona competitiva cuando se trata de lograr un objetivo.",
+    "Me adapto rápido cuando los planes cambian de repente.",
+    "Confío en mi propio criterio incluso cuando otros dudan.",
+    "Me atrevo a asumir riesgos si creo que merecen la pena.",
+    "Defiendo mi punto de vista aunque no sea el más popular del grupo.",
+    "Prefiero actuar por mi cuenta antes que esperar instrucciones.",
+    "Me planteo metas ambiciosas y trabajo activamente para alcanzarlas.",
+    "Mantengo la calma y pienso con claridad bajo presión.",
+    "Tomo decisiones difíciles con relativa rapidez.",
+    "Insisto en una tarea complicada hasta terminarla, aunque cueste.",
+    "Se me da bien liderar cuando la situación lo requiere.",
+    "Analizo los problemas de forma lógica antes de dejarme llevar por las emociones."
+  ],
+  communionItems: [
+    "Me resulta fácil expresar cariño hacia las personas que quiero.",
+    "Soy sensible a cómo se sienten los demás, aunque no lo digan.",
+    "El bienestar de la gente que me rodea me importa profundamente.",
+    "Suelo ser quien consuela cuando alguien del grupo lo está pasando mal.",
+    "Se me da bien escuchar sin juzgar ni interrumpir.",
+    "Expreso mis emociones abiertamente, sin esconderlas.",
+    "Disfruto cuidando de otras personas, aunque me suponga esfuerzo.",
+    "Soy comprensivo/a con los errores de los demás.",
+    "Me afecta emocionalmente ver sufrir a alguien, aunque no lo conozca mucho.",
+    "Priorizo la armonía y evito conflictos innecesarios en mis relaciones.",
+    "Antes de opinar, suelo preguntar cómo se siente la otra persona.",
+    "Me resulta natural mostrar ternura hacia quienes quiero.",
+    "Noto cuando alguien necesita apoyo, aunque no lo pida.",
+    "Cuido los detalles que hacen sentir bien a los demás."
+  ],
+  likertLabels: ["Nada de acuerdo", "Totalmente de acuerdo"],
+  computeResult(agencyAnswers, communionAnswers){
+    const aScore = agencyAnswers.reduce((a,b)=>a+b,0);
+    const cScore = communionAnswers.reduce((a,b)=>a+b,0);
+    const aPercent = Math.round(((aScore-14)/56)*100);
+    const cPercent = Math.round(((cScore-14)/56)*100);
+    const highA = aPercent >= 50;
+    const highC = cPercent >= 50;
+    let title, desc;
+    if(highA && highC){
+      title = "Andrógino/a (alto en ambos ejes)";
+      desc = "Combinas rasgos de acción decidida con una fuerte orientación al vínculo. La investigación de Sandra Bem asocia este perfil con más flexibilidad de comportamiento: sabes cuándo tomar el mando y cuándo priorizar la conexión, según lo que pida la situación.";
+    } else if(highA && !highC){
+      title = "Orientado/a a la Acción";
+      desc = "Predominan en ti rasgos de agencia: decisión, independencia, foco en objetivos. Es el patrón que la psicología asocia tradicionalmente con roles \"masculinos\", aunque aquí es simplemente tu forma de funcionar, no un mandato de género.";
+    } else if(!highA && highC){
+      title = "Orientado/a al Vínculo";
+      desc = "Predominan en ti rasgos de comunión: empatía, cuidado, atención a las emociones ajenas. Es el patrón que la psicología asocia tradicionalmente con roles \"femeninos\", pero de nuevo: un rasgo de personalidad, no un destino.";
+    } else {
+      title = "Perfil Indiferenciado";
+      desc = "Puntúas moderado o bajo en ambos ejes según este cuestionario concreto. Puede ser que tus rasgos dominantes no queden bien capturados por estas 28 preguntas, o que tu personalidad simplemente no se apoye mucho en ninguno de estos dos patrones. No es ni bueno ni malo — solo un resultado más del modelo.";
+    }
+    return { aScore, cScore, aPercent, cPercent, total:70, title, desc };
+  }
+};
+
+const QUIZ_TESTS = {
+  masculino: {
+    label: 'El Masculinómetro™',
+    emoji: '📏',
+    tagline: 'Test 100% pseudocientífico, sin ningún fundamento, para reírse un rato.',
+    disclaimer: '⚠ Esto es una coña. La masculinidad/feminidad "real" no se mide con un cuestionario ni depende de gustos, aficiones o forma de sentarse. Son estereotipos culturales, no biología ni destino.',
+    questions: [
+      { text: "En una discusión con un amigo, ¿qué haces primero?", opts: [
+        {t:"Le pregunto cómo se siente antes de opinar", v:2},
+        {t:"Analizo los hechos y busco quién tiene razón", v:0},
+        {t:"Le doy un abrazo y cambiamos de tema", v:2},
+        {t:"Espero a que se calme y luego hablamos", v:1}
+      ]},
+      { text: "¿Cómo llevas el dolor físico (un golpe, una caída)?", opts: [
+        {t:"Digo 'estoy bien' aunque no lo esté", v:0},
+        {t:"Me quejo con teatralidad, sin vergüenza", v:2},
+        {t:"Lo comento pero sigo a lo mío", v:1},
+        {t:"Necesito que alguien me lo valide un rato", v:2}
+      ]},
+      { text: "Tu forma de arreglarte antes de salir consiste en...", opts: [
+        {t:"Ducha, ropa, listo en 10 minutos", v:0},
+        {t:"Skincare, un poco de perfume, revisar el look en el espejo", v:2},
+        {t:"Algo intermedio, cuido lo básico", v:1},
+        {t:"Ni me miro al espejo", v:0}
+      ]},
+      { text: "En el cine, ¿qué tipo de peli te hace llorar (o casi)?", opts: [
+        {t:"Nunca lloro con una película", v:0},
+        {t:"Los dramas familiares me destrozan", v:2},
+        {t:"Alguna escena concreta, pero lo disimulo", v:1},
+        {t:"Lloro y lo digo abiertamente", v:2}
+      ]},
+      { text: "Un compañero de piso deja los platos sucios otra vez. Tú...", opts: [
+        {t:"Se lo digo directo, sin rodeos", v:0},
+        {t:"Le mando un mensaje explicando cómo me hace sentir", v:2},
+        {t:"Los lavo yo y me callo, pero rumio por dentro", v:1},
+        {t:"Lo hablamos con calma buscando entender por qué pasa", v:2}
+      ]},
+      { text: "Tu forma favorita de quedar con amigos es...", opts: [
+        {t:"Ver deporte o jugar algo competitivo", v:0},
+        {t:"Ir a tomar algo y hablar de la vida", v:2},
+        {t:"Un plan tranquilo, cocinar o ver una serie", v:1},
+        {t:"Hacer algo activo al aire libre", v:0}
+      ]},
+      { text: "¿Cómo describirías tu forma de vestir?", opts: [
+        {t:"Práctica, lo mismo de siempre funciona", v:0},
+        {t:"Me gusta combinar y cuidar los detalles", v:2},
+        {t:"Depende del día, sin pensarlo mucho", v:1},
+        {t:"Cómoda ante todo, cero estilismo", v:0}
+      ]},
+      { text: "Si un amigo te cuenta un problema personal, tú...", opts: [
+        {t:"Le doy soluciones prácticas rápido", v:0},
+        {t:"Le escucho sin interrumpir, pregunto cómo se siente", v:2},
+        {t:"Un poco de ambas cosas", v:1},
+        {t:"Le hago reír para aligerar el momento", v:1}
+      ]},
+      { text: "En una app de música, ¿qué predomina en tu playlist?", opts: [
+        {t:"Rock, rap o algo con mucha energía", v:0},
+        {t:"Baladas, pop emotivo, canciones para sentir", v:2},
+        {t:"De todo un poco, sin patrón claro", v:1},
+        {t:"Música para currar/entrenar, nada sentimental", v:0}
+      ]},
+      { text: "¿Cómo reaccionas ante un animalito pequeño (cachorro, gatito)?", opts: [
+        {t:"'Qué mono' por dentro, cara seria por fuera", v:1},
+        {t:"Se me cae la baba, lo digo sin problema", v:2},
+        {t:"Simpático, pero sigo con lo mío", v:0},
+        {t:"Le hago fotos y se las mando a todo el grupo", v:2}
+      ]}
+    ],
+    categories: [
+      { max:6, title:"Grado 0: Piedra con patas", desc:"Tu nivel de expresividad emocional podría abrir cocos. Enhorabuena, cumples el estereotipo de 'hombre de acero' casi a la perfección — según esta encuesta absurda, claro." },
+      { max:12, title:"Grado 1: Estoico funcional", desc:"Tienes tus momentos blanditos, pero los escondes bien. Un equilibrio entre 'todo bien' y algún que otro suspiro contenido." },
+      { max:18, title:"Grado 2: Ambiguo de manual", desc:"Ni fu ni fa. Un espécimen equilibrado que confunde a la máquina, lo cual, honestamente, es lo más sano que hay." },
+      { max:24, title:"Grado 3: Sensible declarado", desc:"No tienes ningún problema en mostrar lo que sientes, y probablemente seas mejor compañía por ello. El estereotipo se te resbala." },
+      { max:30, title:"Grado 4: Rompe-escalas", desc:"El Masculinómetro™ ha hecho corto circuito contigo. Enhorabuena por no encajar en la casilla que esta encuesta absurda intentaba meterte." }
+    ],
+    computeResult(answers){
+      const score = answers.reduce((a,b)=>a+b,0);
+      const cat = this.categories.find(c => score <= c.max) || this.categories[this.categories.length-1];
+      const percent = Math.round((score/30)*100);
+      return { score, total:30, percent, title:cat.title, desc:cat.desc, traits:null };
+    }
+  },
+
+  estilo: {
+    label: 'Test de Estilo y Sensibilidad',
+    emoji: '💅',
+    tagline: 'De leñador de cueva a diva total: descubre tu nivel.',
+    disclaimer: '⚠ Es coña, para pasar el rato — no mide nada real de nadie. Son estereotipos, no una verdad sobre ti.',
+    questions: [
+      { text: "¿Cómo es tu rutina facial al levantarte o antes de dormir?", opts: [
+        {t:"Agua de la ducha y secarme con la misma toalla del cuerpo.", v:1},
+        {t:"Me lavo la cara y si tengo la piel seca me pongo cualquier crema que pille.", v:2},
+        {t:"Limpiador facial suave + crema hidratante + protector solar a diario.", v:3},
+        {t:"Rutina completa de 6 pasos: sérum con niacinamida, contorno de ojos y retinol.", v:4}
+      ]},
+      { text: "Una amiga o amigo te llama para contarte un salseo / drama amoroso enorme:", opts: [
+        {t:"'Resúmelo en un minuto, que estoy liado'.", v:1},
+        {t:"Escucho mientras hago otra cosa y le digo 'bueno, ya pasará'.", v:2},
+        {t:"Preparo palomitas, pregunto detalles clave y analizo quién tiene la culpa.", v:3},
+        {t:"Paro el mundo, pongo altavoz, pido capturas y analizamos los audios con lupa.", v:4}
+      ]},
+      { text: "Tienes una cena importante o fiesta el sábado. ¿Cómo eliges la ropa?", opts: [
+        {t:"El primer pantalón limpio y la camiseta que esté encima del montón.", v:1},
+        {t:"Pantalón cómodo y una camisa / polo estándar que nunca falla.", v:2},
+        {t:"Pienso en la paleta de colores, calzado adecuado y perfume según la ocasión.", v:3},
+        {t:"Monto el outfit 3 días antes, pruebo accesorios, anillos y me tomo fotos en el espejo.", v:4}
+      ]},
+      { text: "Estás en un bar de copas o terraza. ¿Qué pides?", opts: [
+        {t:"La cerveza de grifo más fría o un destilado sin mezclar.", v:1},
+        {t:"Un cubata clásico de toda la vida o vino de la casa.", v:2},
+        {t:"Gin-tonic bien preparado con su copa de balón y twist cítrico.", v:3},
+        {t:"Aperol Spritz, Pornstar Martini o un cóctel dulce con decoración y fruta.", v:4}
+      ]},
+      { text: "Vas por la calle y ves a un cachorro extremadamente adorable:", opts: [
+        {t:"Lo miro un segundo con expresión neutral y sigo andando.", v:1},
+        {t:"Digo 'mira qué perro más majo' y sigo.", v:2},
+        {t:"Sonrío, le hago un gesto y si el dueño parece simpático, lo acaricio.", v:3},
+        {t:"Se me agudiza la voz a nivel delfín: '¡¡¡Aaaay qué bebé hermoso por favor!!!'.", v:4}
+      ]},
+      { text: "Un amigo cercano se derrumba y empieza a llorar contigo:", opts: [
+        {t:"Le doy una palmada tensa en la espalda y digo 'venga, no pasa nada'.", v:1},
+        {t:"Le ofrezco una cerveza o intento cambiar de tema para animarle.", v:2},
+        {t:"Le escucho atentamente, le valido sus sentimientos y le doy un abrazo.", v:3},
+        {t:"Le abrazo fuerte, casi lloro con él, saco pañuelos y hacemos terapia profunda.", v:4}
+      ]},
+      { text: "¿Cómo es el orden y decoración de tu habitación / casa?", opts: [
+        {t:"Cama sin hacer a menudo, posters doblados o paredes vacías funcionales.", v:1},
+        {t:"Limpio lo justo cuando toca y tengo muebles básicos comprados por utilidad.", v:2},
+        {t:"Ordenada, con ambientador, alguna planta y cierta coherencia estética.", v:3},
+        {t:"Velas aromáticas de vainilla, luces indirectas cálidas, sábanas de 300 hilos y diseño.", v:4}
+      ]},
+      { text: "¿Qué haces si el plan que tenías organizado se cancela a última hora?", opts: [
+        {t:"'De lujo, me pongo a jugar a la play / ver la tele en calzoncillos'.", v:1},
+        {t:"'Vaya faena', pero me adapto y busco otra cosa rápida.", v:2},
+        {t:"Aprovecho para hacerme una cena rica, poner música y autocuidado.", v:3},
+        {t:"Me monto una sesión de spa en casa: mascarilla facial, baño y copa de vino.", v:4}
+      ]}
+    ],
+    computeResult(answers){
+      const score = answers.reduce((a,b)=>a+b,0);
+      const percent = Math.round(((score-8)/24)*100);
+      let title, desc;
+      if(percent <= 25){ title="Hombre de las Cavernas / Leñador"; desc="Tu filosofía es la máxima practicidad. El champú sirve para el pelo, la cara, el cuerpo y fregar los platos si hace falta. Cero rodeos, cero dramas."; }
+      else if(percent <= 55){ title="Masculinidad Clásica Funcional"; desc="Cumples con los estándares básicos de higiene y convivencia sin complicarte la vida. Tu hábitat natural es la comodidad absoluta."; }
+      else if(percent <= 80){ title="Aesthetic King / Sensibilidad Top"; desc="Tienes un gusto impecable. Sabes qué crema hidratante necesitas, no temes a los cócteles dulces ni a expresar lo que sientes."; }
+      else { title="Diva Emocional & Estética Total"; desc="El nivel supremo de sofisticación. Tu casa huele a spa de lujo, lloras con películas emotivas sin disimular y tienes máster honorífico en gestión de salseos."; }
+      const traits = [
+        { label:'Skincare', value: answers[0] >= 3 ? 'Nivel Pro' : 'Básico' },
+        { label:'Gestión del drama', value: answers[1] >= 3 ? 'FBI Emocional' : 'Desconectado' },
+        { label:'Outfit', value: answers[2] >= 3 ? 'Estiloso' : 'Práctico' },
+        { label:'Empatía', value: answers[5] >= 3 ? 'Terapeuta' : 'Espartano' }
+      ];
+      return { score, total:32, percent, title, desc, traits };
+    }
+  }
+};
+
+let state = {
+  screen: 'menu', // 'menu' | 'probable' | 'song' | 'citadels' | 'fingers'
+  probableCategory: null, // 'clasicas' | 'locura'
+  deck: [],
+  index: 0,
+  liked: [],
+  view: 'category', // 'category' | 'game' | 'done' | 'saved'
+  animClass: '',
+  wordDeck: shuffle(WORDS),
+  wordIndex: 0,
+  players: [],
+  newPlayerName: '',
+  citadelsPlayers: [],
+  newCitadelsPlayerName: '',
+  fingers: {
+    phase: 'setup', // 'setup' | 'placing' | 'result'
+    groupCount: 2,
+    leaderCount: 0,
+    touches: new Map(),
+    countdownTimer: null,
+    countdownValue: null,
+    generation: 0
+  },
+  quiz: {
+    testId: null, // 'masculino' | 'estilo'
+    phase: 'picker', // 'picker' | 'name' | 'question' | 'playerResult' | 'leaderboard'
+    players: [],
+    currentName: '',
+    qIndex: 0,
+    answers: [],
+    lastResult: null,
+    summaryMode: 'normal'
+  },
+  sciquiz: {
+    phase: 'name', // 'name' | 'question' | 'playerResult' | 'leaderboard'
+    players: [],
+    currentName: '',
+    qIndex: 0,
+    order: [], // array de {text, axis}
+    answers: [], // paralelo a order
+    lastResult: null,
+    summaryMode: 'normal'
+  }
+};
+
+const app = document.getElementById('app');
+
+// --- Persistencia local (por móvil, no compartida entre dispositivos) ---
+function lsGet(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  }catch(e){
+    return fallback;
+  }
+}
+function lsSet(key, value){
+  try{
+    localStorage.setItem(key, JSON.stringify(value));
+  }catch(e){
+    console.error('No se pudo guardar en este dispositivo', e);
+  }
+}
+
+function loadLiked(){
+  state.liked = lsGet(STORAGE_KEY, []);
+}
+function saveLiked(){
+  lsSet(STORAGE_KEY, state.liked);
+}
+
+function choose(type){
+  const q = state.deck[state.index];
+  state.animClass = type === 'like' ? 'leave-like' : 'leave-dislike';
+  render();
+
+  setTimeout(() => {
+    if(type === 'like'){
+      state.liked.push(q);
+      saveLiked();
+    }
+    state.index += 1;
+    state.animClass = 'enter';
+    if(state.index >= state.deck.length){
+      state.view = 'done';
+    }
+    render();
+  }, 260);
+}
+
+function restart(){
+  state.deck = shuffle(PROBABLE_CATEGORIES[state.probableCategory].list);
+  state.index = 0;
+  state.view = 'game';
+  state.animClass = '';
+  render();
+}
+
+function removeSaved(i){
+  state.liked.splice(i,1);
+  saveLiked();
+  render();
+}
+
+function goSaved(){
+  state.view = 'saved';
+  render();
+}
+function goBack(){
+  state.view = state.index >= state.deck.length ? 'done' : 'game';
+  render();
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function goMenu(){
+  state.screen = 'menu';
+  render();
+}
+function openProbable(){
+  state.screen = 'probable';
+  state.view = 'category';
+  render();
+}
+function selectCategory(cat){
+  state.probableCategory = cat;
+  state.deck = shuffle(PROBABLE_CATEGORIES[cat].list);
+  state.index = 0;
+  state.view = 'game';
+  state.animClass = '';
+  render();
+}
+function changeCategory(){
+  state.view = 'category';
+  render();
+}
+function openSong(){
+  state.screen = 'song';
+  render();
+}
+function openCitadels(){
+  state.screen = 'citadels';
+  render();
+}
+function openFingers(){
+  state.screen = 'fingers';
+  state.fingers = {
+    phase: 'setup',
+    groupCount: 2,
+    leaderCount: 0,
+    touches: new Map(),
+    countdownTimer: null,
+    countdownValue: null,
+    generation: state.fingers.generation || 0
+  };
+  render();
+}
+function changeFingersGroupCount(delta){
+  const next = state.fingers.groupCount + delta;
+  if(next < 2 || next > 6) return;
+  state.fingers.groupCount = next;
+  if(state.fingers.leaderCount > next) state.fingers.leaderCount = next;
+  render();
+}
+function changeFingersLeaderCount(delta){
+  const next = state.fingers.leaderCount + delta;
+  if(next < 0 || next > state.fingers.groupCount) return;
+  state.fingers.leaderCount = next;
+  render();
+}
+function startFingersPlacing(){
+  state.fingers.phase = 'placing';
+  render();
+  attachFingersHandlers();
+}
+function retryFingersPlacing(){
+  clearFingersCountdown();
+  state.fingers.phase = 'placing';
+  state.fingers.touches = new Map();
+  render();
+  attachFingersHandlers();
+}
+function backToFingersSetup(){
+  clearFingersCountdown();
+  state.fingers.phase = 'setup';
+  state.fingers.touches = new Map();
+  render();
+}
+function clearFingersCountdown(){
+  if(state.fingers.countdownTimer){
+    clearInterval(state.fingers.countdownTimer);
+    state.fingers.countdownTimer = null;
+  }
+  state.fingers.countdownValue = null;
+}
+
+function loadQuizPlayers(){
+  // No-op al arrancar: los jugadores se cargan al elegir el test en selectQuizTest()
+}
+function quizPlayersKey(testId){
+  return 'jg_quiz_players_' + testId;
+}
+function saveQuizPlayers(){
+  if(!state.quiz.testId) return;
+  lsSet(quizPlayersKey(state.quiz.testId), state.quiz.players);
+}
+
+function openQuizzes(){
+  state.screen = 'quizzes';
+  const inProgress = lsGet('jg_quiz_inprogress', null);
+  if(inProgress && inProgress.testId && QUIZ_TESTS[inProgress.testId] && inProgress.qIndex < QUIZ_TESTS[inProgress.testId].questions.length){
+    state.quiz = {
+      testId: inProgress.testId,
+      phase: 'question',
+      players: lsGet(quizPlayersKey(inProgress.testId), []),
+      currentName: inProgress.currentName,
+      qIndex: inProgress.qIndex,
+      answers: inProgress.answers,
+      lastResult: null,
+      summaryMode: 'normal'
+    };
+  } else {
+    state.quiz = { testId: null, phase: 'picker', players: [], currentName: '', qIndex: 0, answers: [], lastResult: null, summaryMode: 'normal' };
+  }
+  render();
+}
+function selectQuizTest(id){
+  state.quiz.testId = id;
+  state.quiz.players = lsGet(quizPlayersKey(id), []);
+  state.quiz.phase = 'name';
+  state.quiz.currentName = '';
+  state.quiz.qIndex = 0;
+  state.quiz.answers = [];
+  render();
+}
+function saveQuizInProgress(){
+  lsSet('jg_quiz_inprogress', {
+    testId: state.quiz.testId,
+    currentName: state.quiz.currentName,
+    qIndex: state.quiz.qIndex,
+    answers: state.quiz.answers
+  });
+}
+function clearQuizInProgress(){
+  lsSet('jg_quiz_inprogress', null);
+}
+
+function backToQuizPicker(){
+  state.quiz.testId = null;
+  state.quiz.players = [];
+  state.quiz.phase = 'picker';
+  clearQuizInProgress();
+  render();
+}
+function startQuizPlayer(){
+  const name = state.quiz.currentName.trim();
+  if(!name) return;
+  state.quiz.currentName = name;
+  state.quiz.qIndex = 0;
+  state.quiz.answers = [];
+  state.quiz.phase = 'question';
+  saveQuizInProgress();
+  render();
+}
+function selectQuizOption(value){
+  const test = QUIZ_TESTS[state.quiz.testId];
+  state.quiz.answers.push(value);
+  state.quiz.qIndex += 1;
+  if(state.quiz.qIndex >= test.questions.length){
+    const result = test.computeResult(state.quiz.answers);
+    const entry = { name: state.quiz.currentName, ...result };
+    state.quiz.players.push(entry);
+    state.quiz.lastResult = entry;
+    state.quiz.phase = 'playerResult';
+    saveQuizPlayers();
+    clearQuizInProgress();
+  } else {
+    saveQuizInProgress();
+  }
+  render();
+}
+function addAnotherQuizPlayer(){
+  state.quiz.currentName = '';
+  state.quiz.qIndex = 0;
+  state.quiz.answers = [];
+  state.quiz.phase = 'name';
+  clearQuizInProgress();
+  render();
+}
+function viewQuizLeaderboard(){
+  state.quiz.phase = 'leaderboard';
+  render();
+}
+function backToQuizResult(){
+  state.quiz.phase = 'playerResult';
+  render();
+}
+function restartQuizPlayers(){
+  state.quiz.players = [];
+  saveQuizPlayers();
+  state.quiz.currentName = '';
+  state.quiz.qIndex = 0;
+  state.quiz.answers = [];
+  state.quiz.phase = 'name';
+  clearQuizInProgress();
+  render();
+}
+
+function buildSciOrder(){
+  const items = SCI_TEST.agencyItems.map(t => ({ text:t, axis:'agency' }))
+    .concat(SCI_TEST.communionItems.map(t => ({ text:t, axis:'communion' })));
+  return shuffle(items);
+}
+function loadSciQuizPlayers(){
+  state.sciquiz.players = lsGet('jg_sciquiz_players', []);
+}
+function saveSciQuizPlayers(){
+  lsSet('jg_sciquiz_players', state.sciquiz.players);
+}
+
+function openSciQuiz(){
+  state.screen = 'sciquiz';
+  const inProgress = lsGet('jg_sciquiz_inprogress', null);
+  if(inProgress && inProgress.order && inProgress.order.length && inProgress.qIndex < inProgress.order.length){
+    state.sciquiz = {
+      phase: 'question',
+      players: lsGet('jg_sciquiz_players', []),
+      currentName: inProgress.currentName,
+      qIndex: inProgress.qIndex,
+      order: inProgress.order,
+      answers: inProgress.answers,
+      lastResult: null,
+      summaryMode: 'normal'
+    };
+  } else {
+    state.sciquiz = { phase:'name', players: lsGet('jg_sciquiz_players', []), currentName:'', qIndex:0, order:[], answers:[], lastResult:null, summaryMode:'normal' };
+  }
+  render();
+}
+function saveSciInProgress(){
+  lsSet('jg_sciquiz_inprogress', {
+    currentName: state.sciquiz.currentName,
+    qIndex: state.sciquiz.qIndex,
+    order: state.sciquiz.order,
+    answers: state.sciquiz.answers
+  });
+}
+function clearSciInProgress(){
+  lsSet('jg_sciquiz_inprogress', null);
+}
+
+function startSciPlayer(){
+  const name = state.sciquiz.currentName.trim();
+  if(!name) return;
+  state.sciquiz.currentName = name;
+  state.sciquiz.qIndex = 0;
+  state.sciquiz.order = buildSciOrder();
+  state.sciquiz.answers = [];
+  state.sciquiz.phase = 'question';
+  saveSciInProgress();
+  render();
+}
+function selectSciOption(value){
+  state.sciquiz.answers.push(value);
+  state.sciquiz.qIndex += 1;
+  if(state.sciquiz.qIndex >= state.sciquiz.order.length){
+    const agencyAnswers = [];
+    const communionAnswers = [];
+    state.sciquiz.order.forEach((item, i) => {
+      if(item.axis === 'agency') agencyAnswers.push(state.sciquiz.answers[i]);
+      else communionAnswers.push(state.sciquiz.answers[i]);
+    });
+    const result = SCI_TEST.computeResult(agencyAnswers, communionAnswers);
+    const entry = { name: state.sciquiz.currentName, ...result };
+    state.sciquiz.players.push(entry);
+    state.sciquiz.lastResult = entry;
+    state.sciquiz.phase = 'playerResult';
+    saveSciQuizPlayers();
+    clearSciInProgress();
+  } else {
+    saveSciInProgress();
+  }
+  render();
+}
+function addAnotherSciPlayer(){
+  state.sciquiz.currentName = '';
+  state.sciquiz.qIndex = 0;
+  state.sciquiz.order = [];
+  state.sciquiz.answers = [];
+  state.sciquiz.phase = 'name';
+  clearSciInProgress();
+  render();
+}
+function viewSciLeaderboard(){
+  state.sciquiz.phase = 'leaderboard';
+  render();
+}
+function restartSciPlayers(){
+  state.sciquiz.players = [];
+  saveSciQuizPlayers();
+  state.sciquiz.currentName = '';
+  state.sciquiz.qIndex = 0;
+  state.sciquiz.order = [];
+  state.sciquiz.answers = [];
+  state.sciquiz.phase = 'name';
+  clearSciInProgress();
+  render();
+}
+
+function setQuizSummaryMode(mode){
+  state.quiz.summaryMode = mode;
+  render();
+}
+function setSciSummaryMode(mode){
+  state.sciquiz.summaryMode = mode;
+  render();
+}
+
+function quadrantPlotHtml(dots, opts){
+  opts = opts || {};
+  return `
+    <div class="quadrant-box">
+      <div class="quadrant-cross h"></div>
+      <div class="quadrant-cross v"></div>
+      <div class="quadrant-corner tl">Vínculo</div>
+      <div class="quadrant-corner tr">Andrógino</div>
+      <div class="quadrant-corner bl">Indiferenciado</div>
+      <div class="quadrant-corner br">Acción</div>
+      ${dots.map(d => `
+        <div class="quadrant-dot${opts.big ? ' big' : ''}" style="left:${Math.max(2,Math.min(98,d.x))}%; top:${Math.max(2,Math.min(98,100-d.y))}%; background:${d.color};" title="${escapeHtml(d.label)}"></div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function nextWord(){
+  state.wordIndex += 1;
+  if(state.wordIndex >= state.wordDeck.length){
+    state.wordDeck = shuffle(WORDS);
+    state.wordIndex = 0;
+  }
+  render();
+}
+
+function loadSongPlayers(){
+  state.players = lsGet('jg_song_players', []);
+}
+function saveSongPlayers(){
+  lsSet('jg_song_players', state.players);
+}
+
+function addPlayer(){
+  const name = state.newPlayerName.trim();
+  if(!name) return;
+  state.players.push({ name, score: 0 });
+  state.newPlayerName = '';
+  saveSongPlayers();
+  render();
+}
+
+function bumpScore(i, delta){
+  state.players[i].score = Math.max(0, state.players[i].score + delta);
+  saveSongPlayers();
+  render();
+}
+
+function removePlayer(i){
+  state.players.splice(i,1);
+  saveSongPlayers();
+  render();
+}
+
+function loadCitadelsPlayers(){
+  state.citadelsPlayers = lsGet('jg_citadels_players', []);
+}
+function saveCitadelsPlayers(){
+  lsSet('jg_citadels_players', state.citadelsPlayers);
+}
+
+function addCitadelsPlayer(){
+  const name = state.newCitadelsPlayerName.trim();
+  if(!name) return;
+  state.citadelsPlayers.push({ name, score: 0 });
+  state.newCitadelsPlayerName = '';
+  saveCitadelsPlayers();
+  render();
+}
+
+function bumpCitadelsScore(i, delta){
+  state.citadelsPlayers[i].score += delta;
+  saveCitadelsPlayers();
+  render();
+}
+
+function removeCitadelsPlayer(i){
+  state.citadelsPlayers.splice(i,1);
+  saveCitadelsPlayers();
+  render();
+}
+
+function resetCitadelsScores(){
+  state.citadelsPlayers.forEach(p => p.score = 0);
+  saveCitadelsPlayers();
+  render();
+}
+
+function attachFingersHandlers(){
+  const layer = document.getElementById('touchLayer');
+  if(!layer) return;
+  const svg = document.getElementById('linesSvg');
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  let lines = []; // { id1, id2, el }
+  const myGen = ++state.fingers.generation;
+
+  function relPos(clientX, clientY){
+    const rect = layer.getBoundingClientRect();
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  }
+
+  function addCircle(id, x, y){
+    const el = document.createElement('div');
+    el.className = 'finger-circle pulse';
+    el.textContent = '•';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    layer.appendChild(el);
+    state.fingers.touches.set(id, { el, x, y });
+    updateStatusText();
+    maybeStartCountdown();
+  }
+
+  function moveCircle(id, x, y){
+    const t = state.fingers.touches.get(id);
+    if(!t) return;
+    t.x = x; t.y = y;
+    t.el.style.left = x + 'px';
+    t.el.style.top = y + 'px';
+    lines.forEach(line => {
+      if(line.id1 === id) { line.el.setAttribute('x1', x); line.el.setAttribute('y1', y); }
+      if(line.id2 === id) { line.el.setAttribute('x2', x); line.el.setAttribute('y2', y); }
+    });
+  }
+
+  function removeCircle(id){
+    const t = state.fingers.touches.get(id);
+    if(!t) return;
+
+    if(state.fingers.phase === 'result'){
+      // Al levantar el dedo tras el sorteo, se mantiene visible unos segundos
+      setTimeout(() => {
+        if(myGen !== state.fingers.generation) return;
+        if(!state.fingers.touches.has(id)) return;
+        t.el.classList.add('fading');
+        lines.forEach(line => {
+          if(line.id1 === id || line.id2 === id){
+            line.el.style.transition = 'opacity .45s ease';
+            line.el.style.opacity = '0';
+          }
+        });
+        setTimeout(() => {
+          if(myGen !== state.fingers.generation) return;
+          t.el.remove();
+          state.fingers.touches.delete(id);
+          lines = lines.filter(line => {
+            if(line.id1 === id || line.id2 === id){
+              line.el.remove();
+              return false;
+            }
+            return true;
+          });
+        }, 450);
+      }, 3500);
+      return;
+    }
+
+    t.el.remove();
+    state.fingers.touches.delete(id);
+    lines = lines.filter(line => {
+      if(line.id1 === id || line.id2 === id){
+        line.el.remove();
+        return false;
+      }
+      return true;
+    });
+    updateStatusText();
+    maybeStartCountdown();
+  }
+
+  function updateStatusText(){
+    const statusEl = document.getElementById('fingerStatus');
+    if(!statusEl) return;
+    const n = state.fingers.touches.size;
+    if(state.fingers.phase === 'result') return;
+    statusEl.textContent = n === 0
+      ? 'Poned el dedo en la pantalla'
+      : (n === 1 ? '1 dedo puesto' : n + ' dedos puestos');
+  }
+
+  function maybeStartCountdown(){
+    if(state.fingers.phase !== 'placing') return;
+    const n = state.fingers.touches.size;
+    const overlay = document.getElementById('countdownOverlay');
+    if(n >= 2){
+      clearFingersCountdown();
+      state.fingers.countdownValue = 3;
+      if(overlay){ overlay.style.display = 'block'; overlay.textContent = 'Sorteando en 3…'; }
+      state.fingers.countdownTimer = setInterval(() => {
+        state.fingers.countdownValue -= 1;
+        if(state.fingers.countdownValue <= 0){
+          clearFingersCountdown();
+          finishFingersAssignment();
+        } else if(overlay){
+          overlay.textContent = 'Sorteando en ' + state.fingers.countdownValue + '…';
+        }
+      }, 1000);
+    } else {
+      clearFingersCountdown();
+      if(overlay) overlay.style.display = 'none';
+    }
+  }
+
+  function finishFingersAssignment(){
+    const ids = Array.from(state.fingers.touches.keys()); // orden de colocación
+    const groupCount = state.fingers.groupCount;
+    const leaderCount = Math.min(state.fingers.leaderCount, groupCount, ids.length);
+
+    const leaderIds = ids.slice(0, leaderCount);
+    const restIds = shuffle(ids.slice(leaderCount));
+
+    const assignment = new Map(); // id -> groupIdx
+
+    // Las personas principales van a grupos distintos entre sí, en orden aleatorio
+    const groupSlotsForLeaders = shuffle(Array.from({ length: groupCount }, (_, i) => i)).slice(0, leaderCount);
+    leaderIds.forEach((id, i) => assignment.set(id, groupSlotsForLeaders[i]));
+
+    // El resto se reparte al azar y de forma equilibrada entre todos los grupos
+    restIds.forEach((id, idx) => assignment.set(id, idx % groupCount));
+
+    const counts = new Array(groupCount).fill(0);
+    const buckets = Array.from({ length: groupCount }, () => []);
+    const leaderIdSet = new Set(leaderIds);
+
+    ids.forEach(id => {
+      const groupIdx = assignment.get(id);
+      counts[groupIdx] += 1;
+      buckets[groupIdx].push(id);
+      const t = state.fingers.touches.get(id);
+      if(!t) return;
+      const color = GROUP_COLORS[groupIdx % GROUP_COLORS.length];
+      t.el.classList.remove('pulse');
+      t.el.style.background = color.bg;
+      t.el.style.borderColor = color.bg;
+      t.el.textContent = (leaderIdSet.has(id) ? '★' : '') + (groupIdx + 1);
+    });
+
+    // Dibuja una línea uniendo, en cadena, a todos los dedos del mismo grupo
+    buckets.forEach((bucket, groupIdx) => {
+      if(bucket.length < 2) return;
+      const color = GROUP_COLORS[groupIdx % GROUP_COLORS.length];
+      for(let k = 0; k < bucket.length - 1; k++){
+        const id1 = bucket[k];
+        const id2 = bucket[k+1];
+        const t1 = state.fingers.touches.get(id1);
+        const t2 = state.fingers.touches.get(id2);
+        if(!t1 || !t2) continue;
+        const lineEl = document.createElementNS(SVG_NS, 'line');
+        lineEl.setAttribute('x1', t1.x);
+        lineEl.setAttribute('y1', t1.y);
+        lineEl.setAttribute('x2', t2.x);
+        lineEl.setAttribute('y2', t2.y);
+        lineEl.setAttribute('stroke', color.bg);
+        lineEl.setAttribute('stroke-width', '5');
+        lineEl.setAttribute('stroke-linecap', 'round');
+        lineEl.setAttribute('opacity', '0.85');
+        svg.appendChild(lineEl);
+        lines.push({ id1, id2, el: lineEl });
+      }
+    });
+
+    state.fingers.phase = 'result';
+
+    const overlay = document.getElementById('countdownOverlay');
+    if(overlay) overlay.style.display = 'none';
+
+    const statusEl = document.getElementById('fingerStatus');
+    if(statusEl) statusEl.textContent = '¡Grupos listos!';
+    const hintEl = document.getElementById('fingerHint');
+    if(hintEl) hintEl.textContent = 'Podéis levantar los dedos.';
+
+    const legend = document.getElementById('legendPanel');
+    if(legend){
+      legend.style.display = 'block';
+      const list = document.getElementById('legendList');
+      list.innerHTML = counts.map((c, i) => `
+        <div class="legend-item">
+          <span class="legend-swatch" style="background:${GROUP_COLORS[i % GROUP_COLORS.length].bg}"></span>
+          Grupo ${i+1}: ${c}
+        </div>
+      `).join('');
+    }
+  }
+
+  function onStart(e){
+    e.preventDefault();
+    for(const touch of e.changedTouches){
+      const { x, y } = relPos(touch.clientX, touch.clientY);
+      addCircle(touch.identifier, x, y);
+    }
+  }
+  function onMove(e){
+    e.preventDefault();
+    for(const touch of e.changedTouches){
+      const { x, y } = relPos(touch.clientX, touch.clientY);
+      moveCircle(touch.identifier, x, y);
+    }
+  }
+  function onEnd(e){
+    e.preventDefault();
+    for(const touch of e.changedTouches){
+      removeCircle(touch.identifier);
+    }
+  }
+
+  layer.addEventListener('touchstart', onStart, { passive:false });
+  layer.addEventListener('touchmove', onMove, { passive:false });
+  layer.addEventListener('touchend', onEnd, { passive:false });
+  layer.addEventListener('touchcancel', onEnd, { passive:false });
+}
+
+function render(){
+  if(state.screen === 'menu'){
+    renderMenu();
+    return;
+  }
+
+  if(state.screen === 'song'){
+    renderSong();
+    return;
+  }
+
+  if(state.screen === 'citadels'){
+    renderCitadels();
+    return;
+  }
+
+  if(state.screen === 'fingers'){
+    renderFingers();
+    return;
+  }
+
+  if(state.screen === 'quizzes'){
+    renderQuizzes();
+    return;
+  }
+
+  if(state.screen === 'sciquiz'){
+    renderSciQuiz();
+    return;
+  }
+
+  renderProbable();
+}
+
+function renderMenu(){
+  app.innerHTML = `
+    <header class="menu-header">
+      <div class="eyebrow">Para jugar en grupo</div>
+      <h1>Elige un <em>juego</em></h1>
+      <div class="sub" style="margin:10px auto 0;">Dos dinámicas rápidas para romper el hielo, sin necesidad de nada más que el móvil.</div>
+    </header>
+    <div class="menu-list">
+      <button class="game-card probable" id="goProbable">
+        <div class="game-emoji">👉</div>
+        <div>
+          <div class="game-title">¿Quién es más probable?</div>
+          <div class="game-desc">Se lee una frase y todo el grupo señala a la vez a quien crea que encaja.</div>
+        </div>
+      </button>
+      <button class="game-card song" id="goSong">
+        <div class="game-emoji">🎤</div>
+        <div>
+          <div class="game-title">Canta la palabra</div>
+          <div class="game-desc">Sale una palabra y gana punto quien primero cante una línea de una canción real que la contenga.</div>
+        </div>
+      </button>
+      <button class="game-card probable" id="goCitadels">
+        <div class="game-emoji">🏰</div>
+        <div>
+          <div class="game-title">Contador</div>
+          <div class="game-desc">Contador de puntos para la partida: un jugador por fila y flechas para sumar o restar.</div>
+        </div>
+      </button>
+      <button class="game-card song" id="goFingers">
+        <div class="game-emoji">🖐️</div>
+        <div>
+          <div class="game-title">Emparejar equipos</div>
+          <div class="game-desc">Todos ponen el dedo en la pantalla a la vez y el juego los reparte al azar en grupos.</div>
+        </div>
+      </button>
+      <button class="game-card probable" id="goQuizzes">
+        <div class="game-emoji">🪞</div>
+        <div>
+          <div class="game-title">Tests de personalidad</div>
+          <div class="game-desc">Tests de coña para pasar el móvil de uno en uno y comparar resultados al final.</div>
+        </div>
+      </button>
+      <button class="game-card song" id="goSciQuiz">
+        <div class="game-emoji">🧭</div>
+        <div>
+          <div class="game-title">Agencia y Comunión</div>
+          <div class="game-desc">Test aparte, más largo y con escala del 1 al 5, inspirado en modelos reales de psicología.</div>
+        </div>
+      </button>
+    </div>
+  `;
+  document.getElementById('goProbable').onclick = openProbable;
+  document.getElementById('goSong').onclick = openSong;
+  document.getElementById('goCitadels').onclick = openCitadels;
+  document.getElementById('goFingers').onclick = openFingers;
+  document.getElementById('goQuizzes').onclick = openQuizzes;
+  document.getElementById('goSciQuiz').onclick = openSciQuiz;
+}
+
+function renderSong(){
+  const word = state.wordDeck[state.wordIndex];
+  const sorted = state.players.map((p,i)=>({...p, i})).sort((a,b)=> b.score - a.score);
+
+  app.innerHTML = `
+    <button class="top-back" id="backMenu">← Menú</button>
+    <header>
+      <div class="eyebrow">Cantad todos a la vez</div>
+      <h1>Canta la <em>palabra</em></h1>
+      <div class="sub">El primero que cante una línea de una canción real con esta palabra, gana el punto.</div>
+    </header>
+
+    <div class="word-stage" style="margin-top:22px;">
+      <div class="word-label">La palabra es</div>
+      <div class="word-text">${escapeHtml(word)}</div>
+    </div>
+
+    <button class="next-word-btn" id="nextWordBtn">🔀 Siguiente palabra</button>
+
+    <div class="scoreboard">
+      <div class="scoreboard-title">Marcador</div>
+      ${sorted.length ? sorted.map(p => `
+        <div class="player-row">
+          <button class="score-btn" data-action="minus" data-i="${p.i}">−</button>
+          <div class="player-name">${escapeHtml(p.name)}</div>
+          <div class="player-score">${p.score}</div>
+          <button class="score-btn" data-action="plus" data-i="${p.i}">+</button>
+          <button class="remove-player" data-action="remove" data-i="${p.i}">✕</button>
+        </div>
+      `).join('') : `<div class="empty-players">Añade jugadores para llevar el marcador.</div>`}
+      <div class="add-player-row">
+        <input type="text" id="newPlayerInput" placeholder="Nombre del jugador" value="${escapeHtml(state.newPlayerName)}">
+        <button id="addPlayerBtn">Añadir</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('backMenu').onclick = goMenu;
+  document.getElementById('nextWordBtn').onclick = nextWord;
+
+  const input = document.getElementById('newPlayerInput');
+  input.oninput = (e) => { state.newPlayerName = e.target.value; };
+  input.onkeydown = (e) => { if(e.key === 'Enter') addPlayer(); };
+  document.getElementById('addPlayerBtn').onclick = addPlayer;
+
+  app.querySelectorAll('.score-btn, .remove-player').forEach(btn=>{
+    btn.onclick = () => {
+      const i = parseInt(btn.dataset.i);
+      const action = btn.dataset.action;
+      if(action === 'plus') bumpScore(i, 1);
+      else if(action === 'minus') bumpScore(i, -1);
+      else if(action === 'remove') removePlayer(i);
+    };
+  });
+}
+
+function renderCitadels(){
+  const sorted = state.citadelsPlayers.map((p,i)=>({...p, i})).sort((a,b)=> b.score - a.score);
+
+  app.innerHTML = `
+    <button class="top-back" id="backMenu">← Menú</button>
+    <header>
+      <div class="eyebrow">🏰 Marcador de partida</div>
+      <h1>Contador</h1>
+      <div class="sub">Un jugador por fila. Usa las flechas para sumar o restar puntos según construyáis distritos.</div>
+    </header>
+
+    <div style="margin-top:24px;">
+      ${sorted.length ? sorted.map(p => `
+        <div class="citadels-row">
+          <div class="citadels-name">${escapeHtml(p.name)}</div>
+          <div class="citadels-score">${p.score}</div>
+          <div class="citadels-arrows">
+            <button class="arrow-btn up" data-action="plus" data-i="${p.i}">▲</button>
+            <button class="arrow-btn down" data-action="minus" data-i="${p.i}">▼</button>
+          </div>
+          <button class="citadels-remove" data-action="remove" data-i="${p.i}">✕</button>
+        </div>
+      `).join('') : `<div class="empty-players">Añade jugadores para empezar a contar puntos.</div>`}
+
+      <div class="add-player-row">
+        <input type="text" id="newCitadelsInput" placeholder="Nombre del jugador" value="${escapeHtml(state.newCitadelsPlayerName)}">
+        <button id="addCitadelsBtn">Añadir</button>
+      </div>
+
+      ${state.citadelsPlayers.length ? `<button class="citadels-reset" id="resetScoresBtn">Reiniciar puntos a 0</button>` : ''}
+    </div>
+  `;
+
+  document.getElementById('backMenu').onclick = goMenu;
+
+  const input = document.getElementById('newCitadelsInput');
+  input.oninput = (e) => { state.newCitadelsPlayerName = e.target.value; };
+  input.onkeydown = (e) => { if(e.key === 'Enter') addCitadelsPlayer(); };
+  document.getElementById('addCitadelsBtn').onclick = addCitadelsPlayer;
+
+  const resetBtn = document.getElementById('resetScoresBtn');
+  if(resetBtn) resetBtn.onclick = resetCitadelsScores;
+
+  app.querySelectorAll('.arrow-btn, .citadels-remove').forEach(btn=>{
+    btn.onclick = () => {
+      const i = parseInt(btn.dataset.i);
+      const action = btn.dataset.action;
+      if(action === 'plus') bumpCitadelsScore(i, 1);
+      else if(action === 'minus') bumpCitadelsScore(i, -1);
+      else if(action === 'remove') removeCitadelsPlayer(i);
+    };
+  });
+}
+
+function renderFingers(){
+  const f = state.fingers;
+
+  if(f.phase === 'setup'){
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="eyebrow">🖐️ Sorteo de grupos</div>
+        <h1>Emparejar <em>equipos</em></h1>
+        <div class="sub">Elige en cuántos grupos queréis repartiros. Luego todo el mundo pone un dedo en la pantalla a la vez.</div>
+      </header>
+      <div class="stepper-label" style="margin-top:30px;">Número de grupos</div>
+      <div class="stepper-row">
+        <button class="stepper-btn" id="minusGroups">−</button>
+        <div class="stepper-value">${f.groupCount}</div>
+        <button class="stepper-btn" id="plusGroups">+</button>
+      </div>
+      <div class="stepper-label" style="margin-top:24px;">Personas principales (no se emparejan entre sí)</div>
+      <div class="stepper-row">
+        <button class="stepper-btn" id="minusLeaders">−</button>
+        <div class="stepper-value">${f.leaderCount}</div>
+        <button class="stepper-btn" id="plusLeaders">+</button>
+      </div>
+      ${f.leaderCount > 0 ? `<div class="fingers-hint" style="text-align:center; margin-top:4px;">Las primeras ${f.leaderCount} personas en poner el dedo serán las principales — el sorteo las repartirá en grupos distintos.</div>` : ''}
+      <button class="start-fingers-btn" id="startFingersBtn">Poner los dedos</button>
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    document.getElementById('minusGroups').onclick = () => changeFingersGroupCount(-1);
+    document.getElementById('plusGroups').onclick = () => changeFingersGroupCount(1);
+    document.getElementById('minusLeaders').onclick = () => changeFingersLeaderCount(-1);
+    document.getElementById('plusLeaders').onclick = () => changeFingersLeaderCount(1);
+    document.getElementById('startFingersBtn').onclick = startFingersPlacing;
+    return;
+  }
+
+  // 'placing' or 'result'
+  app.innerHTML = `
+    <div class="fingers-wrap">
+      <div class="fingers-header">
+        <button class="top-back" id="backMenu">← Menú</button>
+        <div class="fingers-status" id="fingerStatus">Poned el dedo en la pantalla</div>
+        <div class="fingers-hint" id="fingerHint">Repartiendo en ${f.groupCount} grupos${f.leaderCount > 0 ? ' · las primeras ' + f.leaderCount + ' personas en tocar serán las principales' : ''}. El sorteo empieza solo al detectar 2 dedos o más.</div>
+      </div>
+      <div class="fingers-touch-area" id="touchLayer">
+        <svg class="lines-svg" id="linesSvg"></svg>
+        <div class="countdown-overlay" id="countdownOverlay"></div>
+      </div>
+      <div class="legend-panel" id="legendPanel">
+        <div class="legend-list" id="legendList"></div>
+        <div class="fingers-actions">
+          <button class="retry-btn" id="retryBtn">🔁 Repetir sorteo</button>
+          <button class="regroup-btn" id="regroupBtn">⚙️ Cambiar grupos</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('backMenu').onclick = goMenu;
+  document.getElementById('retryBtn').onclick = retryFingersPlacing;
+  document.getElementById('regroupBtn').onclick = backToFingersSetup;
+}
+
+function quizSummaryText(sortedPlayers, testLabel, mode){
+  const n = sortedPlayers.length;
+  if(n === 0) return '';
+  const top = sortedPlayers[0];
+  const bottom = sortedPlayers[n-1];
+  const avg = Math.round(sortedPlayers.reduce((a,p)=>a+p.percent,0) / n);
+
+  if(n === 1){
+    return mode === 'gracioso'
+      ? `${top.name} juega en solitario con un ${top.percent}% — "${top.title}". De momento nadie le hace sombra… porque nadie más ha jugado todavía 👀. Añadid más gente para comparar.`
+      : `${top.name} ha obtenido un ${top.percent}% (${top.title}) en "${testLabel}". Añade más jugadores para poder comparar resultados.`;
+  }
+
+  const spread = top.percent - bottom.percent;
+
+  if(mode === 'gracioso'){
+    return `👑 ${top.name} se corona con un ${top.percent}% — oficialmente "${top.title}". Mientras tanto, ${bottom.name} aterriza con un discreto ${bottom.percent}%, instalado/a en "${bottom.title}". Entre los dos hay ${spread} puntos de diferencia, casi universos distintos. Media del grupo: ${avg}%.`;
+  }
+  return `En "${testLabel}" han jugado ${n} personas. La media del grupo es ${avg}%. La puntuación más alta es de ${top.name} con ${top.percent}% (${top.title}), y la más baja es de ${bottom.name} con ${bottom.percent}% (${bottom.title}). Diferencia entre ambos: ${spread} puntos porcentuales.`;
+}
+
+function sciSummaryText(players, mode){
+  const n = players.length;
+  if(n === 0) return '';
+  const avgA = Math.round(players.reduce((a,p)=>a+p.aPercent,0) / n);
+  const avgC = Math.round(players.reduce((a,p)=>a+p.cPercent,0) / n);
+  const topA = [...players].sort((a,b)=>b.aPercent-a.aPercent)[0];
+  const topC = [...players].sort((a,b)=>b.cPercent-a.cPercent)[0];
+
+  const counts = {};
+  players.forEach(p => { counts[p.title] = (counts[p.title]||0) + 1; });
+  const countsText = Object.entries(counts).map(([title,c]) => `${c} ${title}`).join(', ');
+
+  if(n === 1){
+    const p = players[0];
+    return mode === 'gracioso'
+      ? `${p.name} anda solo/a en esto: ${p.aPercent}% de Agencia y ${p.cPercent}% de Comunión — "${p.title}". Traed a alguien más para poder compararlo con algo.`
+      : `${p.name} obtuvo ${p.aPercent}% en Agencia y ${p.cPercent}% en Comunión (${p.title}). Añade más jugadores para comparar.`;
+  }
+
+  if(mode === 'gracioso'){
+    return `🎯 Medalla de Agencia para ${topA.name} (${topA.aPercent}%) — el/la que se lanza sin mirar atrás. 💛 Medalla de Comunión para ${topC.name} (${topC.cPercent}%) — el hombro sobre el que llora todo el grupo. Media general: ${avgA}% Agencia / ${avgC}% Comunión. Reparto de perfiles: ${countsText}.`;
+  }
+  return `Media del grupo: ${avgA}% en Agencia y ${avgC}% en Comunión. ${topA.name} lidera en Agencia (${topA.aPercent}%). ${topC.name} lidera en Comunión (${topC.cPercent}%). Perfiles presentes en el grupo: ${countsText}.`;
+}
+function renderQuizzes(){
+  const q = state.quiz;
+
+  if(q.phase === 'picker'){
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header class="menu-header">
+        <div class="eyebrow">Uno detrás de otro</div>
+        <h1>Tests de <em>personalidad</em></h1>
+        <div class="sub" style="margin:10px auto 0;">Elige el test. Cada jugador responde por turnos con el mismo móvil y al final veis quién sacó qué.</div>
+      </header>
+      <div class="menu-list">
+        ${Object.entries(QUIZ_TESTS).map(([id, t]) => `
+          <button class="game-card probable" data-test="${id}">
+            <div class="game-emoji">${t.emoji}</div>
+            <div>
+              <div class="game-title">${t.label}</div>
+              <div class="game-desc">${t.tagline}</div>
+            </div>
+          </button>
+        `).join('')}
+      </div>
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    app.querySelectorAll('[data-test]').forEach(btn=>{
+      btn.onclick = () => selectQuizTest(btn.dataset.test);
+    });
+    return;
+  }
+
+  const test = QUIZ_TESTS[q.testId];
+
+  if(q.phase === 'name'){
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="eyebrow">${test.emoji} ${test.label}</div>
+        <h1>¿Quién <em>juega</em>?</h1>
+        <div class="sub">Pasa el móvil a la siguiente persona y que escriba su nombre para empezar su ronda.</div>
+      </header>
+      <div class="name-card" style="margin-top:24px;">
+        <label>Nombre del jugador</label>
+        <input type="text" id="quizNameInput" placeholder="Escribe tu nombre" value="${escapeHtml(q.currentName)}">
+        <button class="start-fingers-btn" id="startQuizBtn" style="margin-top:0;">Empezar mis preguntas</button>
+      </div>
+      ${q.players.length ? `
+        <div style="margin-top:20px; text-align:center;">
+          <button class="saved-toggle" id="viewLeaderboardBtn">Ver comparativa (${q.players.length} jugador${q.players.length===1?'':'es'})</button>
+        </div>
+      ` : ''}
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    const input = document.getElementById('quizNameInput');
+    input.oninput = (e) => { state.quiz.currentName = e.target.value; };
+    input.onkeydown = (e) => { if(e.key === 'Enter') startQuizPlayer(); };
+    document.getElementById('startQuizBtn').onclick = startQuizPlayer;
+    const lbBtn = document.getElementById('viewLeaderboardBtn');
+    if(lbBtn) lbBtn.onclick = viewQuizLeaderboard;
+    return;
+  }
+
+  if(q.phase === 'question'){
+    const question = test.questions[q.qIndex];
+    const total = test.questions.length;
+    const pct = Math.round((q.qIndex/total)*100);
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="eyebrow">${test.emoji} ${escapeHtml(q.currentName)}</div>
+        <h1>${test.label}</h1>
+      </header>
+      <div class="progress-row">
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-count">${q.qIndex+1}/${total}</div>
+      </div>
+      <div class="quiz-card">
+        <div class="quiz-qnum">Pregunta ${q.qIndex+1}</div>
+        <div class="quiz-qtext">${escapeHtml(question.text)}</div>
+        <div class="quiz-options">
+          ${question.opts.map((opt, i) => `
+            <button class="quiz-option" data-v="${opt.v}">${escapeHtml(opt.t)}</button>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    app.querySelectorAll('.quiz-option').forEach(btn=>{
+      btn.onclick = () => selectQuizOption(parseInt(btn.dataset.v));
+    });
+    return;
+  }
+
+  if(q.phase === 'playerResult'){
+    const r = q.lastResult;
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="eyebrow">${test.emoji} Resultado</div>
+      </header>
+      <div style="margin-top:10px;">
+        <div class="result-player-name">${escapeHtml(r.name)}</div>
+        <div class="result-cat">${escapeHtml(r.title)}</div>
+        <div class="result-meter-track"><div class="result-meter-fill" style="width:${Math.max(0,Math.min(100,r.percent))}%"></div></div>
+        <div class="result-percent">${r.percent}%</div>
+        <div class="result-desc">${escapeHtml(r.desc)}</div>
+        ${r.traits ? `
+          <div class="trait-panel">
+            <div class="trait-panel-title">Rasgos detectados (inventados)</div>
+            ${r.traits.map(t => `<div class="trait-row"><span>${escapeHtml(t.label)}</span><span>${escapeHtml(t.value)}</span></div>`).join('')}
+          </div>
+        ` : ''}
+        <div class="quiz-actions">
+          <button class="quiz-btn-primary" id="anotherPlayerBtn">➕ Otro jugador</button>
+          <button class="quiz-btn-secondary" id="viewLbBtn">📊 Comparativa</button>
+        </div>
+        <div class="quiz-disclaimer">${test.disclaimer}</div>
+      </div>
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    document.getElementById('anotherPlayerBtn').onclick = addAnotherQuizPlayer;
+    document.getElementById('viewLbBtn').onclick = viewQuizLeaderboard;
+    return;
+  }
+
+  if(q.phase === 'leaderboard'){
+    const sorted = [...q.players].sort((a,b) => b.percent - a.percent);
+    const maxP = sorted.length ? sorted[0] : null;
+    const minP = sorted.length ? sorted[sorted.length-1] : null;
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="eyebrow">${test.emoji} Comparativa</div>
+        <h1>${test.label}</h1>
+      </header>
+      <div style="margin-top:20px;">
+        ${sorted.map((p, i) => `
+          <div class="leaderboard-row">
+            <div class="leaderboard-rank">${i+1}</div>
+            <div class="leaderboard-name">
+              <strong>${escapeHtml(p.name)} ${maxP && p===maxP ? '👑' : ''} ${minP && p===minP && sorted.length>1 ? '🪨' : ''}</strong>
+              <span>${escapeHtml(p.title)}</span>
+            </div>
+            <div class="leaderboard-percent">${p.percent}%</div>
+          </div>
+        `).join('') || `<div class="empty-players">Aún no ha jugado nadie.</div>`}
+        ${sorted.length ? `
+          <div class="summary-card">
+            <div class="summary-tabs">
+              <button class="summary-tab ${q.summaryMode==='normal'?'active':''}" id="tabNormal">Resumen normal</button>
+              <button class="summary-tab ${q.summaryMode==='gracioso'?'active':''}" id="tabGracioso">Resumen gracioso</button>
+            </div>
+            <div class="summary-text">${escapeHtml(quizSummaryText(sorted, test.label, q.summaryMode))}</div>
+          </div>
+        ` : ''}
+        <div class="quiz-actions" style="margin-top:16px;">
+          <button class="quiz-btn-primary" id="anotherPlayerBtn2">➕ Otro jugador</button>
+          <button class="quiz-btn-secondary" id="backPickerBtn">🔀 Cambiar test</button>
+        </div>
+        ${sorted.length ? `
+          <div style="text-align:center; margin-top:14px;">
+            <button class="saved-toggle" id="restartPlayersBtn">Borrar jugadores y empezar de cero</button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    document.getElementById('anotherPlayerBtn2').onclick = addAnotherQuizPlayer;
+    document.getElementById('backPickerBtn').onclick = backToQuizPicker;
+    const tabNormal = document.getElementById('tabNormal');
+    const tabGracioso = document.getElementById('tabGracioso');
+    if(tabNormal) tabNormal.onclick = () => setQuizSummaryMode('normal');
+    if(tabGracioso) tabGracioso.onclick = () => setQuizSummaryMode('gracioso');
+    const restartBtn = document.getElementById('restartPlayersBtn');
+    if(restartBtn) restartBtn.onclick = restartQuizPlayers;
+    return;
+  }
+}
+
+function renderSciQuiz(){
+  const s = state.sciquiz;
+
+  if(s.phase === 'name'){
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="eyebrow">${SCI_TEST.emoji} ${SCI_TEST.label}</div>
+        <h1>¿Quién <em>responde</em>?</h1>
+        <div class="sub">${SCI_TEST.intro}</div>
+      </header>
+      <div class="name-card" style="margin-top:22px;">
+        <label>Nombre del jugador</label>
+        <input type="text" id="sciNameInput" placeholder="Escribe tu nombre" value="${escapeHtml(s.currentName)}">
+        <button class="start-fingers-btn" id="startSciBtn" style="margin-top:0;">Empezar (28 preguntas)</button>
+      </div>
+      ${s.players.length ? `
+        <div style="margin-top:20px; text-align:center;">
+          <button class="saved-toggle" id="viewSciLeaderboardBtn">Ver comparativa (${s.players.length} jugador${s.players.length===1?'':'es'})</button>
+        </div>
+      ` : ''}
+      <div class="quiz-disclaimer">${SCI_TEST.disclaimer}</div>
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    const input = document.getElementById('sciNameInput');
+    input.oninput = (e) => { state.sciquiz.currentName = e.target.value; };
+    input.onkeydown = (e) => { if(e.key === 'Enter') startSciPlayer(); };
+    document.getElementById('startSciBtn').onclick = startSciPlayer;
+    const lbBtn = document.getElementById('viewSciLeaderboardBtn');
+    if(lbBtn) lbBtn.onclick = viewSciLeaderboard;
+    return;
+  }
+
+  if(s.phase === 'question'){
+    const item = s.order[s.qIndex];
+    const total = s.order.length;
+    const pct = Math.round((s.qIndex/total)*100);
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="eyebrow">${SCI_TEST.emoji} ${escapeHtml(s.currentName)}</div>
+        <h1>${SCI_TEST.label}</h1>
+      </header>
+      <div class="progress-row">
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-count">${s.qIndex+1}/${total}</div>
+      </div>
+      <div class="quiz-card">
+        <div class="quiz-qnum">Afirmación ${s.qIndex+1}</div>
+        <div class="quiz-qtext">${escapeHtml(item.text)}</div>
+        <div class="likert-labels">
+          <span>${SCI_TEST.likertLabels[0]}</span>
+          <span>${SCI_TEST.likertLabels[1]}</span>
+        </div>
+        <div class="likert-row">
+          ${[1,2,3,4,5].map(n => `<button class="likert-btn" data-v="${n}">${n}</button>`).join('')}
+        </div>
+      </div>
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    app.querySelectorAll('.likert-btn').forEach(btn=>{
+      btn.onclick = () => selectSciOption(parseInt(btn.dataset.v));
+    });
+    return;
+  }
+
+  if(s.phase === 'playerResult'){
+    const r = s.lastResult;
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="eyebrow">${SCI_TEST.emoji} Resultado</div>
+      </header>
+      <div style="margin-top:10px;">
+        <div class="result-player-name">${escapeHtml(r.name)}</div>
+        <div class="result-cat">${escapeHtml(r.title)}</div>
+
+        <div class="axis-block">
+          <div class="axis-block-label"><span>Agencia (acción)</span><span>${r.aPercent}%</span></div>
+          <div class="result-meter-track"><div class="result-meter-fill" style="width:${Math.max(0,Math.min(100,r.aPercent))}%"></div></div>
+        </div>
+        <div class="axis-block">
+          <div class="axis-block-label"><span>Comunión (vínculo)</span><span>${r.cPercent}%</span></div>
+          <div class="result-meter-track"><div class="result-meter-fill" style="width:${Math.max(0,Math.min(100,r.cPercent))}%"></div></div>
+        </div>
+
+        <div class="quadrant-wrap">
+          ${quadrantPlotHtml([{ x:r.aPercent, y:r.cPercent, color:GROUP_COLORS[0].bg, label:r.name }], { big:true })}
+        </div>
+
+        <div class="result-desc">${escapeHtml(r.desc)}</div>
+
+        <div class="quiz-actions">
+          <button class="quiz-btn-primary" id="anotherPlayerBtn">➕ Otro jugador</button>
+          <button class="quiz-btn-secondary" id="viewLbBtn">📊 Comparativa</button>
+        </div>
+        <div class="quiz-disclaimer">${SCI_TEST.disclaimer}</div>
+      </div>
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    document.getElementById('anotherPlayerBtn').onclick = addAnotherSciPlayer;
+    document.getElementById('viewLbBtn').onclick = viewSciLeaderboard;
+    return;
+  }
+
+  if(s.phase === 'leaderboard'){
+    const dots = s.players.map((p,i) => ({ x:p.aPercent, y:p.cPercent, color:GROUP_COLORS[i % GROUP_COLORS.length].bg, label:p.name }));
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="eyebrow">${SCI_TEST.emoji} Comparativa</div>
+        <h1>${SCI_TEST.label}</h1>
+      </header>
+      <div style="margin-top:14px;">
+        ${s.players.length ? `
+          <div class="quadrant-wrap">
+            ${quadrantPlotHtml(dots)}
+          </div>
+          <div class="legend-list" style="margin-bottom:18px;">
+            ${s.players.map((p,i) => `
+              <div class="legend-item">
+                <span class="legend-swatch" style="background:${GROUP_COLORS[i % GROUP_COLORS.length].bg}"></span>
+                ${escapeHtml(p.name)} · A ${p.aPercent}% / C ${p.cPercent}%
+              </div>
+            `).join('')}
+          </div>
+          ${s.players.map((p,i) => `
+            <div class="leaderboard-row">
+              <div class="leaderboard-rank" style="opacity:1;"><span class="legend-swatch" style="background:${GROUP_COLORS[i % GROUP_COLORS.length].bg}; display:inline-block;"></span></div>
+              <div class="leaderboard-name">
+                <strong>${escapeHtml(p.name)}</strong>
+                <span>${escapeHtml(p.title)}</span>
+              </div>
+              <div class="leaderboard-percent" style="font-size:13px;">A${p.aPercent}·C${p.cPercent}</div>
+            </div>
+          `).join('')}
+        ` : `<div class="empty-players">Aún no ha jugado nadie.</div>`}
+
+        ${s.players.length ? `
+          <div class="summary-card">
+            <div class="summary-tabs">
+              <button class="summary-tab ${s.summaryMode==='normal'?'active':''}" id="sciTabNormal">Resumen normal</button>
+              <button class="summary-tab ${s.summaryMode==='gracioso'?'active':''}" id="sciTabGracioso">Resumen gracioso</button>
+            </div>
+            <div class="summary-text">${escapeHtml(sciSummaryText(s.players, s.summaryMode))}</div>
+          </div>
+        ` : ''}
+
+        <div class="quiz-actions" style="margin-top:16px;">
+          <button class="quiz-btn-primary" id="anotherPlayerBtn2">➕ Otro jugador</button>
+          <button class="quiz-btn-secondary" id="backMenuBtn2">🏠 Menú</button>
+        </div>
+        ${s.players.length ? `
+          <div style="text-align:center; margin-top:14px;">
+            <button class="saved-toggle" id="restartSciBtn">Borrar jugadores y empezar de cero</button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    document.getElementById('anotherPlayerBtn2').onclick = addAnotherSciPlayer;
+    document.getElementById('backMenuBtn2').onclick = goMenu;
+    const restartBtn = document.getElementById('restartSciBtn');
+    if(restartBtn) restartBtn.onclick = restartSciPlayers;
+    const sciTabNormal = document.getElementById('sciTabNormal');
+    const sciTabGracioso = document.getElementById('sciTabGracioso');
+    if(sciTabNormal) sciTabNormal.onclick = () => setSciSummaryMode('normal');
+    if(sciTabGracioso) sciTabGracioso.onclick = () => setSciSummaryMode('gracioso');
+    return;
+  }
+}
+
+function renderProbable(){
+  if(state.view === 'category'){
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header class="menu-header">
+        <div class="eyebrow">Señalad todos a la vez</div>
+        <h1>¿Quién es <em>más probable</em>?</h1>
+        <div class="sub" style="margin:10px auto 0;">Elige la categoría de frases con la que queréis jugar.</div>
+      </header>
+      <div class="menu-list">
+        <button class="game-card probable" data-cat="clasicas">
+          <div class="game-emoji">${PROBABLE_CATEGORIES.clasicas.emoji}</div>
+          <div>
+            <div class="game-title">${PROBABLE_CATEGORIES.clasicas.label}</div>
+            <div class="game-desc">${PROBABLE_CATEGORIES.clasicas.desc}</div>
+          </div>
+        </button>
+        <button class="game-card song" data-cat="locura">
+          <div class="game-emoji">${PROBABLE_CATEGORIES.locura.emoji}</div>
+          <div>
+            <div class="game-title">${PROBABLE_CATEGORIES.locura.label}</div>
+            <div class="game-desc">${PROBABLE_CATEGORIES.locura.desc}</div>
+          </div>
+        </button>
+      </div>
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    app.querySelectorAll('[data-cat]').forEach(btn=>{
+      btn.onclick = () => selectCategory(btn.dataset.cat);
+    });
+    return;
+  }
+
+  if(state.view === 'saved'){
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="eyebrow">Tus favoritas</div>
+        <h1>Frases <em>guardadas</em></h1>
+      </header>
+      <div class="saved-panel">
+        <div class="saved-header">
+          <h3>${state.liked.length} guardada${state.liked.length===1?'':'s'}</h3>
+          <button class="back-link" id="backBtn">← Volver</button>
+        </div>
+        <div class="saved-list">
+          ${state.liked.length ? state.liked.map((q,i)=>`
+            <div class="saved-item">
+              <span>${escapeHtml(q)}</span>
+              <button class="remove-btn" data-i="${i}" title="Quitar">✕</button>
+            </div>
+          `).join('') : `<div class="empty-saved">Aún no has marcado ninguna con "Me gusta".</div>`}
+        </div>
+      </div>
+    `;
+    document.getElementById('backBtn').onclick = goBack;
+    document.getElementById('backMenu').onclick = goMenu;
+    app.querySelectorAll('.remove-btn').forEach(btn=>{
+      btn.onclick = () => removeSaved(parseInt(btn.dataset.i));
+    });
+    return;
+  }
+
+  if(state.view === 'done'){
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="eyebrow">Ronda terminada</div>
+        <h1>Se acabaron <em>las tarjetas</em></h1>
+      </header>
+      <div class="done">
+        <p>Has revisado las ${state.deck.length} frases. Guardaste ${state.liked.length} con "Me gusta".</p>
+        <button class="restart-btn" id="restartBtn">Barajar y jugar otra vez</button>
+      </div>
+      <footer>
+        <button class="saved-toggle" id="savedBtn">Ver guardadas (${state.liked.length})</button>
+        <div style="margin-top:6px;">
+          <button class="saved-toggle" id="changeCatBtn">Cambiar categoría</button>
+        </div>
+      </footer>
+    `;
+    document.getElementById('restartBtn').onclick = restart;
+    document.getElementById('savedBtn').onclick = goSaved;
+    document.getElementById('backMenu').onclick = goMenu;
+    document.getElementById('changeCatBtn').onclick = changeCategory;
+    return;
+  }
+
+  const q = state.deck[state.index];
+  const total = state.deck.length;
+  const pct = Math.round((state.index/total)*100);
+
+  app.innerHTML = `
+    <button class="top-back" id="backMenu">← Menú</button>
+    <header>
+      <div class="eyebrow">${PROBABLE_CATEGORIES[state.probableCategory].emoji} ${PROBABLE_CATEGORIES[state.probableCategory].label}</div>
+      <h1>¿Quién es <em>más probable</em>?</h1>
+      <div class="sub">Lee la frase en voz alta y todo el grupo señala a quien crea que encaja. Dale a "me gusta" para guardarla y pasar a la siguiente.</div>
+    </header>
+
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-count">${state.index+1}/${total}</div>
+    </div>
+
+    <div class="stage">
+      <div class="card behind-2"></div>
+      <div class="card behind-1"></div>
+      <div class="card top ${state.animClass}" id="cardTop">
+        <div class="card-index">#${state.index+1}</div>
+        <div class="card-text">${escapeHtml(q)}</div>
+        <div class="finger">👉</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="choice btn-dislike" id="dislikeBtn">
+        <span class="btn-icon">✕</span>
+        No me gusta
+      </button>
+      <button class="choice btn-like" id="likeBtn">
+        <span class="btn-icon">♥</span>
+        Me gusta
+      </button>
+    </div>
+
+    <footer>
+      <button class="saved-toggle" id="savedBtn">Ver guardadas (${state.liked.length})</button>
+      <div style="margin-top:6px;">
+        <button class="saved-toggle" id="changeCatBtn">Cambiar categoría</button>
+      </div>
+    </footer>
+  `;
+
+  document.getElementById('dislikeBtn').onclick = () => choose('dislike');
+  document.getElementById('likeBtn').onclick = () => choose('like');
+  document.getElementById('savedBtn').onclick = goSaved;
+  document.getElementById('backMenu').onclick = goMenu;
+  document.getElementById('changeCatBtn').onclick = changeCategory;
+
+  if(state.animClass === 'enter'){
+    setTimeout(()=>{ state.animClass=''; }, 300);
+  }
+}
+
+loadLiked();
+loadCitadelsPlayers();
+loadSongPlayers();
+loadQuizPlayers();
+loadSciQuizPlayers();
+render();
+</script>
+</body>
+</html>
