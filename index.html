@@ -2604,6 +2604,20 @@ function categoryProgressHtml(player){
     </div>
   `;
 }
+function triviaFooterLinksHtml(){
+  return `
+    <div style="text-align:center; margin-top:20px; display:flex; flex-direction:column; gap:8px;">
+      <button class="saved-toggle" id="viewLbBtn">🏆 Ver marcador</button>
+      <button class="saved-toggle" id="resetTriviaBtn">🔄 Reiniciar partida</button>
+    </div>
+  `;
+}
+function wireTriviaFooterLinks(){
+  const lbBtn = document.getElementById('viewLbBtn');
+  if(lbBtn) lbBtn.onclick = viewTriviaLeaderboard;
+  const resetBtn = document.getElementById('resetTriviaBtn');
+  if(resetBtn) resetBtn.onclick = resetTriviaGame;
+}
 function pickTriviaQuestion(cat, diff){
   const pool = TRIVIA_CATEGORIES[cat].questions[diff];
   const key = cat + '_' + diff;
@@ -3020,9 +3034,11 @@ function triviaKeepPlayingAfterVictory(){
   render();
 }
 function resetTriviaGame(){
-  if(!confirm('¿Reiniciar la partida? Se cancela la prueba en curso y se vuelve al principio del turno. Los jugadores y sus puntos se mantienen.')) return;
+  if(!confirm('¿Reiniciar la partida del todo? Se borran las puntuaciones y se cancela la prueba en curso. Los jugadores añadidos se mantienen, pero empiezan de 0.')) return;
   clearRoscoTimer();
   const t = state.trivia;
+  t.players.forEach(p => { p.score = 0; p.categoryScores = {}; ensureTriviaCategoryScores(p); });
+  saveTriviaPlayers();
   t.turnIndex = 0;
   t.category = null;
   t.difficulty = null;
@@ -3047,7 +3063,7 @@ function resetTriviaGame(){
   t.roscoDifficulty = null;
   t.roscoFeedback = null;
   t.lastConcursoCorrect = null;
-  startTriviaTurn();
+  t.phase = 'players'; // siempre vuelve a la pantalla donde se elige el modo y se ven los jugadores
   render();
 }
 function viewTriviaLeaderboard(){
@@ -3059,11 +3075,7 @@ function backToTriviaPlayers(){
   render();
 }
 function restartTriviaScores(){
-  state.trivia.players.forEach(p => { p.score = 0; p.categoryScores = {}; ensureTriviaCategoryScores(p); });
-  saveTriviaPlayers();
-  state.trivia.turnIndex = 0;
-  state.trivia.phase = 'players';
-  render();
+  resetTriviaGame();
 }
 
 function quadrantPlotHtml(dots, opts){
@@ -4259,15 +4271,11 @@ function renderTrivia(){
       </header>
       ${categoryProgressHtml(currentPlayer)}
       <button class="trivia-roll-btn" id="rollBtn">🎲 Sacar 2 categorías</button>
-      <div style="text-align:center; margin-top:20px; display:flex; flex-direction:column; gap:8px;">
-        <button class="saved-toggle" id="viewLbBtn">🏆 Ver marcador</button>
-        <button class="saved-toggle" id="resetTriviaBtn">🔄 Reiniciar partida</button>
-      </div>
+      ${triviaFooterLinksHtml()}
     `;
     document.getElementById('backMenu').onclick = goMenu;
     document.getElementById('rollBtn').onclick = rollTriviaCategories;
-    document.getElementById('viewLbBtn').onclick = viewTriviaLeaderboard;
-    document.getElementById('resetTriviaBtn').onclick = resetTriviaGame;
+    wireTriviaFooterLinks();
     return;
   }
 
@@ -4292,12 +4300,10 @@ function renderTrivia(){
           `;
         }).join('')}
       </div>
-      <div style="text-align:center; margin-top:20px;">
-        <button class="saved-toggle" id="viewLbBtn">🏆 Ver marcador</button>
-      </div>
+      ${triviaFooterLinksHtml()}
     `;
     document.getElementById('backMenu').onclick = goMenu;
-    document.getElementById('viewLbBtn').onclick = viewTriviaLeaderboard;
+    wireTriviaFooterLinks();
     app.querySelectorAll('[data-cat]').forEach(btn => {
       btn.onclick = () => selectTriviaCategory(btn.dataset.cat);
     });
@@ -4324,9 +4330,11 @@ function renderTrivia(){
       <div style="text-align:center; margin-top:20px;">
         <button class="saved-toggle" id="backCatBtn">← Cambiar categoría</button>
       </div>
+      ${triviaFooterLinksHtml()}
     `;
     document.getElementById('backMenu').onclick = goMenu;
     document.getElementById('backCatBtn').onclick = backToTriviaCategory;
+    wireTriviaFooterLinks();
     app.querySelectorAll('[data-diff]').forEach(btn => {
       btn.onclick = () => selectTriviaDifficulty(btn.dataset.diff);
     });
@@ -4358,6 +4366,7 @@ function renderTrivia(){
           <button class="quiz-option" id="revealBtn" style="text-align:center; font-weight:700;">Mostrar respuesta</button>
         `}
       </div>
+      ${triviaFooterLinksHtml()}
     `;
     document.getElementById('backMenu').onclick = goMenu;
     const revealBtn = document.getElementById('revealBtn');
@@ -4366,6 +4375,7 @@ function renderTrivia(){
     const failBtn = document.getElementById('failBtn');
     if(correctBtn) correctBtn.onclick = () => answerTrivia(true);
     if(failBtn) failBtn.onclick = () => answerTrivia(false);
+    wireTriviaFooterLinks();
     return;
   }
 
@@ -4381,9 +4391,11 @@ function renderTrivia(){
         <p>${currentPlayer ? escapeHtml(currentPlayer.name) : '—'} ha conseguido ${TRIVIA_CATEGORY_TARGET} puntos en las 5 categorías. Una pregunta más, de una categoría al azar, y gana la partida.</p>
         <button class="start-fingers-btn" id="finalBtn" style="margin-top:0;">Sacar pregunta final</button>
       </div>
+      ${triviaFooterLinksHtml()}
     `;
     document.getElementById('backMenu').onclick = goMenu;
     document.getElementById('finalBtn').onclick = drawTriviaFinalQuestion;
+    wireTriviaFooterLinks();
     return;
   }
 
@@ -4411,6 +4423,7 @@ function renderTrivia(){
           <button class="quiz-option" id="revealBtn" style="text-align:center; font-weight:700;">Mostrar respuesta</button>
         `}
       </div>
+      ${triviaFooterLinksHtml()}
     `;
     document.getElementById('backMenu').onclick = goMenu;
     const revealBtn = document.getElementById('revealBtn');
@@ -4419,6 +4432,7 @@ function renderTrivia(){
     const failBtn = document.getElementById('failBtn');
     if(correctBtn) correctBtn.onclick = () => answerTriviaFinal(true);
     if(failBtn) failBtn.onclick = () => answerTriviaFinal(false);
+    wireTriviaFooterLinks();
     return;
   }
 
