@@ -513,34 +513,6 @@
   }
 
   /* Trivial */
-  .wheel-grid{
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    margin-top:22px;
-  }
-  .wheel-card{
-    background:var(--paper);
-    color:var(--ink);
-    border:3px solid transparent;
-    border-radius:16px;
-    padding:18px 16px;
-    display:flex;
-    align-items:center;
-    gap:14px;
-    box-shadow:0 10px 22px rgba(0,0,0,0.22);
-    transition: transform .1s ease, border-color .1s ease;
-  }
-  .wheel-card .emoji{ font-size:28px; }
-  .wheel-card .label{ font-family:'Fraunces', serif; font-weight:700; font-size:16px; }
-  .wheel-card.spinning-highlight{
-    border-color:var(--mustard);
-    transform:scale(1.03);
-  }
-  .wheel-card.landed{
-    border-color:var(--coral);
-    transform:scale(1.04);
-  }
   .frase-hint{
     text-align:center;
     font-size:12px;
@@ -2118,7 +2090,7 @@ let state = {
     used: {}, // "categoria_dificultad" -> [índices usados]
     // --- modo Concurso ---
     pruebaType: null, // 'trivia' | 'frase' | 'rosco'
-    wheelSpinning: false,
+    pruebaChoices: [],
     // Frase oculta
     frasePhrase: '',
     fraseHint: '',
@@ -2672,7 +2644,7 @@ function defaultTriviaState(){
     revealed: false,
     used: {},
     pruebaType: null,
-    wheelSpinning: false,
+    pruebaChoices: [],
     frasePhrase: '',
     fraseHint: '',
     fraseGuessedLetters: [],
@@ -2734,27 +2706,13 @@ function startTriviaGame(){
 }
 
 // --- Modo Concurso: ruleta de pruebas ---
-function spinConcursoWheel(){
-  state.trivia.wheelSpinning = true;
+function rollConcursoPruebas(){
+  state.trivia.pruebaChoices = shuffle(['trivia', 'frase', 'rosco']).slice(0, 2);
+  state.trivia.phase = 'pruebaChoice';
   render();
-  const options = ['trivia', 'frase', 'rosco'];
-  let ticks = 0;
-  const totalTicks = 12;
-  const tickInterval = setInterval(() => {
-    state.trivia.pruebaType = options[Math.floor(Math.random()*options.length)];
-    ticks++;
-    const dot = document.getElementById('wheelHighlight-' + state.trivia.pruebaType);
-    app.querySelectorAll('.wheel-card').forEach(el => el.classList.remove('spinning-highlight'));
-    if(dot) dot.classList.add('spinning-highlight');
-    if(ticks >= totalTicks){
-      clearInterval(tickInterval);
-      state.trivia.pruebaType = options[Math.floor(Math.random()*options.length)];
-      state.trivia.wheelSpinning = false;
-      render();
-    }
-  }, 110);
 }
-function confirmConcursoPrueba(){
+function selectConcursoPrueba(type){
+  state.trivia.pruebaType = type;
   state.trivia.phase = 'concursoDifficulty';
   render();
 }
@@ -2857,8 +2815,16 @@ function startRoscoInterval(){
       clearRoscoTimer();
       state.trivia.roscoSecondsLeft = 0;
       finishRoscoRound();
+      return;
     }
-    render();
+    // No hacemos render() completo cada segundo: eso borraría lo que el
+    // jugador está escribiendo y le quitaría el foco. Solo actualizamos
+    // el número del cronómetro directamente en el DOM.
+    const timerEl = document.getElementById('roscoTimerDisplay');
+    if(timerEl){
+      timerEl.textContent = Math.floor(state.trivia.roscoSecondsLeft/60) + ':' + String(state.trivia.roscoSecondsLeft%60).padStart(2,'0');
+    }
+    saveTriviaState();
   }, 1000);
 }
 function clearRoscoTimer(){
@@ -3050,6 +3016,37 @@ function triviaNewGameAfterVictory(){
 }
 function triviaKeepPlayingAfterVictory(){
   state.trivia.turnIndex = state.trivia.players.length ? (state.trivia.turnIndex + 1) % state.trivia.players.length : 0;
+  startTriviaTurn();
+  render();
+}
+function resetTriviaGame(){
+  if(!confirm('¿Reiniciar la partida? Se cancela la prueba en curso y se vuelve al principio del turno. Los jugadores y sus puntos se mantienen.')) return;
+  clearRoscoTimer();
+  const t = state.trivia;
+  t.turnIndex = 0;
+  t.category = null;
+  t.difficulty = null;
+  t.categoryChoices = [];
+  t.questionIndex = null;
+  t.revealed = false;
+  t.pruebaType = null;
+  t.pruebaChoices = [];
+  t.frasePhrase = '';
+  t.fraseHint = '';
+  t.fraseGuessedLetters = [];
+  t.fraseUsedLetters = [];
+  t.fraseLettersLeft = loadAppSettings().maxLetters;
+  t.fraseRevealed = false;
+  t.fraseSolveMode = false;
+  t.fraseFeedback = null;
+  t.roscoQueue = [];
+  t.roscoIndex = 0;
+  t.roscoCorrectCount = 0;
+  t.roscoSecondsLeft = 0;
+  t.roscoRevealed = false;
+  t.roscoDifficulty = null;
+  t.roscoFeedback = null;
+  t.lastConcursoCorrect = null;
   startTriviaTurn();
   render();
 }
@@ -4262,13 +4259,15 @@ function renderTrivia(){
       </header>
       ${categoryProgressHtml(currentPlayer)}
       <button class="trivia-roll-btn" id="rollBtn">🎲 Sacar 2 categorías</button>
-      <div style="text-align:center; margin-top:20px;">
+      <div style="text-align:center; margin-top:20px; display:flex; flex-direction:column; gap:8px;">
         <button class="saved-toggle" id="viewLbBtn">🏆 Ver marcador</button>
+        <button class="saved-toggle" id="resetTriviaBtn">🔄 Reiniciar partida</button>
       </div>
     `;
     document.getElementById('backMenu').onclick = goMenu;
     document.getElementById('rollBtn').onclick = rollTriviaCategories;
     document.getElementById('viewLbBtn').onclick = viewTriviaLeaderboard;
+    document.getElementById('resetTriviaBtn').onclick = resetTriviaGame;
     return;
   }
 
@@ -4455,32 +4454,50 @@ function renderTrivia(){
       <button class="top-back" id="backMenu">← Menú</button>
       <header>
         <div class="trivia-turn-badge">Turno de ${currentPlayer ? escapeHtml(currentPlayer.name) : '—'} · ${currentPlayer ? currentPlayer.score : 0} pts</div>
-        <h1>Ruleta de <em>pruebas</em></h1>
-        <div class="sub">${t.wheelSpinning ? 'Girando…' : (t.pruebaType ? '¡Ha salido la prueba! Pulsa continuar.' : 'Pulsa para girar la ruleta y ver qué prueba toca.')}</div>
+        <h1>Saca <em>pruebas</em></h1>
+        <div class="sub">Pulsa para que salgan 2 pruebas al azar entre las que elegir: Trivial, Frase oculta o Rosco.</div>
       </header>
-      <div class="wheel-grid">
-        ${Object.entries(PRUEBA_INFO).map(([id, info]) => `
-          <div class="wheel-card ${(!t.wheelSpinning && t.pruebaType === id) ? 'landed' : ''}" id="wheelHighlight-${id}">
-            <span class="emoji">${info.emoji}</span>
-            <span class="label">${info.label}</span>
-          </div>
-        `).join('')}
-      </div>
-      ${t.pruebaType && !t.wheelSpinning ? `
-        <button class="start-fingers-btn" id="continueWheelBtn">Continuar con ${PRUEBA_INFO[t.pruebaType].label}</button>
-      ` : `
-        <button class="trivia-roll-btn" id="spinBtn" ${t.wheelSpinning ? 'disabled' : ''}>🎡 Girar ruleta</button>
-      `}
-      <div style="text-align:center; margin-top:20px;">
+      <button class="trivia-roll-btn" id="rollPruebaBtn">🎲 Sacar 2 pruebas</button>
+      <div style="text-align:center; margin-top:20px; display:flex; flex-direction:column; gap:8px;">
         <button class="saved-toggle" id="viewLbBtn">🏆 Ver marcador</button>
+        <button class="saved-toggle" id="resetTriviaBtn">🔄 Reiniciar partida</button>
       </div>
     `;
     document.getElementById('backMenu').onclick = goMenu;
     document.getElementById('viewLbBtn').onclick = viewTriviaLeaderboard;
-    const spinBtn = document.getElementById('spinBtn');
-    if(spinBtn) spinBtn.onclick = spinConcursoWheel;
-    const continueBtn = document.getElementById('continueWheelBtn');
-    if(continueBtn) continueBtn.onclick = confirmConcursoPrueba;
+    document.getElementById('rollPruebaBtn').onclick = rollConcursoPruebas;
+    document.getElementById('resetTriviaBtn').onclick = resetTriviaGame;
+    return;
+  }
+
+  if(t.phase === 'pruebaChoice'){
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="trivia-turn-badge">Turno de ${currentPlayer ? escapeHtml(currentPlayer.name) : '—'} · ${currentPlayer ? currentPlayer.score : 0} pts</div>
+        <h1>Elige <em>prueba</em></h1>
+        <div class="sub">Elige una de estas dos pruebas.</div>
+      </header>
+      <div class="trivia-grid">
+        ${t.pruebaChoices.map(id => {
+          const info = PRUEBA_INFO[id];
+          return `
+            <button class="trivia-cat-btn" data-prueba="${id}">
+              <span class="emoji">${info.emoji}</span>
+              <span class="label">${info.label}</span>
+            </button>
+          `;
+        }).join('')}
+      </div>
+      <div style="text-align:center; margin-top:20px;">
+        <button class="saved-toggle" id="resetTriviaBtn">🔄 Reiniciar partida</button>
+      </div>
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    document.getElementById('resetTriviaBtn').onclick = resetTriviaGame;
+    app.querySelectorAll('[data-prueba]').forEach(btn => {
+      btn.onclick = () => selectConcursoPrueba(btn.dataset.prueba);
+    });
     return;
   }
 
@@ -4501,8 +4518,13 @@ function renderTrivia(){
           </button>
         `).join('')}
       </div>
+      <div style="text-align:center; margin-top:20px;">
+        <button class="saved-toggle" id="backPruebaBtn">← Cambiar prueba</button>
+      </div>
     `;
     document.getElementById('backMenu').onclick = goMenu;
+    const backPruebaBtn = document.getElementById('backPruebaBtn');
+    if(backPruebaBtn) backPruebaBtn.onclick = () => { state.trivia.phase = 'pruebaChoice'; render(); };
     app.querySelectorAll('[data-diff]').forEach(btn => {
       btn.onclick = () => selectConcursoDifficulty(btn.dataset.diff);
     });
@@ -4535,6 +4557,9 @@ function renderTrivia(){
           }).join('')}
         </div>
         <button class="quiz-option" id="resolveFraseBtn" style="text-align:center; font-weight:700;">🙋 Ya sé la frase — resolver</button>
+        <div style="text-align:center; margin-top:16px;">
+          <button class="saved-toggle" id="resetTriviaBtn">🔄 Reiniciar partida</button>
+        </div>
       ` : `
         <div class="quiz-card">
           <div class="trivia-answer-label">Escribe la frase completa</div>
@@ -4550,6 +4575,8 @@ function renderTrivia(){
     document.getElementById('backMenu').onclick = goMenu;
     const resolveBtn = document.getElementById('resolveFraseBtn');
     if(resolveBtn) resolveBtn.onclick = startFraseSolveMode;
+    const resetBtn1 = document.getElementById('resetTriviaBtn');
+    if(resetBtn1) resetBtn1.onclick = resetTriviaGame;
     app.querySelectorAll('.frase-letter-btn').forEach(btn => {
       btn.onclick = () => pickFraseLetter(btn.dataset.letter);
     });
@@ -4591,7 +4618,7 @@ function renderTrivia(){
         <div class="trivia-turn-badge">Turno de ${currentPlayer ? escapeHtml(currentPlayer.name) : '—'} · Palabra ${t.roscoQueue.length ? (info.roscoWords - t.roscoQueue.length + 1) : 0}/${info.roscoWords}</div>
         <h1>🔤 Rosco</h1>
       </header>
-      <div class="rosco-timer">${Math.floor(t.roscoSecondsLeft/60)}:${String(t.roscoSecondsLeft%60).padStart(2,'0')}</div>
+      <div class="rosco-timer" id="roscoTimerDisplay">${Math.floor(t.roscoSecondsLeft/60)}:${String(t.roscoSecondsLeft%60).padStart(2,'0')}</div>
       <div class="rosco-progress">Acertadas: ${t.roscoCorrectCount} · Quedan ${t.roscoQueue.length} en la ronda</div>
       ${current ? `
         <div class="rosco-letter-badge">${current.answer[0]}</div>
@@ -4614,6 +4641,9 @@ function renderTrivia(){
             <div style="text-align:center; margin-top:10px;">
               <button class="saved-toggle" id="giveUpBtn">Rendirse y ver respuesta</button>
             </div>
+            <div style="text-align:center; margin-top:6px;">
+              <button class="saved-toggle" id="resetTriviaBtn">🔄 Reiniciar partida</button>
+            </div>
           `}
         </div>
       ` : ''}
@@ -4625,6 +4655,8 @@ function renderTrivia(){
     if(checkBtn) checkBtn.onclick = submitRoscoAnswer;
     const giveUpBtn = document.getElementById('giveUpBtn');
     if(giveUpBtn) giveUpBtn.onclick = giveUpRosco;
+    const resetBtn2 = document.getElementById('resetTriviaBtn');
+    if(resetBtn2) resetBtn2.onclick = resetTriviaGame;
     const continueBtn = document.getElementById('roscoContinueBtn');
     if(continueBtn) continueBtn.onclick = continueAfterRoscoReveal;
     const answerInput = document.getElementById('roscoAnswerInput');
