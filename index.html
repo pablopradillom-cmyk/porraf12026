@@ -591,19 +591,61 @@
     color:rgba(245,239,226,0.6);
     margin-bottom:16px;
   }
-  .rosco-letter-badge{
-    width:52px;
-    height:52px;
+  .rosco-column{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+    margin-bottom:18px;
+    max-height:34vh;
+    overflow-y:auto;
+  }
+  .rosco-col-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--paper);
+    border-radius:10px;
+    padding:8px 12px;
+    border:2px solid transparent;
+  }
+  .rosco-col-row.active{
+    border-color:var(--mustard);
+  }
+  .rosco-col-letter{
+    width:30px;
+    height:30px;
     border-radius:50%;
-    background:var(--coral);
-    color:#fff;
+    background:rgba(36,21,54,0.1);
+    color:var(--ink);
     display:flex;
     align-items:center;
     justify-content:center;
     font-family:'Fraunces', serif;
     font-weight:900;
-    font-size:24px;
-    margin:0 auto 14px;
+    font-size:14px;
+    flex-shrink:0;
+  }
+  .rosco-col-letter.correct{
+    background:var(--teal);
+    color:#fff;
+  }
+  .rosco-col-blank{
+    flex:1;
+    min-height:20px;
+    border-bottom:2px dotted rgba(36,21,54,0.25);
+    font-family:'Space Grotesk', sans-serif;
+    font-size:13px;
+    color:var(--ink);
+    padding-bottom:2px;
+  }
+  .rosco-col-blank.correct{
+    color:var(--teal);
+    font-weight:700;
+    border-bottom-color:transparent;
+  }
+  .rosco-col-blank.given-up{
+    color:rgba(36,21,54,0.4);
+    border-bottom-color:transparent;
   }
   .rosco-answer-input{
     width:100%;
@@ -627,8 +669,14 @@
   .cat-progress{
     display:flex;
     justify-content:center;
-    gap:8px;
+    gap:10px;
     margin:12px 0 4px;
+  }
+  .cat-progress-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:4px;
   }
   .cat-progress-dot{
     width:32px;
@@ -646,6 +694,29 @@
     opacity:1;
     background:var(--mustard);
     border-color:var(--mustard);
+  }
+  .cat-progress-score{
+    font-size:10.5px;
+    font-weight:700;
+    color:rgba(245,239,226,0.55);
+    font-family:'Space Grotesk', sans-serif;
+  }
+  .cat-progress-score.done{
+    color:var(--mustard);
+  }
+  .cat-progress.on-light .cat-progress-dot{
+    background:rgba(36,21,54,0.06);
+    border-color:rgba(36,21,54,0.18);
+  }
+  .cat-progress.on-light .cat-progress-dot.done{
+    background:var(--coral);
+    border-color:var(--coral);
+  }
+  .cat-progress.on-light .cat-progress-score{
+    color:rgba(36,21,54,0.5);
+  }
+  .cat-progress.on-light .cat-progress-score.done{
+    color:var(--coral);
   }
   .trivia-roll-btn{
     width:100%;
@@ -865,6 +936,75 @@
     cursor:pointer;
   }
   .roster-chip:active{ transform:scale(0.95); }
+
+  .trivia-score-fab{
+    position:fixed;
+    top:18px;
+    right:18px;
+    z-index:60;
+    background:var(--mustard);
+    color:var(--plum);
+    border:none;
+    border-radius:22px;
+    padding:9px 16px 9px 13px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.32);
+    cursor:pointer;
+  }
+  .trivia-score-fab:active{ transform:scale(0.96); }
+
+  .confirm-modal-overlay{
+    position:fixed;
+    inset:0;
+    z-index:999;
+    background:rgba(20,12,32,0.72);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .confirm-modal-box{
+    width:100%;
+    max-width:340px;
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:18px;
+    padding:24px 22px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.4);
+    text-align:center;
+  }
+  .confirm-modal-box p{
+    font-size:14.5px;
+    line-height:1.5;
+    margin-bottom:20px;
+  }
+  .confirm-modal-actions{
+    display:flex;
+    gap:10px;
+  }
+  .confirm-modal-actions button{
+    flex:1;
+    border:none;
+    border-radius:12px;
+    padding:13px 8px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:13.5px;
+    cursor:pointer;
+  }
+  .confirm-modal-actions #confirmModalCancel{
+    background:rgba(36,21,54,0.08);
+    color:var(--ink);
+  }
+  .confirm-modal-actions #confirmModalOk{
+    background:var(--coral);
+    color:#fff;
+  }
 
   .settings-btn{
     position:absolute;
@@ -1597,210 +1737,486 @@ const WORDS = [
 const STORAGE_KEY = 'liked-questions';
 
 const TRIVIA_DIFFICULTY = {
-  facil: { label: 'Fácil', points: 1, color: '#3FA796' },
-  media: { label: 'Media', points: 2, color: '#F2B705' },
-  dificil: { label: 'Difícil', points: 3, color: '#E8553F' }
+  normal: { label: 'Normal', points: 1, color: '#3FA796', roscoWords: 4, roscoSeconds: 140 },
+  dificil: { label: 'Difícil', points: 3, color: '#E8553F', roscoWords: 6, roscoSeconds: 180 }
 };
 
 const TRIVIA_CATEGORIES = {
   historia: {
     label: 'Historia', emoji: '🏛️',
     questions: {
-      facil: [
-        { q:"¿En qué año llegó Cristóbal Colón a América?", a:"1492" },
-        { q:"¿Qué muro cayó en 1989 dividiendo una ciudad alemana?", a:"El Muro de Berlín" },
-        { q:"¿Quién fue el primer presidente de los Estados Unidos?", a:"George Washington" },
-        { q:"¿En qué país se construyeron las pirámides de Guiza?", a:"Egipto" },
-        { q:"¿Qué imperio construyó el Coliseo de Roma?", a:"El Imperio Romano" }
-      ],
-      media: [
-        { q:"¿En qué año comenzó la Primera Guerra Mundial?", a:"1914" },
-        { q:"¿Qué reina española financió el viaje de Colón a América?", a:"Isabel la Católica" },
-        { q:"¿En qué año comenzó la Revolución Francesa?", a:"1789" },
-        { q:"¿Qué civilización precolombina construyó Machu Picchu?", a:"Los incas" },
-        { q:"¿En qué año cayó el Imperio Romano de Occidente?", a:"476 d.C." }
+      normal: [
+        { q:"¿En qué año cayó Constantinopla en manos de los otomanos?", a:"1453" },
+        { q:"¿Quién fue el primer emperador romano?", a:"Augusto (Octavio Augusto)" },
+        { q:"¿En qué año comenzó la Guerra Civil española?", a:"1936" },
+        { q:"¿Quién fundó el Imperio mongol en el siglo XIII?", a:"Gengis Kan" },
+        { q:"¿En qué año se proclamó la Segunda República española?", a:"1931" },
+        { q:"¿Qué reina inglesa dio nombre a una era de 63 años en el siglo XIX?", a:"La reina Victoria" },
+        { q:"¿Qué acontecimiento de 1789 marcó el inicio de la Revolución Francesa?", a:"La toma de la Bastilla" },
+        { q:"¿Qué civilización precolombina construyó la ciudadela de Machu Picchu?", a:"Los incas" },
+        { q:"¿Qué líder sudafricano pasó 27 años en prisión antes de ser presidente y ganar el Nobel de la Paz?", a:"Nelson Mandela" },
+        { q:"¿En qué año llegó el ser humano a la Luna con la misión Apolo 11?", a:"1969" },
+        { q:"¿Qué muro dividió la capital alemana entre 1961 y 1989?", a:"El Muro de Berlín" },
+        { q:"¿Quién fue la última gobernante de la dinastía ptolemaica del Antiguo Egipto?", a:"Cleopatra VII" },
+        { q:"¿Qué país atacó por sorpresa Pearl Harbor en 1941?", a:"Japón" }
       ],
       dificil: [
-        { q:"¿Qué tratado puso fin oficialmente a la Primera Guerra Mundial en 1919?", a:"El Tratado de Versalles" },
-        { q:"¿En qué año se produjo la Revolución Rusa que llevó a los bolcheviques al poder?", a:"1917" },
-        { q:"¿Qué dinastía china construyó la mayor parte de la Gran Muralla que se conserva hoy?", a:"La dinastía Ming" },
-        { q:"¿Cómo se conoce la crisis de 1962 que enfrentó a EE.UU. y la URSS por unos misiles en el Caribe?", a:"La Crisis de los Misiles de Cuba" },
-        { q:"¿Qué faraón egipcio firmó uno de los primeros tratados de paz conocidos, con los hititas?", a:"Ramsés II" }
+        { q:"¿En qué año se firmó el Tratado de Tordesillas, que repartió las tierras nuevas entre España y Portugal?", a:"1494" },
+        { q:"¿Qué dinastía gobernaba China cuando llegaron los primeros europeos por mar en el siglo XVI?", a:"La dinastía Ming" },
+        { q:"¿Quién fue el último zar de Rusia, ejecutado junto a su familia en 1918?", a:"Nicolás II" },
+        { q:"¿En qué batalla de 1815 fue derrotado definitivamente Napoleón Bonaparte?", a:"Waterloo" },
+        { q:"¿Qué conferencia de 1884-85 repartió el continente africano entre las potencias europeas?", a:"La Conferencia de Berlín" },
+        { q:"¿Qué tratado de 1648 puso fin a la Guerra de los Treinta Años?", a:"La Paz de Westfalia" },
+        { q:"¿En qué año cayó formalmente el Imperio Romano de Occidente?", a:"476 d.C." },
+        { q:"¿Qué emperador romano legalizó el culto cristiano mediante el Edicto de Milán en el año 313?", a:"Constantino I (el Grande)" },
+        { q:"¿En qué batalla naval de 1571 la Liga Santa derrotó a la flota del Imperio Otomano?", a:"Batalla de Lepanto" },
+        { q:"¿Qué dinastía imperial gobernó Rusia desde 1613 hasta la Revolución de 1917?", a:"Dinastía Románov" },
+        { q:"¿Cómo se llamó en clave el desembarco aliado en Normandía en junio de 1944?", a:"Operación Overlord" }
+      ],
+      muy_dificil: [
+        { q:"¿Qué militar español encabezó la exitosa defensa de Cartagena de Indias frente a la flota británica en 1741?", a:"Blas de Lezo" },
+        { q:"¿Qué Papa convocó la Primera Cruzada en el Concilio de Clermont en 1095?", a:"Urbano II" },
+        { q:"¿En qué año concluyó la Guerra de los Cien Años, tras la batalla de Castillon?", a:"1453" },
+        { q:"¿Qué monarca inglés fue juzgado por traición y decapitado en 1649?", a:"Carlos I" },
+        { q:"¿Qué emperador romano de origen hispano llevó al Imperio a su máxima expansión territorial, en el año 117?", a:"Trajano" }
       ]
     }
   },
   cine: {
     label: 'Cine y Series', emoji: '🎬',
     questions: {
-      facil: [
-        { q:"¿Quién dirigió la película original de \"Star Wars\" de 1977?", a:"George Lucas" },
-        { q:"¿En qué película se hunde un barco llamado Titanic?", a:"Titanic" },
-        { q:"¿Qué animal protagoniza \"El Rey León\"?", a:"Un león (Simba)" },
-        { q:"¿Qué actor interpreta a Iron Man en el Universo Marvel?", a:"Robert Downey Jr." },
-        { q:"¿En qué ciudad se ambienta principalmente la serie \"Friends\"?", a:"Nueva York" }
-      ],
-      media: [
-        { q:"¿Qué director dirigió \"Pulp Fiction\" y \"Kill Bill\"?", a:"Quentin Tarantino" },
-        { q:"¿Qué actriz interpreta a Hermione Granger en Harry Potter?", a:"Emma Watson" },
-        { q:"¿En qué década se estrenó la primera película de \"Star Wars\"?", a:"Los años 70 (1977)" },
-        { q:"¿Qué serie de HBO está ambientada en los Siete Reinos de Poniente?", a:"Juego de Tronos" },
-        { q:"¿Qué actor pone voz a Woody en \"Toy Story\" (versión original)?", a:"Tom Hanks" }
+      normal: [
+        { q:"¿Qué director dirigió \"Inception\" y \"Interstellar\"?", a:"Christopher Nolan" },
+        { q:"¿Qué estudio de animación japonés creó \"El viaje de Chihiro\"?", a:"Studio Ghibli" },
+        { q:"¿Qué serie sigue a un profesor de química que se convierte en fabricante de droga?", a:"Breaking Bad" },
+        { q:"¿Qué actriz interpreta a Katniss Everdeen en \"Los Juegos del Hambre\"?", a:"Jennifer Lawrence" },
+        { q:"¿Qué director es conocido por su estilo visual simétrico en películas como \"El gran hotel Budapest\"?", a:"Wes Anderson" },
+        { q:"¿Qué película de 1994, dirigida por Frank Darabont, está ambientada en la prisión de Shawshank?", a:"Cadena perpetua" },
+        { q:"¿En qué año se estrenó la primera película de Harry Potter?", a:"2001" },
+        { q:"¿Qué actor interpretó al Joker en \"El Caballero Oscuro\" (2008)?", a:"Heath Ledger" },
+        { q:"¿Qué director dirigió taquillazos como \"Tiburón\", \"E.T.\" y \"Parque Jurásico\"?", a:"Steven Spielberg" },
+        { q:"¿Qué actor interpreta a Tony Stark / Iron Man en el Universo Marvel?", a:"Robert Downey Jr." },
+        { q:"¿Cómo se llama el continente ficticio de \"Juego de Tronos\"?", a:"Poniente (Westeros)" },
+        { q:"¿Qué actor interpretó a Michael Corleone en la trilogía de \"El Padrino\"?", a:"Al Pacino" },
+        { q:"¿Qué trilogía de ciencia ficción sigue a Marty McFly y Doc Brown viajando en el tiempo?", a:"Regreso al futuro" }
       ],
       dificil: [
-        { q:"¿Qué película ganó el Óscar a Mejor Película de 1994, con Tom Hanks corriendo por EE.UU.?", a:"Forrest Gump" },
-        { q:"¿Quién compuso la banda sonora original de \"Star Wars\"?", a:"John Williams" },
-        { q:"¿En qué año se estrenó la primera película de \"El Padrino\"?", a:"1972" },
-        { q:"¿Qué director surcoreano es conocido por \"Oldboy\" y su trilogía de la venganza?", a:"Park Chan-wook" },
-        { q:"¿Qué actor interpretó a Hannibal Lecter en \"El silencio de los corderos\"?", a:"Anthony Hopkins" }
+        { q:"¿Qué película ganó el primer Óscar a Mejor Película de la historia, en 1929?", a:"Alas (Wings)" },
+        { q:"¿Qué director soviético es conocido por \"El acorazado Potemkin\" y la teoría del montaje cinematográfico?", a:"Sergei Eisenstein" },
+        { q:"¿Qué actor rechazó el Óscar a Mejor Actor por \"El Padrino\" en 1973, enviando a una activista en su lugar?", a:"Marlon Brando" },
+        { q:"¿Qué película de Alfred Hitchcock de 1958, con James Stewart, está considerada su obra maestra?", a:"Vértigo" },
+        { q:"¿Qué cineasta francés fue pionero del cine de ciencia ficción con \"El viaje a la Luna\" en 1902?", a:"Georges Méliès" },
+        { q:"¿Quién dirigió la clásica película de ciencia ficción distópica \"Blade Runner\" (1982)?", a:"Ridley Scott" },
+        { q:"¿Qué director es cocreador de la serie \"Twin Peaks\" junto a Mark Frost?", a:"David Lynch" },
+        { q:"¿Qué película surcoreana ganó el Óscar a Mejor Película en 2020, siendo la primera de habla no inglesa en lograrlo?", a:"Parásitos" },
+        { q:"¿Quién compuso la banda sonora original de la trilogía de \"El Señor de los Anillos\"?", a:"Howard Shore" },
+        { q:"¿Qué actor dio vida a Tony Soprano en \"Los Soprano\"?", a:"James Gandolfini" },
+        { q:"¿En qué hotel aislado transcurre \"El resplandor\" de Stanley Kubrick?", a:"Hotel Overlook" }
+      ],
+      muy_dificil: [
+        { q:"¿Qué director de fotografía ganó el Óscar por \"Barry Lyndon\" usando lentes ultra luminosas diseñadas para la NASA?", a:"John Alcott" },
+        { q:"¿Qué cineasta soviético dirigió \"Stalker\" (1979) y \"Solaris\" (1972)?", a:"Andréi Tarkovski" },
+        { q:"¿Qué actor interpretó al villano Frank en el wéstern \"Hasta que llegó su hora\" (1968)?", a:"Henry Fonda" },
+        { q:"¿Qué director italiano dirigió \"Ladrón de bicicletas\" y \"Umberto D.\"?", a:"Vittorio De Sica" },
+        { q:"¿Qué película de suspense de Fritz Lang (1931) tiene como protagonista a un asesino interpretado por Peter Lorre?", a:"M, el vampiro de Düsseldorf" },
+        { q:"¿Qué director polaco firmó la \"Trilogía de los tres colores\" (Azul, Blanco y Rojo)?", a:"Krzysztof Kieślowski" }
       ]
     }
   },
   ciencia: {
     label: 'Ciencia', emoji: '🔬',
     questions: {
-      facil: [
-        { q:"¿Cuál es el planeta más cercano al Sol?", a:"Mercurio" },
-        { q:"¿Qué gas necesitamos respirar principalmente para vivir?", a:"Oxígeno" },
-        { q:"¿Cuántos huesos tiene aproximadamente el cuerpo humano adulto?", a:"206" },
-        { q:"¿Qué órgano bombea la sangre por el cuerpo?", a:"El corazón" },
-        { q:"¿Qué fuerza hace que los objetos caigan al suelo?", a:"La gravedad" }
-      ],
-      media: [
-        { q:"¿Qué científico formuló la teoría de la relatividad?", a:"Albert Einstein" },
-        { q:"¿Cuál es el hueso más largo del cuerpo humano?", a:"El fémur" },
-        { q:"¿Qué planeta es conocido como el planeta rojo?", a:"Marte" },
-        { q:"¿Qué gas es el principal responsable del efecto invernadero de origen humano?", a:"El dióxido de carbono (CO2)" },
-        { q:"¿Qué científica descubrió la radiactividad junto con su marido?", a:"Marie Curie" }
+      normal: [
+        { q:"¿Qué científico propuso la teoría de la evolución por selección natural?", a:"Charles Darwin" },
+        { q:"¿Cuál es el elemento químico más abundante en el universo?", a:"El hidrógeno" },
+        { q:"¿Qué unidad mide la intensidad de la corriente eléctrica?", a:"El amperio" },
+        { q:"¿Qué parte de la célula contiene el material genético?", a:"El núcleo" },
+        { q:"¿Cuál es el hueso más pequeño del cuerpo humano?", a:"El estribo (en el oído)" },
+        { q:"¿Qué gas noble, más ligero que el aire, se usa en los globos aerostáticos?", a:"El helio" },
+        { q:"¿Qué científica ganó dos premios Nobel en dos disciplinas científicas distintas?", a:"Marie Curie (Física y Química)" },
+        { q:"¿Qué proceso libera energía al dividir el núcleo de un átomo pesado?", a:"La fisión nuclear" },
+        { q:"¿Cuál es el planeta más grande del sistema solar?", a:"Júpiter" },
+        { q:"¿Cuál es la fórmula química del agua?", a:"H2O" },
+        { q:"¿Qué gas atmosférico es indispensable para la respiración de la mayoría de los seres vivos?", a:"El oxígeno" },
+        { q:"¿Qué parte del ojo se dilata o contrae para regular la entrada de luz?", a:"La pupila" },
+        { q:"¿Qué proceso usan las plantas para convertir luz solar, agua y CO2 en glucosa?", a:"La fotosíntesis" }
       ],
       dificil: [
-        { q:"¿Qué partícula subatómica tiene carga negativa?", a:"El electrón" },
-        { q:"¿Cómo se llama la capa más externa y sólida de la Tierra?", a:"La corteza terrestre" },
-        { q:"¿Qué proceso permite a las plantas convertir la luz solar en energía?", a:"La fotosíntesis" },
-        { q:"¿Qué físico propuso el modelo atómico en el que los electrones orbitan el núcleo como planetas?", a:"Niels Bohr" },
-        { q:"¿Qué elemento químico tiene el símbolo 'Au'?", a:"El oro" }
+        { q:"¿Qué físico formuló las tres leyes del movimiento y la ley de gravitación universal?", a:"Isaac Newton" },
+        { q:"¿Cómo se llama la partícula subatómica descubierta en el CERN en 2012, clave para explicar la masa?", a:"El bosón de Higgs" },
+        { q:"¿Qué químico ruso creó la tabla periódica organizando los elementos en 1869?", a:"Dmitri Mendeléyev" },
+        { q:"¿Qué enzima permite a las células copiar el ADN durante la división celular?", a:"La ADN polimerasa" },
+        { q:"¿Qué unidad astronómica mide la distancia que recorre la luz en un año?", a:"El año luz" },
+        { q:"¿Qué orgánulo celular es el principal encargado de la respiración celular y produce ATP?", a:"La mitocondria" },
+        { q:"¿Qué hormona, producida por el páncreas, reduce la glucosa en sangre?", a:"La insulina" },
+        { q:"¿Cuál es el gas noble con mayor presencia en la atmósfera terrestre?", a:"El argón" },
+        { q:"¿Cómo se llama el cambio de estado de sólido a gas sin pasar por líquido?", a:"Sublimación" },
+        { q:"¿Qué elemento químico tiene el símbolo 'K'?", a:"El potasio" },
+        { q:"¿Qué tipo de enlace se produce cuando dos átomos comparten electrones?", a:"El enlace covalente" }
+      ],
+      muy_dificil: [
+        { q:"¿Cómo se llama el proceso de muerte celular programada y regulada genéticamente?", a:"Apoptosis" },
+        { q:"¿Cuál es el único elemento no metálico que es líquido a temperatura ambiente?", a:"El bromo" },
+        { q:"¿Qué nombre recibe el límite del que nada, ni la luz, puede escapar en un agujero negro?", a:"Horizonte de sucesos" },
+        { q:"¿Qué principio cuántico establece que dos fermiones idénticos no pueden ocupar el mismo estado cuántico?", a:"Principio de exclusión de Pauli" },
+        { q:"¿Qué mineral define el nivel 9 de dureza en la escala de Mohs?", a:"Corindón" },
+        { q:"¿Cómo se llama el punto de la órbita de un planeta más cercano al Sol?", a:"Perihelio" }
       ]
     }
   },
   deporte: {
     label: 'Deporte', emoji: '⚽',
     questions: {
-      facil: [
-        { q:"¿Cuántos jugadores forman un equipo de fútbol en el campo (sin contar suplentes)?", a:"11" },
-        { q:"¿En qué deporte se usa un balón ovalado y se anotan \"touchdowns\"?", a:"Fútbol americano" },
-        { q:"¿Cada cuántos años se celebran los Juegos Olímpicos de verano?", a:"Cada 4 años" },
-        { q:"¿Qué país ganó el primer Mundial de fútbol, en 1930?", a:"Uruguay" },
-        { q:"¿En qué deporte compite Rafael Nadal?", a:"Tenis" }
-      ],
-      media: [
-        { q:"¿Cuántos anillos tiene el símbolo olímpico?", a:"5" },
-        { q:"¿Qué selección ha ganado más Copas del Mundo de fútbol masculino?", a:"Brasil (5)" },
-        { q:"¿En qué país se disputó el Mundial de fútbol de 2010?", a:"Sudáfrica" },
-        { q:"¿Cuántos sets hay que ganar para llevarse un partido de tenis a 5 sets?", a:"3" },
-        { q:"¿Qué ciudad organizó los Juegos Olímpicos de 2016?", a:"Río de Janeiro" }
+      normal: [
+        { q:"¿Qué club ha ganado más veces la Champions League de fútbol?", a:"El Real Madrid" },
+        { q:"¿En qué deporte se compite en modalidades de libre, espalda, braza y mariposa?", a:"La natación" },
+        { q:"¿Cuántos jugadores forma un equipo de voleibol en pista?", a:"6" },
+        { q:"¿En qué país se originó el judo?", a:"Japón" },
+        { q:"¿Qué distancia oficial tiene una maratón?", a:"42,195 km" },
+        { q:"¿Qué selección ganó el primer Mundial de fútbol femenino, en 1991?", a:"Estados Unidos" },
+        { q:"¿En qué ciudad se disputaron los primeros Juegos Olímpicos de la era moderna?", a:"Atenas" },
+        { q:"¿Qué representan los cinco aros del símbolo olímpico?", a:"Los cinco continentes habitados" },
+        { q:"¿En qué torneo de tenis compiten las selecciones nacionales masculinas por la Ensaladera de Plata?", a:"La Copa Davis" },
+        { q:"¿Cuántos minutos reglamentarios dura un partido de fútbol, sin contar el descuento?", a:"90 minutos" },
+        { q:"¿En qué país se celebraron los Juegos Olímpicos de la Antigüedad?", a:"Grecia" },
+        { q:"¿Qué color de cinturón viste un principiante en judo o kárate?", a:"Blanco" },
+        { q:"¿En qué país se originó el taekwondo?", a:"Corea del Sur" }
       ],
       dificil: [
-        { q:"¿Qué ciclista ganó siete Tours de Francia consecutivos antes de ser descalificado por dopaje?", a:"Lance Armstrong" },
-        { q:"¿En qué año se disputaron los primeros Juegos Olímpicos de la era moderna?", a:"1896" },
-        { q:"¿Qué boxeador es conocido por la frase \"vuela como una mariposa, pica como una abeja\"?", a:"Muhammad Ali" },
-        { q:"¿Cuántos jugadores hay en cada equipo de baloncesto en pista al mismo tiempo?", a:"5" },
-        { q:"¿Qué país ganó el Mundial de fútbol de 1950, disputado en Brasil?", a:"Uruguay" }
+        { q:"¿En qué año ganó España su primer Mundial de fútbol?", a:"2010" },
+        { q:"¿Qué corredor jamaicano ostenta el récord mundial de los 100 metros lisos?", a:"Usain Bolt" },
+        { q:"¿En qué año se disputó el \"Maracanazo\", la derrota de Brasil ante Uruguay en su propio Mundial?", a:"1950" },
+        { q:"¿Qué ciclista español ganó cinco Tours de Francia consecutivos en los años 90?", a:"Miguel Induráin" },
+        { q:"¿En qué disciplina compitió Jesse Owens, ganando 4 medallas de oro en Berlín 1936?", a:"Atletismo" },
+        { q:"¿Qué país ganó la primera Copa Mundial de fútbol, en Uruguay 1930?", a:"Uruguay" },
+        { q:"¿Cuántos jugadores por equipo juegan un partido de rugby a 15?", a:"15" },
+        { q:"¿Qué atleta etíope ganó la maratón olímpica de Roma 1960 corriendo descalzo?", a:"Abebe Bikila" },
+        { q:"¿Cuántos hoyos tiene un recorrido estándar de golf?", a:"18" },
+        { q:"¿Qué piloto brasileño de F1 se consagró tres veces campeón antes de morir en Imola en 1994?", a:"Ayrton Senna" }
+      ],
+      muy_dificil: [
+        { q:"¿En qué circuito francés se corre cada año la prueba de resistencia de las 24 Horas de Le Mans?", a:"El circuito de la Sarthe" },
+        { q:"¿Qué baloncestista anotó 100 puntos en un partido de la NBA en 1962, récord aún vigente?", a:"Wilt Chamberlain" },
+        { q:"¿Qué ajedrecista soviético perdió la corona mundial frente a Bobby Fischer en Reikiavik en 1972?", a:"Borís Spasski" },
+        { q:"¿Qué nadador estadounidense ganó 7 medallas de oro en los Juegos de Múnich 1972?", a:"Mark Spitz" },
+        { q:"¿En qué ciudad se celebraron los Juegos Olímpicos de 1956, los primeros en el hemisferio sur?", a:"Melbourne" }
       ]
     }
   },
   geografia: {
     label: 'Geografía', emoji: '🌍',
     questions: {
-      facil: [
-        { q:"¿Cuál es el río más largo del mundo?", a:"El Nilo" },
-        { q:"¿Cuál es el país más grande del mundo por superficie?", a:"Rusia" },
-        { q:"¿En qué continente está Egipto?", a:"África" },
-        { q:"¿Cuál es la capital de Francia?", a:"París" },
-        { q:"¿Cuál es el océano más grande del mundo?", a:"El océano Pacífico" }
-      ],
-      media: [
-        { q:"¿Cuál es la montaña más alta del mundo?", a:"El Everest" },
-        { q:"¿Qué país tiene forma de bota en el mapa de Europa?", a:"Italia" },
+      normal: [
+        { q:"¿Cuál es el lago más grande de África?", a:"El lago Victoria" },
+        { q:"¿Cuál es la cordillera más larga del mundo sobre la superficie terrestre?", a:"Los Andes" },
+        { q:"¿Qué país europeo tiene más husos horarios por sus territorios de ultramar?", a:"Francia (12)" },
+        { q:"¿Cuál es la fosa oceánica más profunda del planeta?", a:"La Fosa de las Marianas" },
+        { q:"¿Qué país es conocido como \"el país de las mil colinas\"?", a:"Ruanda" },
+        { q:"¿Cuál es la capital de Canadá (no es Toronto)?", a:"Ottawa" },
+        { q:"¿Qué estrecho separa Asia de América?", a:"El estrecho de Bering" },
         { q:"¿Cuál es el desierto cálido más grande del mundo?", a:"El Sáhara" },
-        { q:"¿Cuántos husos horarios tiene Rusia?", a:"11" },
-        { q:"¿Cuál es la capital de Australia (no es Sídney)?", a:"Canberra" }
+        { q:"¿En qué continente está el desierto del Sáhara?", a:"África" },
+        { q:"¿Qué país tiene forma de bota en el mapa de Europa?", a:"Italia" },
+        { q:"¿En qué cordillera se encuentra el monte Everest?", a:"El Himalaya" },
+        { q:"¿Qué río es el más largo de la península ibérica?", a:"El río Tajo" },
+        { q:"¿Cuál es el país con mayor superficie del mundo?", a:"Rusia" }
       ],
       dificil: [
-        { q:"¿Cuál es el país más pequeño del mundo?", a:"El Vaticano" },
-        { q:"¿Qué estrecho separa España de Marruecos?", a:"El estrecho de Gibraltar" },
-        { q:"¿Cuál es el lago de agua dulce con mayor volumen de agua del mundo?", a:"El lago Baikal (Rusia)" },
-        { q:"¿Qué cordillera marca tradicionalmente el límite entre Europa y Asia dentro de Rusia?", a:"Los montes Urales" },
-        { q:"¿Qué país africano nunca fue colonizado por potencias europeas (salvo una breve ocupación italiana)?", a:"Etiopía" }
+        { q:"¿Cómo se llama el punto más profundo conocido de los océanos, dentro de la Fosa de las Marianas?", a:"El Abismo Challenger" },
+        { q:"¿Qué país tiene 11 husos horarios propios en su territorio continuo?", a:"Rusia" },
+        { q:"¿Cuál es la sede de gobierno más alta del mundo, aunque no la capital constitucional?", a:"La Paz (Bolivia)" },
+        { q:"¿Qué país centroamericano no tiene ejército desde 1948?", a:"Costa Rica" },
+        { q:"¿Qué país tiene la mayor superficie de selva amazónica dentro de su territorio?", a:"Brasil" },
+        { q:"¿Cuál es la capital oficial de Australia (no es Sídney ni Melbourne)?", a:"Canberra" },
+        { q:"¿Qué dos países sudamericanos no tienen salida al mar?", a:"Bolivia y Paraguay" },
+        { q:"¿Qué estrecho separa la parte europea y asiática de Estambul?", a:"El estrecho del Bósforo" },
+        { q:"¿Qué desierto costero del norte de Chile es de los más áridos del mundo?", a:"El desierto de Atacama" },
+        { q:"¿Cuál es el lago navegable a mayor altitud del mundo, compartido por Perú y Bolivia?", a:"El lago Titicaca" },
+        { q:"¿En qué cordillera de Asia central se encuentra la cumbre del K2?", a:"El Karakórum" }
+      ],
+      muy_dificil: [
+        { q:"¿Cuál es el lago de agua dulce más profundo del planeta, en Siberia?", a:"El lago Baikal" },
+        { q:"¿Qué enclave ruso aislado se ubica en el Báltico entre Polonia y Lituania?", a:"Kaliningrado" },
+        { q:"¿Cuál es la cumbre más alta del Cáucaso y de Europa geográfica?", a:"El monte Elbrús" },
+        { q:"¿Qué país insular de Oceanía tiene su capital en la localidad de Ngerulmud?", a:"Palaos" },
+        { q:"¿Cuál es el punto de menor altitud de África, situado en Yibuti?", a:"El lago Assal" },
+        { q:"¿Qué estrecho separa la isla de Sajalín del territorio continental ruso?", a:"El estrecho de Tartaria" }
+      ]
+    }
+  },
+  musica: {
+    label: 'Música', emoji: '🎵',
+    questions: {
+      normal: [
+        { q:"¿Qué compositor italiano del Barroco compuso \"Las cuatro estaciones\"?", a:"Antonio Vivaldi" },
+        { q:"¿Qué banda británica lanzó el álbum \"The Dark Side of the Moon\"?", a:"Pink Floyd" },
+        { q:"¿En qué país tiene su origen el reguetón, surgido en los años 90?", a:"Puerto Rico" },
+        { q:"¿Qué instrumento de cuerda grave hace de bajo en el mariachi mexicano?", a:"El guitarrón" },
+        { q:"¿Qué cantante británica es conocida por el álbum \"21\" y la canción \"Rolling in the Deep\"?", a:"Adele" },
+        { q:"¿En qué década surgió el movimiento punk con bandas como Sex Pistols?", a:"Los años 70" },
+        { q:"¿Qué compositor alemán del Barroco escribió \"El clave bien temperado\"?", a:"Johann Sebastian Bach" },
+        { q:"¿Cuántas teclas tiene un piano estándar?", a:"88" },
+        { q:"¿Cuántas notas naturales tiene la escala diatónica básica (Do, Re, Mi, Fa, Sol, La, Si)?", a:"7" },
+        { q:"¿Qué cantante estadounidense fue apodado el 'Rey del Pop'?", a:"Michael Jackson" },
+        { q:"¿En qué ciudad inglesa se formaron The Beatles a comienzos de los 60?", a:"Liverpool" },
+        { q:"¿Qué cantante estadounidense fue apodado 'La Voz', famoso por \"My Way\"?", a:"Frank Sinatra" },
+        { q:"¿Qué cuarteto sueco ganó Eurovisión 1974 con \"Waterloo\"?", a:"ABBA" }
+      ],
+      dificil: [
+        { q:"¿Qué compositor austríaco escribió \"La flauta mágica\" y murió muy joven, en 1791?", a:"Wolfgang Amadeus Mozart" },
+        { q:"¿Qué movimiento musical surgió en Nueva York en los años 70 y dio origen al rap?", a:"El hip hop" },
+        { q:"¿Qué compositor ruso escribió el ballet \"El lago de los cisnes\"?", a:"Piotr Ilich Chaikovski" },
+        { q:"¿Qué banda de Liverpool grabó su último álbum juntos, \"Abbey Road\", en 1969?", a:"The Beatles" },
+        { q:"¿Qué instrumento de teclado, antecesor del piano, era típico del Barroco?", a:"El clavecín" },
+        { q:"¿En qué año se celebró el festival de Woodstock?", a:"1969" },
+        { q:"¿Qué compositor austríaco escribió la ópera bufa \"Las bodas de Fígaro\"?", a:"Wolfgang Amadeus Mozart" },
+        { q:"¿Qué trompetista de jazz lideró la grabación del disco \"Kind of Blue\" (1959)?", a:"Miles Davis" },
+        { q:"¿Qué banda británica de punk lanzó en 1979 el álbum \"London Calling\"?", a:"The Clash" }
+      ],
+      muy_dificil: [
+        { q:"¿Qué compositor ruso provocó un escándalo en París en 1913 con el estreno de \"La consagración de la primavera\"?", a:"Ígor Stravinski" },
+        { q:"¿Qué saxofonista de jazz grabó la suite espiritual \"A Love Supreme\" en 1964?", a:"John Coltrane" },
+        { q:"¿Cómo se llama el intervalo disonante apodado históricamente \"Diabolus in musica\"?", a:"El tritono" },
+        { q:"¿Qué baterista formó parte de The Beatles en Hamburgo antes de ser sustituido por Ringo Starr en 1962?", a:"Pete Best" },
+        { q:"¿En qué histórico teatro de ópera de Milán se estrenaron obras de Verdi y Puccini?", a:"El Teatro de La Scala" },
+        { q:"¿Qué violonchelista catalán popularizó internacionalmente las Suites para violonchelo solo de Bach?", a:"Pau Casals" }
       ]
     }
   }
 };
 
 // --- Trivial "Concurso": Frase oculta (estilo ruleta de la suerte) ---
+// Ahora depende de la categoría elegida, con 2 niveles (normal/dificil).
 const LETTER_GRID = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
 
 const FRASE_BANK = {
-  facil: [
-    { hint:"ANIMAL", phrase:"ELEFANTE" },
-    { hint:"FRUTA", phrase:"SANDIA" },
-    { hint:"DEPORTE", phrase:"BALONCESTO" },
-    { hint:"PAIS", phrase:"PORTUGAL" },
-    { hint:"COLOR", phrase:"AMARILLO" },
-    { hint:"PROFESION", phrase:"BOMBERO" },
-    { hint:"INSTRUMENTO MUSICAL", phrase:"GUITARRA" }
-  ],
-  media: [
-    { hint:"PELICULA", phrase:"EL REY LEON" },
-    { hint:"SERIE DE TV", phrase:"JUEGO DE TRONOS" },
-    { hint:"CANCION INFANTIL", phrase:"CUMPLEANOS FELIZ" },
-    { hint:"CIUDAD", phrase:"NUEVA YORK" },
-    { hint:"PLATO TIPICO", phrase:"PAELLA VALENCIANA" },
-    { hint:"EQUIPO DE FUTBOL", phrase:"REAL MADRID" },
-    { hint:"SUPERHEROE", phrase:"EL HOMBRE ARANA" }
-  ],
-  dificil: [
-    { hint:"REFRAN", phrase:"A CABALLO REGALADO NO LE MIRES EL DIENTE" },
-    { hint:"REFRAN", phrase:"MAS VALE PAJARO EN MANO QUE CIENTO VOLANDO" },
-    { hint:"TITULO DE PELICULA", phrase:"EL SENOR DE LOS ANILLOS" },
-    { hint:"FRASE HECHA", phrase:"ERES LA GOTA QUE COLMO EL VASO" },
-    { hint:"REFRAN", phrase:"EN BOCA CERRADA NO ENTRAN MOSCAS" },
-    { hint:"TITULO DE SERIE", phrase:"LA CASA DE PAPEL" },
-    { hint:"REFRAN", phrase:"QUIEN MUCHO ABARCA POCO APRIETA" }
-  ]
+  historia: {
+    normal: [
+      { hint:"EXPLORADOR", phrase:"CRISTOBAL COLON" },
+      { hint:"IMPERIO", phrase:"IMPERIO ROMANO" },
+      { hint:"REVOLUCION", phrase:"REVOLUCION FRANCESA" },
+      { hint:"MURO", phrase:"EL MURO DE BERLIN" }
+    ],
+    dificil: [
+      { hint:"TRATADO", phrase:"EL TRATADO DE VERSALLES" },
+      { hint:"CIVILIZACION PRECOLOMBINA", phrase:"EL IMPERIO INCA EN MACHU PICCHU" }
+    ]
+  },
+  cine: {
+    normal: [
+      { hint:"PELICULA", phrase:"EL REY LEON" },
+      { hint:"SAGA", phrase:"STAR WARS" },
+      { hint:"SERIE", phrase:"JUEGO DE TRONOS" },
+      { hint:"SUPERHEROE", phrase:"EL HOMBRE ARANA" }
+    ],
+    dificil: [
+      { hint:"TITULO DE PELICULA", phrase:"EL SENOR DE LOS ANILLOS" },
+      { hint:"TITULO DE SERIE", phrase:"LA CASA DE PAPEL" }
+    ]
+  },
+  ciencia: {
+    normal: [
+      { hint:"PLANETA", phrase:"PLANETA ROJO" },
+      { hint:"CIENTIFICO", phrase:"ALBERT EINSTEIN" },
+      { hint:"TEORIA", phrase:"TEORIA DE LA RELATIVIDAD" },
+      { hint:"PROCESO BIOLOGICO", phrase:"LA FOTOSINTESIS" }
+    ],
+    dificil: [
+      { hint:"CIENTIFICA", phrase:"MARIE CURIE Y LA RADIACTIVIDAD" },
+      { hint:"MODELO ATOMICO", phrase:"EL MODELO ATOMICO DE BOHR" }
+    ]
+  },
+  deporte: {
+    normal: [
+      { hint:"DEPORTE", phrase:"TENIS DE MESA" },
+      { hint:"EVENTO", phrase:"JUEGOS OLIMPICOS" },
+      { hint:"MUNDIAL", phrase:"MUNDIAL DE FUTBOL" },
+      { hint:"CICLISMO", phrase:"EL TOUR DE FRANCIA" }
+    ],
+    dificil: [
+      { hint:"BOXEADOR", phrase:"VUELA COMO UNA MARIPOSA PICA COMO UNA ABEJA" },
+      { hint:"MARACANAZO", phrase:"EL MUNDIAL DE BRASIL DE 1950" }
+    ]
+  },
+  geografia: {
+    normal: [
+      { hint:"MONUMENTO", phrase:"LA TORRE EIFFEL" },
+      { hint:"PAIS", phrase:"NUEVA ZELANDA" },
+      { hint:"DESIERTO", phrase:"EL DESIERTO DEL SAHARA" },
+      { hint:"CORDILLERA", phrase:"LOS MONTES URALES" }
+    ],
+    dificil: [
+      { hint:"PAIS MAS PEQUEÑO", phrase:"EL VATICANO" },
+      { hint:"ESTRECHO", phrase:"EL ESTRECHO DE GIBRALTAR" }
+    ]
+  },
+  musica: {
+    normal: [
+      { hint:"CANCION", phrase:"DESPACITO" },
+      { hint:"GRUPO", phrase:"QUEEN" },
+      { hint:"CANCION", phrase:"LIVIN LA VIDA LOCA" },
+      { hint:"FESTIVAL", phrase:"WOODSTOCK" }
+    ],
+    dificil: [
+      { hint:"CANTANTE DE OPERA", phrase:"MARIA CALLAS" },
+      { hint:"CANCION", phrase:"CONTIGO EN LA DISTANCIA" }
+    ]
+  }
 };
 
 // --- Trivial "Concurso": Rosco estilo Pasapalabra ---
-const ROSCO_BANK = [
-  { answer:"ARBOL", def:"Planta de tronco leñoso y ramas, como el pino o el roble." },
-  { answer:"BALLENA", def:"El mamífero más grande que vive en el mar." },
-  { answer:"CASTILLO", def:"Construcción fortificada donde vivían reyes y nobles en la Edad Media." },
-  { answer:"DESIERTO", def:"Zona muy árida con poca vegetación, como el Sáhara." },
-  { answer:"ESTRELLA", def:"Cuerpo celeste que brilla con luz propia, como el Sol." },
-  { answer:"FARO", def:"Torre con luz que guía a los barcos de noche." },
-  { answer:"GUITARRA", def:"Instrumento musical de cuerda que se toca con los dedos o una púa." },
-  { answer:"HOSPITAL", def:"Lugar donde se atiende y cura a los enfermos." },
-  { answer:"ISLA", def:"Porción de tierra rodeada de agua por todos lados." },
-  { answer:"JIRAFA", def:"Animal africano de cuello muy largo." },
-  { answer:"KIWI", def:"Fruta de piel marrón peluda y pulpa verde con pepitas negras." },
-  { answer:"LIBRO", def:"Conjunto de hojas impresas y encuadernadas que se lee." },
-  { answer:"MONTAÑA", def:"Elevación natural del terreno, más alta que una colina." },
-  { answer:"NUBE", def:"Masa de vapor de agua condensado que flota en el cielo." },
-  { answer:"OCEANO", def:"Extensión enorme de agua salada, como el Pacífico o el Atlántico." },
-  { answer:"PARAGUAS", def:"Objeto que se abre para protegerse de la lluvia." },
-  { answer:"QUESO", def:"Alimento derivado de la leche cuajada." },
-  { answer:"RELOJ", def:"Aparato que sirve para medir el tiempo." },
-  { answer:"SEMAFORO", def:"Aparato con luces rojas, verdes y ámbar que regula el tráfico." },
-  { answer:"TELESCOPIO", def:"Instrumento que sirve para observar objetos lejanos, como las estrellas." },
-  { answer:"UNIVERSO", def:"Todo lo que existe: galaxias, estrellas, planetas..." },
-  { answer:"VOLCAN", def:"Montaña que puede expulsar lava, ceniza y gases desde su interior." },
-  { answer:"XILOFONO", def:"Instrumento musical de percusión con láminas que se golpean con baquetas." },
-  { answer:"YOGUR", def:"Alimento lácteo fermentado, cremoso y de sabor ácido." },
-  { answer:"ZAPATO", def:"Prenda que se usa para cubrir y proteger el pie." }
-];
+// También depende de la categoría, con 2 niveles (normal: 4 palabras / dificil: 6 palabras).
+const ROSCO_BANK = {
+  historia: {
+    normal: [
+      { answer:"CASTILLO", def:"Construcción fortificada donde vivían reyes y nobles en la Edad Media." },
+      { answer:"IMPERIO", def:"Territorio gobernado por un emperador, como el romano o el otomano." },
+      { answer:"FARAON", def:"Título de los antiguos gobernantes de Egipto." },
+      { answer:"GUERRA", def:"Conflicto armado entre países o bandos, como la Primera Mundial." },
+      { answer:"DINASTIA", def:"Sucesión de gobernantes de una misma familia." },
+      { answer:"BATALLA", def:"Enfrentamiento armado entre dos ejércitos." },
+      { answer:"MURALLA", def:"Muro defensivo que rodea una ciudad, como la de China." }
+    ],
+    dificil: [
+      { answer:"ARMISTICIO", def:"Acuerdo para poner fin temporal a las hostilidades en una guerra." },
+      { answer:"BOLCHEVIQUE", def:"Miembro del partido revolucionario que tomó el poder en Rusia en 1917." },
+      { answer:"COLONIA", def:"Territorio dominado y administrado por una potencia extranjera." },
+      { answer:"REVOLUCION", def:"Cambio político y social radical, como la francesa o la rusa." },
+      { answer:"TRATADO", def:"Acuerdo formal firmado entre países, como el de Versalles." },
+      { answer:"FEUDALISMO", def:"Sistema social basado en la relación entre señores y vasallos en la Edad Media." }
+    ]
+  },
+  cine: {
+    normal: [
+      { answer:"ACTOR", def:"Persona que interpreta un papel en una película o serie." },
+      { answer:"PELICULA", def:"Obra audiovisual de ficción que se ve en el cine." },
+      { answer:"GUION", def:"Texto escrito con los diálogos y escenas de una película." },
+      { answer:"DIRECTOR", def:"Persona responsable de dirigir el rodaje de una película." },
+      { answer:"ESCENA", def:"Fragmento de una película rodado en un mismo lugar y tiempo." },
+      { answer:"SECUELA", def:"Película que continúa la historia de otra anterior." },
+      { answer:"OSCAR", def:"Premio más prestigioso del cine, entregado en Hollywood." }
+    ],
+    dificil: [
+      { answer:"MONTAJE", def:"Proceso de unir y ordenar las escenas rodadas de una película." },
+      { answer:"CASTING", def:"Proceso de selección de actores para una película." },
+      { answer:"GUIONISTA", def:"Persona que escribe el guion de una película o serie." },
+      { answer:"FOTOGRAMA", def:"Cada una de las imágenes fijas que componen una película." },
+      { answer:"ANIMACION", def:"Técnica que da la ilusión de movimiento a dibujos o modelos." },
+      { answer:"DOBLAJE", def:"Sustitución de la voz original de una película por otra en otro idioma." }
+    ]
+  },
+  ciencia: {
+    normal: [
+      { answer:"ATOMO", def:"Partícula más pequeña de un elemento químico que conserva sus propiedades." },
+      { answer:"CELULA", def:"Unidad más pequeña que forma los seres vivos." },
+      { answer:"GRAVEDAD", def:"Fuerza que atrae los objetos hacia el centro de la Tierra." },
+      { answer:"MOLECULA", def:"Conjunto de átomos unidos químicamente." },
+      { answer:"ELECTRON", def:"Partícula subatómica con carga negativa." },
+      { answer:"BACTERIA", def:"Microorganismo unicelular sin núcleo definido." },
+      { answer:"OXIGENO", def:"Gas esencial para la respiración de los seres vivos." },
+      { answer:"VACUNA", def:"Preparado que genera inmunidad frente a una enfermedad." }
+    ],
+    dificil: [
+      { answer:"FOTOSINTESIS", def:"Proceso por el que las plantas transforman luz solar en energía." },
+      { answer:"GENOMA", def:"Conjunto completo del material genético de un organismo." },
+      { answer:"ISOTOPO", def:"Átomos de un mismo elemento con distinto número de neutrones." },
+      { answer:"NEURONA", def:"Célula especializada en transmitir impulsos nerviosos." },
+      { answer:"CROMOSOMA", def:"Estructura que contiene el ADN organizado dentro de la célula." },
+      { answer:"ENZIMA", def:"Proteína que acelera las reacciones químicas del organismo." }
+    ]
+  },
+  deporte: {
+    normal: [
+      { answer:"ARBITRO", def:"Persona encargada de hacer cumplir las reglas durante un partido." },
+      { answer:"PORTERO", def:"Jugador que defiende la portería en deportes como el fútbol." },
+      { answer:"MEDALLA", def:"Premio metálico que se entrega a los ganadores en unos Juegos Olímpicos." },
+      { answer:"ENTRENADOR", def:"Persona que dirige y prepara a un equipo o deportista." },
+      { answer:"RAQUETA", def:"Utensilio con el que se golpea la pelota en tenis o pádel." },
+      { answer:"BALONCESTO", def:"Deporte de equipo donde se encesta un balón en una canasta." },
+      { answer:"TORNEO", def:"Competición organizada entre varios equipos o jugadores." },
+      { answer:"SAQUE", def:"Golpe con el que se pone en juego el balón, como en tenis o voleibol." }
+    ],
+    dificil: [
+      { answer:"DOPAJE", def:"Uso de sustancias prohibidas para mejorar el rendimiento deportivo." },
+      { answer:"OLIMPIADA", def:"Periodo de cuatro años entre dos ediciones de los Juegos Olímpicos." },
+      { answer:"ELIMINATORIA", def:"Fase de una competición que determina quién sigue adelante." },
+      { answer:"PENALTI", def:"Máxima pena en fútbol, un tiro desde el punto fatídico frente al portero." },
+      { answer:"CAMPEONATO", def:"Competición que determina un ganador en una disciplina deportiva." },
+      { answer:"JABALINA", def:"Disciplina de atletismo en la que se lanza una especie de lanza." }
+    ]
+  },
+  geografia: {
+    normal: [
+      { answer:"CAPITAL", def:"Ciudad principal de un país donde suele estar el gobierno." },
+      { answer:"ISLA", def:"Porción de tierra rodeada de agua por todos lados." },
+      { answer:"VOLCAN", def:"Montaña que puede expulsar lava desde su interior." },
+      { answer:"PENINSULA", def:"Territorio rodeado de agua excepto por una franja de tierra." },
+      { answer:"ARCHIPIELAGO", def:"Conjunto de islas agrupadas en una zona del mar." },
+      { answer:"ECUADOR", def:"Línea imaginaria que divide la Tierra en hemisferio norte y sur." },
+      { answer:"GLACIAR", def:"Gran masa de hielo que se desplaza lentamente por un valle." }
+    ],
+    dificil: [
+      { answer:"MERIDIANO", def:"Línea imaginaria que va de polo a polo en un mapa." },
+      { answer:"ESTRECHO", def:"Paso de mar angosto entre dos costas cercanas, como el de Gibraltar." },
+      { answer:"DESIERTO", def:"Zona muy árida con escasa vegetación, como el Sáhara." },
+      { answer:"FIORDO", def:"Valle glaciar inundado por el mar, típico de Noruega." },
+      { answer:"ALTIPLANO", def:"Meseta elevada situada entre cordilleras montañosas." },
+      { answer:"TUNDRA", def:"Llanura fría y sin árboles típica de las zonas árticas." }
+    ]
+  },
+  musica: {
+    normal: [
+      { answer:"GUITARRA", def:"Instrumento musical de cuerda que se toca con los dedos o una púa." },
+      { answer:"BATERIA", def:"Conjunto de tambores y platillos que marca el ritmo en una banda." },
+      { answer:"CANTANTE", def:"Persona que interpreta canciones con su voz." },
+      { answer:"ORQUESTA", def:"Conjunto numeroso de músicos que tocan instrumentos variados." },
+      { answer:"PENTAGRAMA", def:"Conjunto de cinco líneas horizontales donde se escribe la música." },
+      { answer:"MELODIA", def:"Sucesión de notas musicales que forman una frase reconocible." },
+      { answer:"ESTRIBILLO", def:"Parte de una canción que se repite varias veces." },
+      { answer:"DISCO", def:"Soporte donde se graba y publica la música de un artista." }
+    ],
+    dificil: [
+      { answer:"SINFONIA", def:"Composición musical extensa para orquesta, en varios movimientos." },
+      { answer:"ARMONIA", def:"Combinación de varias notas simultáneas que suenan bien juntas." },
+      { answer:"CONTRABAJO", def:"El instrumento de cuerda más grave y grande de la orquesta." },
+      { answer:"XILOFONO", def:"Instrumento musical de percusión con láminas que se golpean con baquetas." },
+      { answer:"TESITURA", def:"Rango de notas que puede alcanzar cómodamente una voz o instrumento." },
+      { answer:"OCTAVA", def:"Intervalo musical entre una nota y la misma nota en la escala siguiente." }
+    ]
+  }
+};
 
-const CONCURSO_DIFFICULTY = {
-  facil:   { label:'Fácil',   points:1, roscoWords:2, roscoSeconds:120 },
-  media:   { label:'Media',   points:2, roscoWords:3, roscoSeconds:150 },
-  dificil: { label:'Difícil', points:3, roscoWords:4, roscoSeconds:180 }
+// --- Trivial "Concurso" · categoría Música: pruebas propias ---
+// Solo título y artista (datos, no letras) — cantar de memoria y el grupo juzga.
+const SIGUE_LETRA_BANK = {
+  normal: [
+    { title:"Despacito", artist:"Luis Fonsi ft. Daddy Yankee" },
+    { title:"Macarena", artist:"Los del Río" },
+    { title:"Waka Waka", artist:"Shakira" },
+    { title:"Happy", artist:"Pharrell Williams" },
+    { title:"La Bamba", artist:"Ritchie Valens" },
+    { title:"Livin' la Vida Loca", artist:"Ricky Martin" },
+    { title:"Bailando", artist:"Enrique Iglesias" },
+    { title:"Resistiré", artist:"Dúo Dinámico" },
+    { title:"Corazón Partío", artist:"Alejandro Sanz" },
+    { title:"Cielito Lindo", artist:"Canción tradicional mexicana" }
+  ],
+  dificil: [
+    { title:"La Flaca", artist:"Jarabe de Palo" },
+    { title:"Digan lo que digan", artist:"Alejandro Sanz" },
+    { title:"Y nos dieron las diez", artist:"Joaquín Sabina" },
+    { title:"Contigo en la Distancia", artist:"César Portillo de la Luz" },
+    { title:"La Chica Yeyé", artist:"Concha Velasco" }
+  ]
+};
+const PALABRA_CANCIONES_TARGET = { normal: 1, dificil: 2 };
+
+const PRUEBA_INFO = {
+  trivia: { emoji:'🧠', label:'Pregunta de Trivial' },
+  frase:  { emoji:'🎡', label:'Frase oculta' },
+  rosco:  { emoji:'🔤', label:'Rosco' },
+  sigueLetra: { emoji:'🎤', label:'Sigue la letra' },
+  palabraCanciones: { emoji:'🎶', label:'Palabra y canciones' }
 };
 
 const GROUP_COLORS = [
@@ -2085,7 +2501,7 @@ let state = {
     category: null,
     difficulty: null,
     categoryChoices: [],
-    questionIndex: null,
+    currentQuestion: null,
     revealed: false,
     used: {}, // "categoria_dificultad" -> [índices usados]
     // --- modo Concurso ---
@@ -2100,7 +2516,8 @@ let state = {
     fraseRevealed: false,
     // Rosco
     roscoQueue: [],
-    roscoIndex: 0,
+    roscoStatus: [],
+    roscoActiveIndex: 0,
     roscoCorrectCount: 0,
     roscoSecondsLeft: 0,
     roscoTimerId: null,
@@ -2220,6 +2637,70 @@ function normalizeAnswerText(str){
     .replace(/\s+/g, ' ')
     .trim()
     .toUpperCase();
+}
+
+// --- Confirmación propia dentro de la app ---
+// No usamos window.confirm(): en modo "añadido a pantalla de inicio" (PWA
+// standalone) muchos navegadores lo bloquean sin avisar, y el botón parece
+// no hacer nada. Este modal vive fuera de #app para sobrevivir a cualquier
+// render() de la pantalla que esté debajo.
+let confirmModalState = null; // { message, onConfirm }
+function showConfirm(message, onConfirm){
+  confirmModalState = { message, onConfirm };
+  renderConfirmModal();
+}
+function renderConfirmModal(){
+  let modalEl = document.getElementById('confirmModalOverlay');
+  if(!confirmModalState){
+    if(modalEl) modalEl.remove();
+    return;
+  }
+  if(!modalEl){
+    modalEl = document.createElement('div');
+    modalEl.id = 'confirmModalOverlay';
+    modalEl.className = 'confirm-modal-overlay';
+    document.body.appendChild(modalEl);
+  }
+  modalEl.innerHTML = `
+    <div class="confirm-modal-box">
+      <p>${escapeHtml(confirmModalState.message)}</p>
+      <div class="confirm-modal-actions">
+        <button id="confirmModalCancel">Cancelar</button>
+        <button id="confirmModalOk">Sí, continuar</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('confirmModalCancel').onclick = () => {
+    confirmModalState = null;
+    renderConfirmModal();
+  };
+  document.getElementById('confirmModalOk').onclick = () => {
+    const cb = confirmModalState.onConfirm;
+    confirmModalState = null;
+    renderConfirmModal();
+    cb();
+  };
+}
+
+// --- Botón flotante de marcador del Trivial: siempre visible, no molesta ---
+// Vive fuera de #app (igual que el modal de confirmación) para no tener que
+// repetirlo dentro de cada plantilla de cada fase.
+function updateTriviaScoreFab(){
+  const shouldShow = state.screen === 'trivia' && state.trivia.phase !== 'leaderboard';
+  let fab = document.getElementById('triviaScoreFab');
+  if(!shouldShow){
+    if(fab) fab.remove();
+    return;
+  }
+  if(!fab){
+    fab = document.createElement('button');
+    fab.id = 'triviaScoreFab';
+    fab.className = 'trivia-score-fab';
+    fab.onclick = () => viewTriviaLeaderboard();
+    document.body.appendChild(fab);
+  }
+  const me = state.trivia.players[state.trivia.turnIndex];
+  fab.textContent = '🏆' + (me ? ' ' + me.score : '');
 }
 
 function goMenu(){
@@ -2573,7 +3054,7 @@ function setSciSummaryMode(mode){
 }
 
 // --- Trivial ---
-const TRIVIA_CATEGORY_TARGET = 3; // puntos por categoría para completarla
+const TRIVIA_CATEGORY_TARGET = 2; // puntos por categoría para conseguir el "quesito"
 
 function loadTriviaPlayers(){
   state.trivia.players = lsGet('jg_trivia_players', []);
@@ -2592,53 +3073,69 @@ function triviaPlayerComplete(player){
   ensureTriviaCategoryScores(player);
   return Object.keys(TRIVIA_CATEGORIES).every(id => player.categoryScores[id] >= TRIVIA_CATEGORY_TARGET);
 }
-function categoryProgressHtml(player){
+function categoryProgressHtml(player, variant){
   if(!player) return '';
   ensureTriviaCategoryScores(player);
   return `
-    <div class="cat-progress">
+    <div class="cat-progress ${variant === 'light' ? 'on-light' : ''}">
       ${Object.entries(TRIVIA_CATEGORIES).map(([id, c]) => {
         const done = player.categoryScores[id] >= TRIVIA_CATEGORY_TARGET;
-        return `<span class="cat-progress-dot ${done?'done':''}" title="${escapeHtml(c.label)}: ${player.categoryScores[id]}/${TRIVIA_CATEGORY_TARGET}">${c.emoji}</span>`;
+        return `
+          <div class="cat-progress-item">
+            <span class="cat-progress-dot ${done?'done':''}" title="${escapeHtml(c.label)}">${c.emoji}</span>
+            <span class="cat-progress-score ${done?'done':''}">${player.categoryScores[id]}/${TRIVIA_CATEGORY_TARGET}</span>
+          </div>
+        `;
       }).join('')}
     </div>
   `;
 }
 function triviaFooterLinksHtml(){
   return `
-    <div style="text-align:center; margin-top:20px; display:flex; flex-direction:column; gap:8px;">
-      <button class="saved-toggle" id="viewLbBtn">🏆 Ver marcador</button>
+    <div style="text-align:center; margin-top:20px;">
       <button class="saved-toggle" id="resetTriviaBtn">🔄 Reiniciar partida</button>
     </div>
   `;
 }
 function wireTriviaFooterLinks(){
-  const lbBtn = document.getElementById('viewLbBtn');
-  if(lbBtn) lbBtn.onclick = viewTriviaLeaderboard;
   const resetBtn = document.getElementById('resetTriviaBtn');
   if(resetBtn) resetBtn.onclick = resetTriviaGame;
 }
+// Traduce el nivel que ve el jugador (normal/dificil) al nivel de contenido
+// real, según el ajuste de dificultad de la partida elegido en "¿Quién juega?".
+function resolveContentTier(uiDiff){
+  const gameDiff = state.trivia.gameDifficulty || 'normal';
+  if(gameDiff === 'normal'){
+    return uiDiff === 'normal' ? 'normal' : 'dificil';
+  }
+  return uiDiff === 'normal' ? 'dificil' : 'muy_dificil';
+}
 function pickTriviaQuestion(cat, diff){
-  const pool = TRIVIA_CATEGORIES[cat].questions[diff];
-  const key = cat + '_' + diff;
+  const tier = resolveContentTier(diff);
+  const pool = TRIVIA_CATEGORIES[cat].questions[tier];
+  const key = cat + '_' + tier;
   let used = state.trivia.used[key] || [];
   if(used.length >= pool.length) used = []; // se han usado todas: reciclamos
   const available = pool.map((_,i)=>i).filter(i => !used.includes(i));
   const idx = available[Math.floor(Math.random()*available.length)];
   state.trivia.used[key] = [...used, idx];
-  return idx;
+  return pool[idx];
 }
 function startTriviaTurn(){
   const player = state.trivia.players[state.trivia.turnIndex];
   state.trivia.category = null;
   state.trivia.difficulty = null;
-  state.trivia.questionIndex = null;
+  state.trivia.currentQuestion = null;
   state.trivia.revealed = false;
   state.trivia.pruebaType = null;
+  if(triviaPlayerComplete(player)){
+    state.trivia.phase = 'finalReady';
+    return;
+  }
   if(state.trivia.mode === 'concurso'){
-    state.trivia.phase = 'wheel';
+    rollConcursoCategories();
   } else {
-    state.trivia.phase = triviaPlayerComplete(player) ? 'finalReady' : 'roll';
+    rollTriviaCategories();
   }
 }
 
@@ -2647,6 +3144,7 @@ const TRIVIA_STATE_KEY = 'jg_trivia_state';
 function defaultTriviaState(){
   return {
     mode: lsGet('jg_trivia_mode', 'clasico'),
+    gameDifficulty: lsGet('jg_trivia_gamedifficulty', 'normal'),
     phase: 'players',
     players: lsGet('jg_trivia_players', []),
     newPlayerName: '',
@@ -2654,7 +3152,7 @@ function defaultTriviaState(){
     category: null,
     difficulty: null,
     categoryChoices: [],
-    questionIndex: null,
+    currentQuestion: null,
     revealed: false,
     used: {},
     pruebaType: null,
@@ -2668,13 +3166,17 @@ function defaultTriviaState(){
     fraseSolveMode: false,
     fraseFeedback: null,
     roscoQueue: [],
-    roscoIndex: 0,
+    roscoStatus: [],
+    roscoActiveIndex: 0,
     roscoCorrectCount: 0,
     roscoSecondsLeft: 0,
     roscoTimerId: null,
     roscoRevealed: false,
     roscoDifficulty: null,
     roscoFeedback: null,
+    sigueLetraSong: null,
+    palabraCancionesWord: '',
+    palabraCancionesTarget: 1,
     lastConcursoCorrect: null
   };
 }
@@ -2694,6 +3196,11 @@ function openTrivia(){
 function setTriviaMode(mode){
   state.trivia.mode = mode;
   lsSet('jg_trivia_mode', mode);
+  render();
+}
+function setTriviaGameDifficulty(level){
+  state.trivia.gameDifficulty = level;
+  lsSet('jg_trivia_gamedifficulty', level);
   render();
 }
 function addTriviaPlayer(nameArg){
@@ -2720,10 +3227,22 @@ function startTriviaGame(){
 }
 
 // --- Modo Concurso: ruleta de pruebas ---
-function rollConcursoPruebas(){
-  state.trivia.pruebaChoices = shuffle(['trivia', 'frase', 'rosco']).slice(0, 2);
-  state.trivia.phase = 'pruebaChoice';
+function rollConcursoCategories(){
+  state.trivia.categoryChoices = shuffle(Object.keys(TRIVIA_CATEGORIES)).slice(0, 2);
+  state.trivia.phase = 'concursoCategory';
+}
+function selectConcursoCategory(catId){
+  state.trivia.category = catId;
+  rollConcursoPruebas();
   render();
+}
+function rollConcursoPruebas(){
+  const options = ['trivia', 'frase', 'rosco'];
+  if(state.trivia.category === 'musica'){
+    options.push('sigueLetra', 'palabraCanciones');
+  }
+  state.trivia.pruebaChoices = shuffle(options).slice(0, 2);
+  state.trivia.phase = 'pruebaChoice';
 }
 function selectConcursoPrueba(type){
   state.trivia.pruebaType = type;
@@ -2734,24 +3253,83 @@ function selectConcursoDifficulty(diff){
   state.trivia.difficulty = diff;
   const type = state.trivia.pruebaType;
   if(type === 'trivia'){
-    const catIds = Object.keys(TRIVIA_CATEGORIES);
-    const cat = catIds[Math.floor(Math.random()*catIds.length)];
-    state.trivia.category = cat;
-    state.trivia.questionIndex = pickTriviaQuestion(cat, diff);
+    // La categoría ya se eligió al principio del turno
+    const cat = state.trivia.category;
+    state.trivia.currentQuestion = pickTriviaQuestion(cat, diff);
     state.trivia.revealed = false;
     state.trivia.phase = 'question';
   } else if(type === 'frase'){
     startFraseOculta(diff);
   } else if(type === 'rosco'){
     startRosco(diff);
+  } else if(type === 'sigueLetra'){
+    startSigueLetra(diff);
+  } else if(type === 'palabraCanciones'){
+    startPalabraCanciones(diff);
   }
   render();
 }
 
+// --- Sigue la letra (solo título y artista — se canta de memoria, el grupo juzga) ---
+function pickSigueLetraSong(diff){
+  const pool = SIGUE_LETRA_BANK[diff];
+  const key = 'sigueletra_' + diff;
+  let used = state.trivia.used[key] || [];
+  if(used.length >= pool.length) used = [];
+  const available = pool.map((_,i)=>i).filter(i => !used.includes(i));
+  const idx = available[Math.floor(Math.random()*available.length)];
+  state.trivia.used[key] = [...used, idx];
+  return pool[idx];
+}
+function startSigueLetra(diff){
+  const song = pickSigueLetraSong(diff);
+  state.trivia.sigueLetraSong = song;
+  state.trivia.phase = 'sigueLetra';
+}
+function changeSigueLetraSong(){
+  startSigueLetra(state.trivia.difficulty);
+  render();
+}
+function judgeSigueLetra(correct){
+  resolveConcursoResult(correct);
+}
+
+// --- Palabra y canciones (reutiliza el banco de palabras de "Canta la palabra") ---
+function pickPalabraCanciones(diff){
+  const key = 'palabracanciones';
+  let used = state.trivia.used[key] || [];
+  if(used.length >= WORDS.length) used = [];
+  const available = WORDS.map((_,i)=>i).filter(i => !used.includes(i));
+  const idx = available[Math.floor(Math.random()*available.length)];
+  state.trivia.used[key] = [...used, idx];
+  return WORDS[idx];
+}
+function startPalabraCanciones(diff){
+  state.trivia.palabraCancionesWord = pickPalabraCanciones(diff);
+  state.trivia.palabraCancionesTarget = PALABRA_CANCIONES_TARGET[diff];
+  state.trivia.phase = 'palabraCanciones';
+}
+function changePalabraCanciones(){
+  startPalabraCanciones(state.trivia.difficulty);
+  render();
+}
+function judgePalabraCanciones(correct){
+  resolveConcursoResult(correct);
+}
+
 // --- Frase oculta ---
+function pickFrasePhrase(cat, diff){
+  const pool = FRASE_BANK[cat][diff];
+  const key = 'frase_' + cat + '_' + diff;
+  let used = state.trivia.used[key] || [];
+  if(used.length >= pool.length) used = []; // se han usado todas: reciclamos
+  const available = pool.map((_,i)=>i).filter(i => !used.includes(i));
+  const idx = available[Math.floor(Math.random()*available.length)];
+  state.trivia.used[key] = [...used, idx];
+  return pool[idx];
+}
 function startFraseOculta(diff){
-  const pool = FRASE_BANK[diff];
-  const entry = pool[Math.floor(Math.random()*pool.length)];
+  const entry = pickFrasePhrase(state.trivia.category, diff);
   state.trivia.frasePhrase = entry.phrase;
   state.trivia.fraseHint = entry.hint;
   state.trivia.fraseGuessedLetters = [];
@@ -2761,6 +3339,10 @@ function startFraseOculta(diff){
   state.trivia.fraseSolveMode = false;
   state.trivia.fraseFeedback = null;
   state.trivia.phase = 'frase';
+}
+function changeFraseOculta(){
+  startFraseOculta(state.trivia.difficulty);
+  render();
 }
 function pickFraseLetter(letter){
   const f = state.trivia;
@@ -2776,11 +3358,9 @@ function pickFraseLetter(letter){
     resolveConcursoResult(true);
     return;
   }
-  if(f.fraseLettersLeft <= 0){
-    f.fraseRevealed = true;
-    resolveConcursoResult(false);
-    return;
-  }
+  // Quedarse sin letras NO hace perder: simplemente ya no se pueden elegir más
+  // (el teclado se deshabilita solo). El jugador puede seguir intentando
+  // "resolver" escribiendo la frase completa cuando quiera.
   render();
 }
 function startFraseSolveMode(){
@@ -2804,11 +3384,40 @@ function submitFraseAnswer(){
 }
 
 // --- Rosco ---
+function pickRoscoWords(cat, diff, n){
+  const pool = ROSCO_BANK[cat][diff];
+  const key = 'rosco_' + cat + '_' + diff;
+  let used = state.trivia.used[key] || [];
+  if(used.length + n > pool.length) used = []; // no caben suficientes sin repetir: reciclamos
+  const availableIdx = pool.map((_,i)=>i).filter(i => !used.includes(i));
+  const shuffled = shuffle(availableIdx);
+
+  const chosen = [];
+  const usedLetters = new Set();
+  for(const idx of shuffled){
+    const letter = pool[idx].answer[0];
+    if(usedLetters.has(letter)) continue; // no repetir letra inicial en la misma ronda
+    usedLetters.add(letter);
+    chosen.push(idx);
+    if(chosen.length >= n) break;
+  }
+  // Si no se pudo evitar del todo (pool con letras muy repetidas), rellenamos igualmente
+  if(chosen.length < n){
+    for(const idx of shuffled){
+      if(chosen.includes(idx)) continue;
+      chosen.push(idx);
+      if(chosen.length >= n) break;
+    }
+  }
+  state.trivia.used[key] = [...used, ...chosen];
+  return chosen.map(i => pool[i]);
+}
 function startRosco(diff){
-  const info = CONCURSO_DIFFICULTY[diff];
-  const shuffled = shuffle(ROSCO_BANK);
-  state.trivia.roscoQueue = shuffled.slice(0, info.roscoWords);
-  state.trivia.roscoIndex = 0;
+  const info = TRIVIA_DIFFICULTY[diff];
+  const cat = state.trivia.category;
+  state.trivia.roscoQueue = pickRoscoWords(cat, diff, info.roscoWords);
+  state.trivia.roscoStatus = state.trivia.roscoQueue.map(() => 'pending');
+  state.trivia.roscoActiveIndex = 0;
   state.trivia.roscoCorrectCount = 0;
   state.trivia.roscoSecondsLeft = info.roscoSeconds;
   state.trivia.roscoRevealed = false;
@@ -2847,15 +3456,36 @@ function clearRoscoTimer(){
     state.trivia.roscoTimerId = null;
   }
 }
+function nextPendingRoscoIndex(fromIndex){
+  const n = state.trivia.roscoStatus.length;
+  for(let step = 1; step <= n; step++){
+    const idx = (fromIndex + step) % n;
+    if(state.trivia.roscoStatus[idx] === 'pending') return idx;
+  }
+  return -1; // no quedan pendientes
+}
+function advanceRoscoAfterAnswer(){
+  const next = nextPendingRoscoIndex(state.trivia.roscoActiveIndex);
+  if(next === -1){
+    clearRoscoTimer();
+    finishRoscoRound();
+  } else {
+    state.trivia.roscoActiveIndex = next;
+    state.trivia.roscoRevealed = false;
+    state.trivia.roscoFeedback = null;
+    render();
+  }
+}
 function submitRoscoAnswer(){
   const input = document.getElementById('roscoAnswerInput');
-  const current = state.trivia.roscoQueue[state.trivia.roscoIndex];
+  const current = state.trivia.roscoQueue[state.trivia.roscoActiveIndex];
   if(!input || !current) return;
   const typed = normalizeAnswerText(input.value);
   if(!typed) return;
   if(typed === normalizeAnswerText(current.answer)){
-    state.trivia.roscoFeedback = null;
-    judgeRoscoWord(true);
+    state.trivia.roscoStatus[state.trivia.roscoActiveIndex] = 'correct';
+    state.trivia.roscoCorrectCount += 1;
+    advanceRoscoAfterAnswer();
   } else {
     state.trivia.roscoFeedback = 'wrong';
     render();
@@ -2869,28 +3499,24 @@ function giveUpRosco(){
   render();
 }
 function continueAfterRoscoReveal(){
-  judgeRoscoWord(false);
-}
-function judgeRoscoWord(correct){
-  if(correct) state.trivia.roscoCorrectCount += 1;
-  state.trivia.roscoQueue.splice(state.trivia.roscoIndex, 1);
-  state.trivia.roscoRevealed = false;
-  state.trivia.roscoFeedback = null;
-  if(state.trivia.roscoQueue.length === 0){
-    clearRoscoTimer();
-    finishRoscoRound();
-  } else {
-    if(state.trivia.roscoIndex >= state.trivia.roscoQueue.length) state.trivia.roscoIndex = 0;
-    render();
-  }
+  state.trivia.roscoStatus[state.trivia.roscoActiveIndex] = 'given_up';
+  advanceRoscoAfterAnswer();
 }
 function passRoscoWord(){
-  if(state.trivia.roscoQueue.length <= 1) return;
-  const [current] = state.trivia.roscoQueue.splice(state.trivia.roscoIndex, 1);
-  state.trivia.roscoQueue.push(current);
+  const next = nextPendingRoscoIndex(state.trivia.roscoActiveIndex);
+  if(next === -1 || next === state.trivia.roscoActiveIndex) return; // no hay otra pendiente
+  state.trivia.roscoActiveIndex = next;
   state.trivia.roscoRevealed = false;
   state.trivia.roscoFeedback = null;
-  if(state.trivia.roscoIndex >= state.trivia.roscoQueue.length) state.trivia.roscoIndex = 0;
+  render();
+}
+function changeRoscoWord(){
+  const diff = state.trivia.roscoDifficulty;
+  const activeIdx = state.trivia.roscoActiveIndex;
+  const replacement = pickRoscoWords(state.trivia.category, diff, 1)[0];
+  state.trivia.roscoQueue[activeIdx] = replacement;
+  state.trivia.roscoRevealed = false;
+  state.trivia.roscoFeedback = null;
   render();
 }
 function finishRoscoRound(){
@@ -2898,13 +3524,12 @@ function finishRoscoRound(){
   render();
 }
 function collectRoscoPoints(){
-  const player = state.trivia.players[state.trivia.turnIndex];
-  const info = CONCURSO_DIFFICULTY[state.trivia.roscoDifficulty];
-  if(player){
-    player.score += state.trivia.roscoCorrectCount * info.points;
-    saveTriviaPlayers();
+  const pts = state.trivia.roscoCorrectCount * TRIVIA_DIFFICULTY[state.trivia.roscoDifficulty].points;
+  if(state.trivia.roscoCorrectCount > 0){
+    advanceAfterConcursoWin(pts, state.trivia.roscoDifficulty);
+  } else {
+    finishConcursoTurn();
   }
-  finishConcursoTurn();
 }
 
 // --- Cierre común de prueba en modo Concurso ---
@@ -2914,12 +3539,38 @@ function resolveConcursoResult(correct){
   render();
 }
 function collectConcursoPoints(){
-  const player = state.trivia.players[state.trivia.turnIndex];
-  if(player && state.trivia.lastConcursoCorrect){
-    player.score += CONCURSO_DIFFICULTY[state.trivia.difficulty].points;
-    saveTriviaPlayers();
+  if(state.trivia.lastConcursoCorrect){
+    advanceAfterConcursoWin(TRIVIA_DIFFICULTY[state.trivia.difficulty].points, state.trivia.difficulty);
+  } else {
+    finishConcursoTurn();
   }
-  finishConcursoTurn();
+}
+// Suma los puntos a la puntuación total Y al quesito de la categoría elegida,
+// exactamente igual que en el modo Clásico.
+function awardConcursoCategoryPoints(points){
+  const player = state.trivia.players[state.trivia.turnIndex];
+  if(!player) return false;
+  ensureTriviaCategoryScores(player);
+  const cat = state.trivia.category;
+  player.score += points;
+  if(cat && player.categoryScores[cat] !== undefined) player.categoryScores[cat] += points;
+  saveTriviaPlayers();
+  return triviaPlayerComplete(player);
+}
+// Tras acertar en Concurso: suma puntos, y si completa las categorías pasa a
+// la pregunta final; si no, si era difícil elige categoría libremente (igual
+// que en Clásico), y si no, vuelve a sortear 2 categorías nuevas.
+function advanceAfterConcursoWin(points, diffKey){
+  const complete = awardConcursoCategoryPoints(points);
+  if(complete){
+    state.trivia.phase = 'finalReady';
+  } else if(diffKey === 'dificil'){
+    state.trivia.categoryChoices = Object.keys(TRIVIA_CATEGORIES);
+    state.trivia.phase = 'concursoCategory';
+  } else {
+    rollConcursoCategories();
+  }
+  render();
 }
 function finishConcursoTurn(){
   clearRoscoTimer();
@@ -2931,7 +3582,6 @@ function finishConcursoTurn(){
 function rollTriviaCategories(){
   state.trivia.categoryChoices = shuffle(Object.keys(TRIVIA_CATEGORIES)).slice(0, 2);
   state.trivia.phase = 'category';
-  render();
 }
 function selectTriviaCategory(catId){
   state.trivia.category = catId;
@@ -2947,7 +3597,7 @@ function backToTriviaCategory(){
 function selectTriviaDifficulty(diff){
   const cat = state.trivia.category;
   state.trivia.difficulty = diff;
-  state.trivia.questionIndex = pickTriviaQuestion(cat, diff);
+  state.trivia.currentQuestion = pickTriviaQuestion(cat, diff);
   state.trivia.revealed = false;
   state.trivia.phase = 'question';
   render();
@@ -2962,11 +3612,11 @@ function answerTrivia(correct){
   const cat = state.trivia.category;
 
   if(state.trivia.mode === 'concurso'){
-    if(correct && player){
-      player.score += CONCURSO_DIFFICULTY[diff].points;
-      saveTriviaPlayers();
+    if(correct){
+      advanceAfterConcursoWin(TRIVIA_DIFFICULTY[diff].points, diff);
+    } else {
+      finishConcursoTurn();
     }
-    finishConcursoTurn();
     return;
   }
 
@@ -2979,7 +3629,7 @@ function answerTrivia(correct){
 
     state.trivia.category = null;
     state.trivia.difficulty = null;
-    state.trivia.questionIndex = null;
+    state.trivia.currentQuestion = null;
     state.trivia.revealed = false;
 
     if(triviaPlayerComplete(player)){
@@ -2989,7 +3639,7 @@ function answerTrivia(correct){
       state.trivia.categoryChoices = Object.keys(TRIVIA_CATEGORIES);
       state.trivia.phase = 'category';
     } else {
-      state.trivia.phase = 'roll';
+      rollTriviaCategories();
     }
   } else {
     // Fallo: pasa el turno al siguiente jugador
@@ -3003,7 +3653,7 @@ function drawTriviaFinalQuestion(){
   const cat = catIds[Math.floor(Math.random()*catIds.length)];
   state.trivia.category = cat;
   state.trivia.difficulty = 'dificil';
-  state.trivia.questionIndex = pickTriviaQuestion(cat, 'dificil');
+  state.trivia.currentQuestion = pickTriviaQuestion(cat, 'dificil');
   state.trivia.revealed = false;
   state.trivia.phase = 'finalQuestion';
   render();
@@ -3011,7 +3661,7 @@ function drawTriviaFinalQuestion(){
 function answerTriviaFinal(correct){
   state.trivia.category = null;
   state.trivia.difficulty = null;
-  state.trivia.questionIndex = null;
+  state.trivia.currentQuestion = null;
   state.trivia.revealed = false;
   if(correct){
     state.trivia.phase = 'victory';
@@ -3034,7 +3684,12 @@ function triviaKeepPlayingAfterVictory(){
   render();
 }
 function resetTriviaGame(){
-  if(!confirm('¿Reiniciar la partida del todo? Se borran las puntuaciones y se cancela la prueba en curso. Los jugadores añadidos se mantienen, pero empiezan de 0.')) return;
+  showConfirm(
+    '¿Reiniciar la partida del todo? Se borran las puntuaciones y se cancela la prueba en curso. Los jugadores añadidos se mantienen, pero empiezan de 0.',
+    performTriviaReset
+  );
+}
+function performTriviaReset(){
   clearRoscoTimer();
   const t = state.trivia;
   t.players.forEach(p => { p.score = 0; p.categoryScores = {}; ensureTriviaCategoryScores(p); });
@@ -3043,7 +3698,7 @@ function resetTriviaGame(){
   t.category = null;
   t.difficulty = null;
   t.categoryChoices = [];
-  t.questionIndex = null;
+  t.currentQuestion = null;
   t.revealed = false;
   t.pruebaType = null;
   t.pruebaChoices = [];
@@ -3056,12 +3711,16 @@ function resetTriviaGame(){
   t.fraseSolveMode = false;
   t.fraseFeedback = null;
   t.roscoQueue = [];
-  t.roscoIndex = 0;
+  t.roscoStatus = [];
+  t.roscoActiveIndex = 0;
   t.roscoCorrectCount = 0;
   t.roscoSecondsLeft = 0;
   t.roscoRevealed = false;
   t.roscoDifficulty = null;
   t.roscoFeedback = null;
+  t.sigueLetraSong = null;
+  t.palabraCancionesWord = '';
+  t.palabraCancionesTarget = 1;
   t.lastConcursoCorrect = null;
   t.phase = 'players'; // siempre vuelve a la pantalla donde se elige el modo y se ven los jugadores
   render();
@@ -3458,45 +4117,24 @@ function attachFingersHandlers(){
 function render(){
   if(state.screen === 'menu'){
     renderMenu();
-    return;
-  }
-
-  if(state.screen === 'song'){
+  } else if(state.screen === 'song'){
     renderSong();
-    return;
-  }
-
-  if(state.screen === 'citadels'){
+  } else if(state.screen === 'citadels'){
     renderCitadels();
-    return;
-  }
-
-  if(state.screen === 'fingers'){
+  } else if(state.screen === 'fingers'){
     renderFingers();
-    return;
-  }
-
-  if(state.screen === 'quizzes'){
+  } else if(state.screen === 'quizzes'){
     renderQuizzes();
-    return;
-  }
-
-  if(state.screen === 'sciquiz'){
+  } else if(state.screen === 'sciquiz'){
     renderSciQuiz();
-    return;
-  }
-
-  if(state.screen === 'trivia'){
+  } else if(state.screen === 'trivia'){
     renderTrivia();
-    return;
-  }
-
-  if(state.screen === 'settings'){
+  } else if(state.screen === 'settings'){
     renderSettings();
-    return;
+  } else {
+    renderProbable();
   }
-
-  renderProbable();
+  updateTriviaScoreFab();
 }
 
 function renderMenu(){
@@ -4219,13 +4857,20 @@ function renderTrivia(){
       <header>
         <div class="eyebrow">🧠 Trivial</div>
         <h1>¿Quién <em>juega</em>?</h1>
-        <div class="sub">${t.mode === 'concurso' ? 'Cada turno, una ruleta elige la prueba: pregunta de trivial, Frase oculta o Rosco. Vosotros elegís la dificultad.' : 'Cada turno se sortean 2 categorías al azar. Cuanto más difícil la pregunta, más puntos vale — y si aciertas la difícil, eliges tú la próxima categoría. Completa las 5 categorías (3 pts en cada una) para desbloquear la pregunta final y ganar.'}</div>
+        <div class="sub">${t.mode === 'concurso' ? 'Cada turno eliges categoría, luego una ruleta elige la prueba: pregunta de trivial, Frase oculta, Rosco o (con Música) alguna prueba especial.' : 'Cada turno se sortean 2 categorías al azar. Cuanto más difícil la pregunta, más puntos vale — y si aciertas la difícil, eliges tú la próxima categoría. Completa las 6 categorías (2 pts en cada una) para desbloquear la pregunta final y ganar.'}</div>
       </header>
 
       <div class="mode-tabs">
         <button class="mode-tab ${t.mode==='clasico'?'active':''}" id="modeClasico">Clásico</button>
         <button class="mode-tab ${t.mode==='concurso'?'active':''}" id="modeConcurso">Concurso</button>
       </div>
+
+      <div class="stepper-label" style="margin-top:18px;">Dificultad de la partida</div>
+      <div class="mode-tabs">
+        <button class="mode-tab ${t.gameDifficulty==='normal'?'active':''}" id="gameDiffNormal">Normal</button>
+        <button class="mode-tab ${t.gameDifficulty==='dificil'?'active':''}" id="gameDiffDificil">Difícil</button>
+      </div>
+      <div class="fingers-hint" style="text-align:center; margin-top:4px;">${t.gameDifficulty==='dificil' ? 'Las preguntas "Normal" y "Difícil" del juego usan aquí el nivel difícil y muy difícil del banco de preguntas.' : 'Nivel estándar: para partidas más exigentes, cambia a "Difícil".'}</div>
 
       <div style="margin-top:22px;">
         ${t.players.map((p,i) => `
@@ -4246,6 +4891,8 @@ function renderTrivia(){
     document.getElementById('backMenu').onclick = goMenu;
     document.getElementById('modeClasico').onclick = () => setTriviaMode('clasico');
     document.getElementById('modeConcurso').onclick = () => setTriviaMode('concurso');
+    document.getElementById('gameDiffNormal').onclick = () => setTriviaGameDifficulty('normal');
+    document.getElementById('gameDiffDificil').onclick = () => setTriviaGameDifficulty('dificil');
     const input = document.getElementById('newTriviaInput');
     input.oninput = (e) => { state.trivia.newPlayerName = e.target.value; };
     input.onkeydown = (e) => { if(e.key === 'Enter') addTriviaPlayer(); };
@@ -4260,24 +4907,6 @@ function renderTrivia(){
   }
 
   const currentPlayer = t.players[t.turnIndex];
-
-  if(t.phase === 'roll'){
-    app.innerHTML = `
-      <button class="top-back" id="backMenu">← Menú</button>
-      <header>
-        <div class="trivia-turn-badge">Turno de ${currentPlayer ? escapeHtml(currentPlayer.name) : '—'} · ${currentPlayer ? currentPlayer.score : 0} pts</div>
-        <h1>Saca <em>categorías</em></h1>
-        <div class="sub">Pulsa para que salgan 2 categorías al azar entre las que elegir.</div>
-      </header>
-      ${categoryProgressHtml(currentPlayer)}
-      <button class="trivia-roll-btn" id="rollBtn">🎲 Sacar 2 categorías</button>
-      ${triviaFooterLinksHtml()}
-    `;
-    document.getElementById('backMenu').onclick = goMenu;
-    document.getElementById('rollBtn').onclick = rollTriviaCategories;
-    wireTriviaFooterLinks();
-    return;
-  }
 
   if(t.phase === 'category'){
     const isFree = t.categoryChoices.length > 2;
@@ -4344,7 +4973,7 @@ function renderTrivia(){
   if(t.phase === 'question'){
     const cat = TRIVIA_CATEGORIES[t.category];
     const diff = TRIVIA_DIFFICULTY[t.difficulty];
-    const question = cat.questions[t.difficulty][t.questionIndex];
+    const question = t.currentQuestion;
     app.innerHTML = `
       <button class="top-back" id="backMenu">← Menú</button>
       <header>
@@ -4401,7 +5030,7 @@ function renderTrivia(){
 
   if(t.phase === 'finalQuestion'){
     const cat = TRIVIA_CATEGORIES[t.category];
-    const question = cat.questions[t.difficulty][t.questionIndex];
+    const question = t.currentQuestion;
     app.innerHTML = `
       <button class="top-back" id="backMenu">← Menú</button>
       <header>
@@ -4457,41 +5086,48 @@ function renderTrivia(){
 
   // ---- Modo Concurso ----
 
-  const PRUEBA_INFO = {
-    trivia: { emoji:'🧠', label:'Pregunta de Trivial' },
-    frase:  { emoji:'🎡', label:'Frase oculta' },
-    rosco:  { emoji:'🔤', label:'Rosco' }
-  };
-
-  if(t.phase === 'wheel'){
+  if(t.phase === 'concursoCategory'){
     app.innerHTML = `
       <button class="top-back" id="backMenu">← Menú</button>
       <header>
         <div class="trivia-turn-badge">Turno de ${currentPlayer ? escapeHtml(currentPlayer.name) : '—'} · ${currentPlayer ? currentPlayer.score : 0} pts</div>
-        <h1>Saca <em>pruebas</em></h1>
-        <div class="sub">Pulsa para que salgan 2 pruebas al azar entre las que elegir: Trivial, Frase oculta o Rosco.</div>
+        <h1>Elige <em>categoría</em></h1>
+        <div class="sub">Después saldrá la prueba (Trivial, Frase oculta, Rosco...) ya sobre esta categoría.</div>
       </header>
-      <button class="trivia-roll-btn" id="rollPruebaBtn">🎲 Sacar 2 pruebas</button>
-      <div style="text-align:center; margin-top:20px; display:flex; flex-direction:column; gap:8px;">
-        <button class="saved-toggle" id="viewLbBtn">🏆 Ver marcador</button>
+      ${categoryProgressHtml(currentPlayer)}
+      <div class="trivia-grid">
+        ${t.categoryChoices.map(id => {
+          const c = TRIVIA_CATEGORIES[id];
+          return `
+            <button class="trivia-cat-btn" data-cat="${id}">
+              <span class="emoji">${c.emoji}</span>
+              <span class="label">${c.label}</span>
+            </button>
+          `;
+        }).join('')}
+      </div>
+      <div style="text-align:center; margin-top:20px;">
         <button class="saved-toggle" id="resetTriviaBtn">🔄 Reiniciar partida</button>
       </div>
     `;
     document.getElementById('backMenu').onclick = goMenu;
-    document.getElementById('viewLbBtn').onclick = viewTriviaLeaderboard;
-    document.getElementById('rollPruebaBtn').onclick = rollConcursoPruebas;
     document.getElementById('resetTriviaBtn').onclick = resetTriviaGame;
+    app.querySelectorAll('[data-cat]').forEach(btn => {
+      btn.onclick = () => selectConcursoCategory(btn.dataset.cat);
+    });
     return;
   }
 
   if(t.phase === 'pruebaChoice'){
+    const catInfo = TRIVIA_CATEGORIES[t.category];
     app.innerHTML = `
       <button class="top-back" id="backMenu">← Menú</button>
       <header>
         <div class="trivia-turn-badge">Turno de ${currentPlayer ? escapeHtml(currentPlayer.name) : '—'} · ${currentPlayer ? currentPlayer.score : 0} pts</div>
         <h1>Elige <em>prueba</em></h1>
-        <div class="sub">Elige una de estas dos pruebas.</div>
+        <div class="sub">Categoría: ${catInfo.emoji} ${catInfo.label}. Elige una de estas dos pruebas.</div>
       </header>
+      ${categoryProgressHtml(currentPlayer)}
       <div class="trivia-grid">
         ${t.pruebaChoices.map(id => {
           const info = PRUEBA_INFO[id];
@@ -4517,6 +5153,7 @@ function renderTrivia(){
 
   if(t.phase === 'concursoDifficulty'){
     const info = PRUEBA_INFO[t.pruebaType];
+    const diffSource = TRIVIA_DIFFICULTY;
     app.innerHTML = `
       <button class="top-back" id="backMenu">← Menú</button>
       <header>
@@ -4525,8 +5162,8 @@ function renderTrivia(){
         <div class="sub">Elige la dificultad. ${t.pruebaType === 'rosco' ? 'Determina cuántas palabras y cuánto tiempo tenéis.' : t.pruebaType === 'frase' ? 'Determina la longitud de la frase a adivinar.' : 'Más difícil, más puntos si aciertas.'}</div>
       </header>
       <div class="trivia-diff-row">
-        ${Object.entries(CONCURSO_DIFFICULTY).map(([id, d]) => `
-          <button class="trivia-diff-btn" data-diff="${id}" style="background:${TRIVIA_DIFFICULTY[id].color};">
+        ${Object.entries(diffSource).map(([id, d]) => `
+          <button class="trivia-diff-btn" data-diff="${id}" style="background:${d.color};">
             <span class="diff-name">${d.label}</span>
             <span class="diff-points">${t.pruebaType === 'rosco' ? d.roscoWords + ' palabras · ' + d.roscoSeconds + 's' : '+' + d.points + ' pt' + (d.points===1?'':'s')}</span>
           </button>
@@ -4550,7 +5187,7 @@ function renderTrivia(){
     app.innerHTML = `
       <button class="top-back" id="backMenu">← Menú</button>
       <header>
-        <div class="trivia-turn-badge">Turno de ${currentPlayer ? escapeHtml(currentPlayer.name) : '—'} · ${CONCURSO_DIFFICULTY[t.difficulty].label}</div>
+        <div class="trivia-turn-badge">Turno de ${currentPlayer ? escapeHtml(currentPlayer.name) : '—'} · ${TRIVIA_DIFFICULTY[t.difficulty].label}</div>
         <h1>🎡 Frase oculta</h1>
       </header>
       <div class="frase-hint">Pista: ${escapeHtml(t.fraseHint)}</div>
@@ -4560,7 +5197,7 @@ function renderTrivia(){
           : `<div class="frase-letter-box">${(t.fraseGuessedLetters.includes(ch) || t.fraseRevealed) ? escapeHtml(ch) : ''}</div>`
         ).join('')}
       </div>
-      <div class="frase-status">Letras restantes: ${t.fraseLettersLeft} / ${loadAppSettings().maxLetters}</div>
+      <div class="frase-status">${t.fraseLettersLeft > 0 ? `Letras restantes: ${t.fraseLettersLeft} / ${loadAppSettings().maxLetters}` : 'Sin letras — pero podéis intentar resolver la frase'}</div>
       ${!t.fraseSolveMode ? `
         <div class="frase-letter-grid">
           ${LETTER_GRID.map(l => {
@@ -4571,8 +5208,9 @@ function renderTrivia(){
           }).join('')}
         </div>
         <button class="quiz-option" id="resolveFraseBtn" style="text-align:center; font-weight:700;">🙋 Ya sé la frase — resolver</button>
-        <div style="text-align:center; margin-top:16px;">
-          <button class="saved-toggle" id="resetTriviaBtn">🔄 Reiniciar partida</button>
+        <div class="quiz-actions" style="margin-top:12px;">
+          <button class="quiz-btn-secondary" id="changeFraseBtn">🔄 Cambiar frase</button>
+          <button class="quiz-btn-secondary" id="resetTriviaBtn">🏠 Reiniciar partida</button>
         </div>
       ` : `
         <div class="quiz-card">
@@ -4589,6 +5227,8 @@ function renderTrivia(){
     document.getElementById('backMenu').onclick = goMenu;
     const resolveBtn = document.getElementById('resolveFraseBtn');
     if(resolveBtn) resolveBtn.onclick = startFraseSolveMode;
+    const changeFraseBtn = document.getElementById('changeFraseBtn');
+    if(changeFraseBtn) changeFraseBtn.onclick = changeFraseOculta;
     const resetBtn1 = document.getElementById('resetTriviaBtn');
     if(resetBtn1) resetBtn1.onclick = resetTriviaGame;
     app.querySelectorAll('.frase-letter-btn').forEach(btn => {
@@ -4606,7 +5246,74 @@ function renderTrivia(){
     return;
   }
 
+  if(t.phase === 'sigueLetra'){
+    const song = t.sigueLetraSong;
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="trivia-turn-badge">Turno de ${currentPlayer ? escapeHtml(currentPlayer.name) : '—'} · ${TRIVIA_DIFFICULTY[t.difficulty].label}</div>
+        <h1>🎤 Sigue la letra</h1>
+      </header>
+      <div class="quiz-card" style="text-align:center;">
+        <div class="quiz-qnum">Canta lo que recuerdes de</div>
+        <div class="quiz-qtext">"${escapeHtml(song.title)}"<br><span style="font-size:14px; font-weight:400; color:rgba(36,21,54,0.6);">${escapeHtml(song.artist)}</span></div>
+        <div class="trivia-answer-label" style="margin-top:16px;">¿Lo ha conseguido?</div>
+        <div class="trivia-judge-row" style="margin-top:10px;">
+          <button style="background:var(--coral);" id="failBtn">❌ No</button>
+          <button style="background:var(--teal);" id="correctBtn">✅ Sí (+${TRIVIA_DIFFICULTY[t.difficulty].points})</button>
+        </div>
+      </div>
+      <div class="quiz-actions" style="margin-top:14px;">
+        <button class="quiz-btn-secondary" id="changeSongBtn">🔄 Cambiar canción</button>
+        <button class="quiz-btn-secondary" id="resetTriviaBtn">🏠 Reiniciar partida</button>
+      </div>
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    document.getElementById('correctBtn').onclick = () => judgeSigueLetra(true);
+    document.getElementById('failBtn').onclick = () => judgeSigueLetra(false);
+    document.getElementById('changeSongBtn').onclick = changeSigueLetraSong;
+    document.getElementById('resetTriviaBtn').onclick = resetTriviaGame;
+    return;
+  }
+
+  if(t.phase === 'palabraCanciones'){
+    app.innerHTML = `
+      <button class="top-back" id="backMenu">← Menú</button>
+      <header>
+        <div class="trivia-turn-badge">Turno de ${currentPlayer ? escapeHtml(currentPlayer.name) : '—'} · ${TRIVIA_DIFFICULTY[t.difficulty].label}</div>
+        <h1>🎶 Palabra y canciones</h1>
+      </header>
+      <div class="quiz-card" style="text-align:center;">
+        <div class="quiz-qnum">Nombrad ${t.palabraCancionesTarget} canción${t.palabraCancionesTarget===1?'':'es'} que contengan la palabra</div>
+        <div class="quiz-qtext">"${escapeHtml(t.palabraCancionesWord)}"</div>
+        <div class="trivia-answer-label" style="margin-top:16px;">¿Lo han conseguido?</div>
+        <div class="trivia-judge-row" style="margin-top:10px;">
+          <button style="background:var(--coral);" id="failBtn">❌ No</button>
+          <button style="background:var(--teal);" id="correctBtn">✅ Sí (+${TRIVIA_DIFFICULTY[t.difficulty].points})</button>
+        </div>
+      </div>
+      <div class="quiz-actions" style="margin-top:14px;">
+        <button class="quiz-btn-secondary" id="changeWordBtn">🔄 Cambiar palabra</button>
+        <button class="quiz-btn-secondary" id="resetTriviaBtn">🏠 Reiniciar partida</button>
+      </div>
+    `;
+    document.getElementById('backMenu').onclick = goMenu;
+    document.getElementById('correctBtn').onclick = () => judgePalabraCanciones(true);
+    document.getElementById('failBtn').onclick = () => judgePalabraCanciones(false);
+    document.getElementById('changeWordBtn').onclick = changePalabraCanciones;
+    document.getElementById('resetTriviaBtn').onclick = resetTriviaGame;
+    return;
+  }
+
   if(t.phase === 'concursoResult'){
+    let summaryLine = '';
+    if(t.pruebaType === 'frase'){
+      summaryLine = `La frase era: <strong>${escapeHtml(t.frasePhrase)}</strong>`;
+    } else if(t.pruebaType === 'sigueLetra'){
+      summaryLine = `La canción era: <strong>${escapeHtml(t.sigueLetraSong.title)}</strong> — ${escapeHtml(t.sigueLetraSong.artist)}`;
+    } else if(t.pruebaType === 'palabraCanciones'){
+      summaryLine = `La palabra era: <strong>${escapeHtml(t.palabraCancionesWord)}</strong> (necesitabais ${t.palabraCancionesTarget})`;
+    }
     app.innerHTML = `
       <button class="top-back" id="backMenu">← Menú</button>
       <header>
@@ -4614,7 +5321,7 @@ function renderTrivia(){
         <h1>${t.lastConcursoCorrect ? 'Puntos sumados' : 'Sin puntos'}</h1>
       </header>
       <div class="quiz-card" style="text-align:center;">
-        <p style="font-size:14px; line-height:1.5;">La frase era: <strong>${escapeHtml(t.frasePhrase)}</strong></p>
+        <p style="font-size:14px; line-height:1.5;">${summaryLine}</p>
       </div>
       <button class="start-fingers-btn" id="nextTurnBtn">Siguiente turno</button>
     `;
@@ -4624,18 +5331,34 @@ function renderTrivia(){
   }
 
   if(t.phase === 'rosco'){
-    const current = t.roscoQueue[t.roscoIndex];
-    const info = CONCURSO_DIFFICULTY[t.roscoDifficulty];
+    const current = t.roscoQueue[t.roscoActiveIndex];
+    const info = TRIVIA_DIFFICULTY[t.roscoDifficulty];
+    const pendingCount = t.roscoStatus.filter(s => s === 'pending').length;
     app.innerHTML = `
       <button class="top-back" id="backMenu">← Menú</button>
       <header>
-        <div class="trivia-turn-badge">Turno de ${currentPlayer ? escapeHtml(currentPlayer.name) : '—'} · Palabra ${t.roscoQueue.length ? (info.roscoWords - t.roscoQueue.length + 1) : 0}/${info.roscoWords}</div>
+        <div class="trivia-turn-badge">Turno de ${currentPlayer ? escapeHtml(currentPlayer.name) : '—'} · ${info.roscoWords} palabras</div>
         <h1>🔤 Rosco</h1>
       </header>
       <div class="rosco-timer" id="roscoTimerDisplay">${Math.floor(t.roscoSecondsLeft/60)}:${String(t.roscoSecondsLeft%60).padStart(2,'0')}</div>
-      <div class="rosco-progress">Acertadas: ${t.roscoCorrectCount} · Quedan ${t.roscoQueue.length} en la ronda</div>
+      <div class="rosco-progress">Acertadas: ${t.roscoCorrectCount} · Quedan ${pendingCount} por responder</div>
+
+      <div class="rosco-column">
+        ${t.roscoQueue.map((w, i) => {
+          const status = t.roscoStatus[i];
+          const isActive = i === t.roscoActiveIndex && status === 'pending';
+          return `
+            <div class="rosco-col-row ${isActive ? 'active' : ''}">
+              <div class="rosco-col-letter ${status === 'correct' ? 'correct' : ''}">${w.answer[0]}</div>
+              <div class="rosco-col-blank ${status === 'correct' ? 'correct' : ''} ${status === 'given_up' ? 'given-up' : ''}">
+                ${status === 'correct' ? escapeHtml(w.answer) : (status === 'given_up' ? escapeHtml(w.answer) : '')}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
       ${current ? `
-        <div class="rosco-letter-badge">${current.answer[0]}</div>
         <div class="quiz-card">
           <div class="quiz-qnum">Definición</div>
           <div class="quiz-qtext">${escapeHtml(current.def)}</div>
@@ -4652,11 +5375,12 @@ function renderTrivia(){
               <button class="quiz-btn-secondary" id="passBtn">➡️ Pasapalabra</button>
               <button class="quiz-btn-primary" id="checkBtn">✅ Comprobar</button>
             </div>
-            <div style="text-align:center; margin-top:10px;">
-              <button class="saved-toggle" id="giveUpBtn">Rendirse y ver respuesta</button>
+            <div class="quiz-actions" style="margin-top:8px;">
+              <button class="quiz-btn-secondary" id="changeRoscoBtn">🔄 Cambiar palabra</button>
+              <button class="quiz-btn-secondary" id="giveUpBtn">🏳️ Rendirse</button>
             </div>
-            <div style="text-align:center; margin-top:6px;">
-              <button class="saved-toggle" id="resetTriviaBtn">🔄 Reiniciar partida</button>
+            <div style="text-align:center; margin-top:10px;">
+              <button class="saved-toggle" id="resetTriviaBtn">🏠 Reiniciar partida</button>
             </div>
           `}
         </div>
@@ -4667,6 +5391,8 @@ function renderTrivia(){
     if(passBtn) passBtn.onclick = passRoscoWord;
     const checkBtn = document.getElementById('checkBtn');
     if(checkBtn) checkBtn.onclick = submitRoscoAnswer;
+    const changeRoscoBtn = document.getElementById('changeRoscoBtn');
+    if(changeRoscoBtn) changeRoscoBtn.onclick = changeRoscoWord;
     const giveUpBtn = document.getElementById('giveUpBtn');
     if(giveUpBtn) giveUpBtn.onclick = giveUpRosco;
     const resetBtn2 = document.getElementById('resetTriviaBtn');
@@ -4682,7 +5408,7 @@ function renderTrivia(){
   }
 
   if(t.phase === 'roscoResult'){
-    const info = CONCURSO_DIFFICULTY[t.roscoDifficulty];
+    const info = TRIVIA_DIFFICULTY[t.roscoDifficulty];
     const pts = t.roscoCorrectCount * info.points;
     app.innerHTML = `
       <button class="top-back" id="backMenu">← Menú</button>
@@ -4718,7 +5444,7 @@ function renderTrivia(){
               </div>
               <div class="leaderboard-percent">${p.score} pts</div>
             </div>
-            ${categoryProgressHtml(p)}
+            ${categoryProgressHtml(p, 'light')}
           </div>
         `).join('') || `<div class="empty-players">No hay jugadores.</div>`}
         <div class="quiz-actions" style="margin-top:16px;">
